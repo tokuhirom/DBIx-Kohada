@@ -13,12 +13,16 @@ inc/Module/Install/Win32.pm
 inc/Module/Install/WriteAll.pm
 inc/Pod/Markdown.pm
 lib/DBIx/Yakinny.pm
+lib/DBIx/Yakinny/Iterator.pm
+lib/DBIx/Yakinny/Row.pm
+lib/DBIx/Yakinny/Schema.pm
 Makefile.PL
 MANIFEST			This list of files
 META.yml
 README
 README.mkdn
 t/00_compile.t
+t/01_simple.t
 xt/01_podspell.t
 xt/02_perlcritic.t
 xt/03_pod.t

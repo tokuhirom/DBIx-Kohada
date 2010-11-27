@@ -4,6 +4,10 @@ DBIx::Yakinny -
 
 # SYNOPSIS
 
+    package MyApp::DB;
+    use base qw/DBIx::Yakinny/;
+    __PACKAGE__->schema_class('MyApp::DB::Schema');
+
     package MyApp::DB::Schema;
     use base qw/DBIx::Yakinny::Schema/;
 
@@ -30,12 +34,13 @@ DBIx::Yakinny -
     use DBI;
 
     my $dbh = DBI->connect(...);
-    my $db = DBIx::Yakinny->new(schema => 'MyApp::DB::Schema', dbh => $dbh);
+    my $db = MyApp::DB->new(dbh => $dbh);
     $db->dbh; # => #dbh
     my $user = $db->insert('user' => {name => 'john', email => 'john@exapmle.com'});
     say $user->name; # => john
     $user->name('mark');
     $user->update;
+    $user->delete();
 
     my @users = $db->search_by_sql('user' => q{SELECT * FROM user WHERE name LIKE 'dai%'});
 
@@ -46,6 +51,17 @@ DBIx::Yakinny -
 # DESCRIPTION
 
 DBIx::Yakinny is
+
+# TODO
+
+trigger support
+
+    BEFORE_INSERT
+    AFTER_INSERT
+    BEFORE_UPDATE
+    AFTER_UPDATE
+    BEFORE_DELETE
+    AFTER_DELETE
 
 # AUTHOR
 
