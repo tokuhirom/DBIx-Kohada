@@ -135,7 +135,9 @@ sub bulk_insert {
         $self->dbh->do($sql, {}, @binds);
     } else {
         for my $row (@$rows) {
-            $self->insert($table => $row);
+            # do not use $self->insert here for consistent behaivour
+            my ($sql, @binds) = $self->abstract->insert($table, $row);
+            $self->dbh->do($sql, {}, @binds);
         }
     }
     return;
