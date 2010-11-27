@@ -8,36 +8,33 @@ use Class::Accessor::Lite;
 use Carp ();
 use Class::Load ();
 
-use SQL::Abstract::Limit;
-use SQL::Abstract::Plugin::InsertMulti;
+use SQL::Builder;
 
 use DBIx::Yakinny::Iterator;
 
-Class::Accessor::Lite->mk_accessors(__PACKAGE__, qw/dbh abstract/);
+Class::Accessor::Lite->mk_accessors(__PACKAGE__, qw/dbh query_builder/);
 
 sub new {
     my $class = shift;
     my %args = @_ == 1 ? %{$_[0]} : @_;
     my $self = bless {%args}, $class;
-    $self->{abstract} ||= do {
-        SQL::Abstract::Limit->new(limit_dialect => $self->dbh);
-    };
+    $self->{query_builder} ||= SQL::Builder->new(dbh => $self->{dbh});
     return $self;
 }
 
-sub schema_class {
+sub set_schema_class {
     my $class = shift;
     my $schema_class = shift;
     Class::Load::load_class($schema_class);
     no strict 'refs';
-    *{"${class}::schema_class"} = sub { $schema_class }; # replace itself.
+    *{"${class}::schema_class"} = sub { $schema_class };
 }
 
 sub single {
     my ($self, $table, $where,) = @_;
 
     my $row_class = $self->schema_class->get_class_for($table);
-    my ($sql, @bind) = $self->abstract->select($table, [$row_class->columns], $where);
+    my ($sql, @bind) = $self->query_builder->select($table, [$row_class->columns], $where);
     my $sth = $self->dbh->prepare($sql);
     $sth->execute(@bind);
     my $row = $sth->fetchrow_hashref();
@@ -50,10 +47,10 @@ sub single {
 }
 
 sub search  {
-    my ($self, $table, $where, $order_by, $limit, $offset) = @_;
+    my ($self, $table, $where, $opt) = @_;
     my $row_class = $self->schema_class->get_class_for($table);
 
-    my ($sql, @bind) = $self->abstract->select($table, [$row_class->columns], $where, $order_by, $limit, $offset);
+    my ($sql, @bind) = $self->query_builder->select($table, [$row_class->columns], $where, $opt);
     my $sth = $self->dbh->prepare($sql);
     $sth->execute(@bind);
     if (wantarray) {
@@ -69,9 +66,25 @@ sub search  {
 }
 
 sub insert  {
-    my ($self, $table, $attr) = @_;
-    my ($sql, @bind) = $self->abstract->insert($table, $attr);
+    my ($self, $table, $values) = @_;
+
+    my ($sql, @bind) = $self->query_builder->insert($table, $values);
     $self->dbh->do($sql, {}, @bind);
+    if (defined wantarray) {
+        my $current_last_insert_id = $self->last_insert_id;
+        if ($current_last_insert_id) {
+            return $self->retrieve($table => $current_last_insert_id);
+        }
+
+        # find row
+        my $row_class = $self->schema_class->get_class_for($table);
+        my $pk = $row_class->pk;
+        my $criteria = {};
+        for my $pk1 (@{$row_class->pk}) {
+            $criteria->{$pk1} = $values->{$pk1};
+        }
+        return $self->single($table => $criteria);
+    }
 }
 
 sub last_insert_id {
@@ -94,23 +107,7 @@ sub find_or_create {
     my ($self, $table, $values) = @_;
     my $row = $self->single($table, $values);
     return $row if $row;
-
-    my $row_class = $self->schema_class->get_class_for($table);
-
-    my $last_last_insert_id = $self->last_insert_id;
-    $self->insert($table, $values);
-    my $current_last_insert_id = $self->last_insert_id;
-    if ($last_last_insert_id && $current_last_insert_id && $last_last_insert_id ne $current_last_insert_id) {
-        return $self->retrieve($table => $current_last_insert_id);
-    }
-
-    # find row
-    my $pk = $row_class->pk;
-    my $criteria = {};
-    for my $pk1 (@{$row_class->pk}) {
-        $criteria->{$pk1} = $values->{$pk1};
-    }
-    return $self->single($table => $criteria);
+    return $self->insert($table, $values);
 }
 
 sub retrieve {
@@ -131,12 +128,12 @@ sub bulk_insert {
     my ($self, $table, $rows) = @_;
     my $driver = $self->dbh->{Driver}->{Name};
     if ($driver eq 'mysql') {
-        my ($sql, @binds) = $self->abstract->insert_multi($table, $rows);
+        my ($sql, @binds) = $self->query_builder->insert_multi($table, $rows);
         $self->dbh->do($sql, {}, @binds);
     } else {
         for my $row (@$rows) {
             # do not use $self->insert here for consistent behaivour
-            my ($sql, @binds) = $self->abstract->insert($table, $row);
+            my ($sql, @binds) = $self->query_builder->insert($table, $row);
             $self->dbh->do($sql, {}, @binds);
         }
     }
@@ -188,13 +185,6 @@ DBIx::Yakinny -
     package MyApp::DB::User;
     use base qw/DBIx::Yakinny::Row/;
 
-    __PACKAGE__->add_trigger(
-        'BEFORE_INSERT' => sub {
-            my $attr = shift;
-            $attr->{token} ||= rand();
-        }
-    );
-
     package main;
     use MyApp::DB::Schema;
     use DBIx::Yakinny::Schema;
@@ -219,16 +209,19 @@ DBIx::Yakinny -
 
 DBIx::Yakinny is
 
-=head1 TODO
+=head1 FAQ
 
-trigger support
+=over 4
 
-    BEFORE_INSERT
-    AFTER_INSERT
-    BEFORE_UPDATE
-    AFTER_UPDATE
-    BEFORE_DELETE
-    AFTER_DELETE
+=item How do you use trigger like Class::DBI?
+
+You should use trigger on RDBMS layer. It is reliable.
+
+=item How do you use inflate/deflate?
+
+This module does not support it.
+
+=back
 
 =head1 AUTHOR
 

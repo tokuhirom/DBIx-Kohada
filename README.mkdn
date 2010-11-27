@@ -21,13 +21,6 @@ DBIx::Yakinny -
     package MyApp::DB::User;
     use base qw/DBIx::Yakinny::Row/;
 
-    __PACKAGE__->add_trigger(
-        'BEFORE_INSERT' => sub {
-            my $attr = shift;
-            $attr->{token} ||= rand();
-        }
-    );
-
     package main;
     use MyApp::DB::Schema;
     use DBIx::Yakinny::Schema;
@@ -52,16 +45,15 @@ DBIx::Yakinny -
 
 DBIx::Yakinny is
 
-# TODO
+# FAQ
 
-trigger support
+- How do you use trigger like Class::DBI?
 
-    BEFORE_INSERT
-    AFTER_INSERT
-    BEFORE_UPDATE
-    AFTER_UPDATE
-    BEFORE_DELETE
-    AFTER_DELETE
+You should use trigger on RDBMS layer. It is reliable.
+
+- How do you use inflate/deflate?
+
+This module does not support it.
 
 # AUTHOR
 

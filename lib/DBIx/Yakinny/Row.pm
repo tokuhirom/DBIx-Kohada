@@ -49,13 +49,13 @@ sub where_cond {
 
 sub update {
     my ($self, $attr) = @_;
-    my ($sql, @binds) = $self->yakinny->abstract->update($self->table, $attr, $self->where_cond);
+    my ($sql, @binds) = $self->yakinny->query_builder->update($self->table, $attr, $self->where_cond);
     $self->yakinny->dbh->do($sql, {}, @binds) == 1 or die;
 }
 
 sub delete {
     my $self = shift;
-    my ($sql, @binds) = $self->yakinny->abstract->delete($self->table, $self->where_cond);
+    my ($sql, @binds) = $self->yakinny->query_builder->delete($self->table, $self->where_cond);
     $self->yakinny->dbh->do($sql, {}, @binds) == 1 or die;
 }
 

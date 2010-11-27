@@ -6,7 +6,7 @@ package t::Sweet;
 {
     package MyApp::DB;
     use base qw/DBIx::Yakinny/;
-    __PACKAGE__->schema_class('MyApp::DB::Schema');
+    __PACKAGE__->set_schema_class('MyApp::DB::Schema');
 }
 
 {
@@ -57,14 +57,14 @@ package t::Sweet;
         };
 
         subtest 'search returns array' => sub {
-            my @users = $db->search(user => {name => {-like => 'ba%'}}, 'name');
+            my @users = $db->search(user => {name => {like => 'ba%'}}, {order_by => 'name'});
             is scalar(@users), 2;
             is $users[0]->name, 'bar';
             is $users[1]->name, 'baz';
         };
 
         subtest 'search returns iter' => sub {
-            my $iter = $db->search(user => {name => {-like => 'ba%'}}, 'name');
+            my $iter = $db->search(user => {name => {like => 'ba%'}}, {order_by => 'name'});
             my @names = qw/bar baz/;
             while (my $user = $iter->next) {
                 my $expected = shift @names;
