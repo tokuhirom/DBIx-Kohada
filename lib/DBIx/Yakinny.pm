@@ -34,7 +34,7 @@ sub schema_class {
 }
 
 sub single {
-    my ($self, $table, $where, $opt) = @_;
+    my ($self, $table, $where,) = @_;
 
     my $row_class = $self->schema_class->get_class_for($table);
     my ($sql, @bind) = $self->abstract->select($table, [$row_class->columns], $where);
