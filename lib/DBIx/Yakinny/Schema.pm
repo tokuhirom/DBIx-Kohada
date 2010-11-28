@@ -4,6 +4,7 @@ use warnings;
 use utf8;
 use Class::Load;
 use Class::Method::Modifiers;
+use DBIx::Yakinny::Util;
 
 sub register_table {
     my ($class, %attr) = @_;
@@ -11,8 +12,16 @@ sub register_table {
     no strict 'refs';
     no warnings 'once';
     ${"${class}::TABLES"}->{$table} = \%attr;
-    my $klass = $attr{class} or die "missing mandatory parameter 'class'";
-    Class::Load::load_class($klass);
+    my $klass;
+    if ($klass = $attr{class}) {
+        Class::Load::load_class($klass);
+    } else {
+        $klass = DBIx::Yakinny::Util::create_anon_class(
+            prefix => "${class}::AnonRow",
+            isa    => ['DBIx::Yakinny::Row']
+        );
+        $attr{class} = $klass;
+    }
     $klass->add_column($_) for @{$attr{columns}};
 
     my $pk = $attr{pk};

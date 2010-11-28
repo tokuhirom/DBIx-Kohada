@@ -33,7 +33,7 @@ sub set_schema_class {
 sub single {
     my ($self, $table, $where,) = @_;
 
-    my $row_class = $self->schema_class->get_class_for($table);
+    my $row_class = $self->schema_class->get_class_for($table) or Carp::croak "unknown table: $table";
     my ($sql, @bind) = $self->query_builder->select($table, [$row_class->columns], $where);
     my $sth = $self->dbh->prepare($sql);
     $sth->execute(@bind);
