@@ -207,7 +207,7 @@ DBIx::Yakinny -
 
 =head1 DESCRIPTION
 
-DBIx::Yakinny is
+DBIx::Yakinny is yet another O/R mapper based on Active Record strategy.
 
 =head1 FAQ
 
