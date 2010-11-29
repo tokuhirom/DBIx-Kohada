@@ -4,6 +4,7 @@ use Test::More;
 use Test::Requires 'Time::Piece', 'DBD::SQLite';
 use DBI;
 use t::Sweet;
+use DBIx::Yakinny;
 
 # initialize
 my $dbh = DBI->connect('dbi:SQLite:', '', '', {RaiseError => 1}) or die 'cannot connect to db';

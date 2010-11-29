@@ -3,6 +3,7 @@ use strict;
 use warnings;
 use utf8;
 use base qw/Class::Data::Inheritable/;
+use Class::Accessor::Lite;
 
 Class::Accessor::Lite->mk_accessors(qw/yakinny/);
 

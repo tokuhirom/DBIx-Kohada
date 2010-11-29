@@ -1,13 +1,9 @@
 use strict;
 use warnings;
 use utf8;
+use DBIx::Yakinny;
 
 package t::Sweet;
-{
-    package MyApp::DB;
-    use base qw/DBIx::Yakinny/;
-    __PACKAGE__->set_schema_class('MyApp::DB::Schema');
-}
 
 {
     package MyApp::DB::Schema;
@@ -36,7 +32,10 @@ package t::Sweet;
     sub run {
         my ($class, $dbh) = @_;
 
-        my $db = MyApp::DB->new(dbh => $dbh);
+        my $db = DBIx::Yakinny->new(
+            dbh    => $dbh,
+            schema => 'MyApp::DB::Schema',
+        );
 
         subtest 'insert' => sub {
             $db->insert(user => {name => 'foo', email => 'foo@example.com'});

@@ -12,28 +12,21 @@ use SQL::Builder;
 
 use DBIx::Yakinny::Iterator;
 
-Class::Accessor::Lite->mk_accessors(__PACKAGE__, qw/dbh query_builder/);
+Class::Accessor::Lite->mk_accessors(__PACKAGE__, qw/dbh query_builder schema/);
 
 sub new {
     my $class = shift;
     my %args = @_ == 1 ? %{$_[0]} : @_;
+    Carp::croak("missing mandatory parameter: schema") unless $args{schema};
     my $self = bless {%args}, $class;
     $self->{query_builder} ||= SQL::Builder->new(dbh => $self->{dbh});
     return $self;
 }
 
-sub set_schema_class {
-    my $class = shift;
-    my $schema_class = shift;
-    Class::Load::load_class($schema_class);
-    no strict 'refs';
-    *{"${class}::schema_class"} = sub { $schema_class };
-}
-
 sub single {
     my ($self, $table, $where,) = @_;
 
-    my $row_class = $self->schema_class->get_class_for($table) or Carp::croak "unknown table: $table";
+    my $row_class = $self->schema->get_class_for($table) or Carp::croak "unknown table: $table";
     my ($sql, @bind) = $self->query_builder->select($table, [$row_class->columns], $where);
     my $sth = $self->dbh->prepare($sql);
     $sth->execute(@bind);
@@ -48,7 +41,7 @@ sub single {
 
 sub search  {
     my ($self, $table, $where, $opt) = @_;
-    my $row_class = $self->schema_class->get_class_for($table);
+    my $row_class = $self->schema->get_class_for($table);
 
     my ($sql, @bind) = $self->query_builder->select($table, [$row_class->columns], $where, $opt);
     my $sth = $self->dbh->prepare($sql);
@@ -77,7 +70,7 @@ sub insert  {
         }
 
         # find row
-        my $row_class = $self->schema_class->get_class_for($table);
+        my $row_class = $self->schema->get_class_for($table);
         my $pk = $row_class->pk;
         my $criteria = {};
         for my $pk1 (@{$row_class->pk}) {
@@ -113,7 +106,7 @@ sub find_or_create {
 sub retrieve {
     my ($self, $table, $vals) = @_;
     $vals = [$vals] unless ref $vals;
-    my $row_class = $self->schema_class->get_class_for($table);
+    my $row_class = $self->schema->get_class_for($table);
 
     my $criteria = {};
     for (my $i=0; $i<@{$row_class->pk}; $i++) {
@@ -142,7 +135,7 @@ sub bulk_insert {
 
 sub search_by_sql {
     my ($self, $table, $sql, @binds) = @_;
-    my $row_class = $self->schema_class->get_class_for($table);
+    my $row_class = $self->schema->get_class_for($table);
     my $sth = $self->dbh->prepare($sql);
     $sth->execute(@binds);
     if (wantarray) {
@@ -168,10 +161,6 @@ DBIx::Yakinny -
 
 =head1 SYNOPSIS
 
-    package MyApp::DB;
-    use base qw/DBIx::Yakinny/;
-    __PACKAGE__->schema_class('MyApp::DB::Schema');
-
     package MyApp::DB::Schema;
     use base qw/DBIx::Yakinny::Schema/;
 
@@ -191,7 +180,10 @@ DBIx::Yakinny -
     use DBI;
 
     my $dbh = DBI->connect(...);
-    my $db = MyApp::DB->new(dbh => $dbh);
+    my $db = DBIx::Yakinny->new(
+        dbh     => $dbh,
+        schemas => 'MyApp::DB::Schema',
+    );
     $db->dbh; # => #dbh
     my $user = $db->insert('user' => {name => 'john', email => 'john@exapmle.com'});
     say $user->name; # => john

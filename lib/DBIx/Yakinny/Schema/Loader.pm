@@ -34,9 +34,6 @@ __END__
     package MyApp::DB;
     use base qw/DBIx::Yakinny::Schema/;
     my $dbh = DBI->connect(...) or die;
-    __PACKAGE__->set_schema_class(
-        DBIx::Yakinny::Schema::Loader->load(
-            dbh          => $dbh,
-        )
-    );
+    my $schema = DBIx::Yakinny::Schema::Loader->load( dbh => $dbh );
+    my $db = DBIx::Yakinny->new(dbh => $dbh, schema => $schema);
 

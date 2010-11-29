@@ -2,12 +2,7 @@ use strict;
 use warnings;
 use Test::More;
 use Test::Requires 'Time::Piece', 'DBD::SQLite';
-
-{
-    package MyApp::DB;
-    use base qw/DBIx::Yakinny/;
-    __PACKAGE__->set_schema_class('MyApp::DB::Schema');
-}
+use DBIx::Yakinny;
 
 {
     package MyApp::DB::Schema;
@@ -28,7 +23,7 @@ $dbh->do(q{
         created_on int
     );
 });
-my $db = MyApp::DB->new(dbh => $dbh);
+my $db = DBIx::Yakinny->new(dbh => $dbh, schema => 'MyApp::DB::Schema');
 $db->insert(user => {name => 'foo', email => 'foo@example.com'});
 is $db->last_insert_id, 1, 'insert,last_insert_id';
 my $user = $db->single(user => {user_id => 1});

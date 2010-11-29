@@ -4,10 +4,6 @@ DBIx::Yakinny -
 
 # SYNOPSIS
 
-    package MyApp::DB;
-    use base qw/DBIx::Yakinny/;
-    __PACKAGE__->schema_class('MyApp::DB::Schema');
-
     package MyApp::DB::Schema;
     use base qw/DBIx::Yakinny::Schema/;
 
@@ -27,7 +23,10 @@ DBIx::Yakinny -
     use DBI;
 
     my $dbh = DBI->connect(...);
-    my $db = MyApp::DB->new(dbh => $dbh);
+    my $db = DBIx::Yakinny->new(
+        dbh     => $dbh,
+        schemas => 'MyApp::DB::Schema',
+    );
     $db->dbh; # => #dbh
     my $user = $db->insert('user' => {name => 'john', email => 'john@exapmle.com'});
     say $user->name; # => john
@@ -43,7 +42,7 @@ DBIx::Yakinny -
 
 # DESCRIPTION
 
-DBIx::Yakinny is
+DBIx::Yakinny is yet another O/R mapper based on Active Record strategy.
 
 # FAQ
 
