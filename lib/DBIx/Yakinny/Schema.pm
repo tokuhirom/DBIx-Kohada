@@ -7,12 +7,11 @@ use Class::Load;
 use Class::Method::Modifiers;
 use DBIx::Yakinny::Util;
 
+our %TABLES;
+
 sub register_table {
     my ($class, %attr) = @_;
     my $table = $attr{table};
-    no strict 'refs';
-    no warnings 'once';
-    ${"${class}::TABLES"}->{$table} = \%attr;
     my $klass;
     if ($klass = $attr{class}) {
         Class::Load::load_class($klass);
@@ -22,8 +21,10 @@ sub register_table {
             prefix => "${class}::AnonRow",
             isa    => ['DBIx::Yakinny::Row']
         );
-        $attr{class} = $klass;
     }
+
+    $TABLES{$class}->{$table} = $klass;
+
     $klass->add_column($_) for @{$attr{columns}};
 
     my $pk = $attr{pk};
@@ -37,8 +38,7 @@ sub register_table {
 
 sub get_class_for {
     my ($class, $table) = @_;
-    no strict 'refs';
-    return ${"${class}::TABLES"}->{$table}->{class};
+    return $TABLES{$class}->{$table};
 }
 
 1;
