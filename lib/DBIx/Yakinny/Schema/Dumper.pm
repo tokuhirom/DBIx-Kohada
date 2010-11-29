@@ -21,7 +21,7 @@ sub dump {
         $ret .= "__PACKAGE__->register_table(\n";
         $ret .= sprintf("  table => q{%s},\n", $table->name);
         $ret .= sprintf("  columns => [qw(%s)],\n", join(' ', map { $_->name } $table->columns));
-        $ret .= sprintf("  pk      => [qw(%s)],\n", join(' ', map { $_->name } $table->primary_key));
+        $ret .= sprintf("  primary_key      => [qw(%s)],\n", join(' ', map { $_->name } $table->primary_key));
         $ret .= ");\n\n";
     }
     $ret .= "\n1;\n";

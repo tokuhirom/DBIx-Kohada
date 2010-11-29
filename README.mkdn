@@ -11,7 +11,7 @@ DBIx::Yakinny -
         class   => 'MyApp::DB::User',
         table   => 'user',
         columns => [qw/user_id name email/],
-        pk      => 'user_id',
+        primary_key      => 'user_id',
     );
 
     package MyApp::DB::User;

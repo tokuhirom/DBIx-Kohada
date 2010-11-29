@@ -10,7 +10,7 @@ use DBIx::Yakinny;
     __PACKAGE__->register_table(
         table   => 'user',
         columns => [qw/user_id name email created_on/],
-        pk      => 'user_id',
+        primary_key      => 'user_id',
     );
 }
 

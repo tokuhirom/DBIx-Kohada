@@ -18,7 +18,7 @@ sub load {
         $schema->register_table(
             table   => $table->name,
             columns => [ map { $_->name } $table->columns ],
-            pk      => [ map { $_->name } $table->primary_key ],
+            primary_key      => [ map { $_->name } $table->primary_key ],
         );
     }
     return $schema;

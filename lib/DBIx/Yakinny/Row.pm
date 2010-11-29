@@ -26,10 +26,10 @@ sub columns {
     @{"${class}::COLUMNS"};
 }
 
-sub set_pk {
+sub set_primary_key {
     my ($class, $name) = @_;
     no strict 'refs';
-    *{"${class}::pk"} = sub { $name };
+    *{"${class}::primary_key"} = sub { $name };
 }
 
 sub set_table {
@@ -45,7 +45,7 @@ sub get_column {
 
 sub where_cond {
     my ($self) = @_;
-    +{ map { $_ => $self->get_column($_) } @{ $self->pk } }
+    +{ map { $_ => $self->get_column($_) } @{ $self->primary_key } }
 }
 
 sub update {

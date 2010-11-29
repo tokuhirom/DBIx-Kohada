@@ -27,9 +27,9 @@ sub register_table {
 
     $klass->add_column($_) for @{$attr{columns}};
 
-    my $pk = $attr{pk};
-    $pk = [$pk] unless ref $pk;
-    $klass->set_pk($pk);
+    my $primary_key = $attr{primary_key};
+    $primary_key = [$primary_key] unless ref $primary_key;
+    $klass->set_primary_key($primary_key);
 
     $klass->set_table($table);
 

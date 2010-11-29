@@ -70,10 +70,10 @@ sub insert  {
 
         # find row
         my $row_class = $self->schema->get_class_for($table);
-        my $pk = $row_class->pk;
+        my $primary_key = $row_class->primary_key;
         my $criteria = {};
-        for my $pk1 (@{$row_class->pk}) {
-            $criteria->{$pk1} = $values->{$pk1};
+        for my $primary_key1 (@{$row_class->primary_key}) {
+            $criteria->{$primary_key1} = $values->{$primary_key1};
         }
         return $self->single($table => $criteria);
     }
@@ -108,8 +108,8 @@ sub retrieve {
     my $row_class = $self->schema->get_class_for($table);
 
     my $criteria = {};
-    for (my $i=0; $i<@{$row_class->pk}; $i++) {
-        my $k = $row_class->pk->[$i];
+    for (my $i=0; $i<@{$row_class->primary_key}; $i++) {
+        my $k = $row_class->primary_key->[$i];
         my $v = $vals->[$i];
         $criteria->{$k} = $v;
     }
@@ -167,7 +167,7 @@ DBIx::Yakinny -
         class   => 'MyApp::DB::User',
         table   => 'user',
         columns => [qw/user_id name email/],
-        pk      => 'user_id',
+        primary_key      => 'user_id',
     );
 
     package MyApp::DB::User;

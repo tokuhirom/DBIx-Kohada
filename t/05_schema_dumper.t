@@ -30,7 +30,7 @@ $dbh->do(q{
 my $db = DBIx::Yakinny->new(dbh => $dbh, schema => 'MyApp::DB::Schema');
 my $user = $db->schema->get_class_for('user');
 is($user->table, 'user');
-is(join(',', @{$user->pk}), 'user_id');
+is(join(',', @{$user->primary_key}), 'user_id');
 is(join(',', $user->columns), 'user_id,name,email,created_on');
 
 done_testing;
