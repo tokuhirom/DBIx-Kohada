@@ -10,6 +10,7 @@ requires 'SQL::Abstract::Plugin::InsertMulti' => 0.03;
 requires 'DBI';
 requires 'SQL::Abstract::Limit';
 requires 'Class::Load';
+requires 'parent';
 
 tests 't/*.t t/*/*.t t/*/*/*.t t/*/*/*/*.t';
 test_requires 'Test::More' => 0.96; # done_testing, subtest

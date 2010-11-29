@@ -4,7 +4,7 @@ use warnings;
 use utf8;
 use DBIx::Inspector;
 use DBIx::Yakinny::Util;
-use DBIx::Yakinny::Schema;
+use DBIx::Yakinny::Schema::Object;
 use Carp ();
 
 sub load {
@@ -12,18 +12,16 @@ sub load {
     my %args = @_==1 ? %{$_[0]} : @_;
 
     my $dbh = $args{dbh} or Carp::croak("missing mandatory parameter 'dbh'");
-    my $schema_class = $args{schema_class} || DBIx::Yakinny::Util::create_anon_class(prefix => 'DBIx::Yakinny::AnonSchema');
+    my $schema = DBIx::Yakinny::Schema::Object->new();
     my $inspector = DBIx::Inspector->new(dbh => $dbh);
-    no strict 'refs';
-    @{"${schema_class}::ISA"} = qw/DBIx::Yakinny::Schema/;
     for my $table ($inspector->tables) {
-        $schema_class->register_table(
+        $schema->register_table(
             table   => $table->name,
             columns => [ map { $_->name } $table->columns ],
             pk      => [ map { $_->name } $table->primary_key ],
         );
     }
-    return $schema_class;
+    return $schema;
 }
 
 1;

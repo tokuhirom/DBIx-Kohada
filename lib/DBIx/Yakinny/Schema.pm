@@ -23,7 +23,7 @@ sub register_table {
         );
     }
 
-    $TABLES{$class}->{$table} = $klass;
+    $class->set_class_table($table, $klass);
 
     $klass->add_column($_) for @{$attr{columns}};
 
@@ -34,6 +34,11 @@ sub register_table {
     $klass->set_table($table);
 
     return $klass; # created row class name
+}
+
+sub set_class_table {
+    my ($class, $table, $row_class) = @_;
+    $TABLES{$class}->{$table} = $row_class;
 }
 
 sub get_class_for {
