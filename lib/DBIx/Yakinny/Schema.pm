@@ -31,6 +31,8 @@ sub register_table {
     $klass->set_pk($pk);
 
     $klass->set_table($table);
+
+    return $klass; # created row class name
 }
 
 sub get_class_for {
