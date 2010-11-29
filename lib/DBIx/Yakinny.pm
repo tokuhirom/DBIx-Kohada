@@ -11,7 +11,7 @@ use Class::Load ();
 use DBIx::Yakinny::Iterator;
 use DBIx::Yakinny::QueryBuilder;
 
-Class::Accessor::Lite->mk_accessors(__PACKAGE__, qw/dbh query_builder schema/);
+Class::Accessor::Lite->mk_accessors(qw/dbh query_builder schema/);
 
 sub new {
     my $class = shift;
