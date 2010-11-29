@@ -2,6 +2,7 @@ package DBIx::Yakinny::Schema;
 use strict;
 use warnings;
 use utf8;
+use Carp ();
 use Class::Load;
 use Class::Method::Modifiers;
 use DBIx::Yakinny::Util;
@@ -15,6 +16,7 @@ sub register_table {
     my $klass;
     if ($klass = $attr{class}) {
         Class::Load::load_class($klass);
+        Carp::croak("$klass must inherit DBIx::Yakinny::Row") unless $klass->isa('DBIx::Yakinny::Row');
     } else {
         $klass = DBIx::Yakinny::Util::create_anon_class(
             prefix => "${class}::AnonRow",
