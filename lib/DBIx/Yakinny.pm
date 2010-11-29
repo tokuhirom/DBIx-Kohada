@@ -8,9 +8,8 @@ use Class::Accessor::Lite;
 use Carp ();
 use Class::Load ();
 
-use SQL::Builder;
-
 use DBIx::Yakinny::Iterator;
+use DBIx::Yakinny::QueryBuilder;
 
 Class::Accessor::Lite->mk_accessors(__PACKAGE__, qw/dbh query_builder schema/);
 
@@ -19,7 +18,7 @@ sub new {
     my %args = @_ == 1 ? %{$_[0]} : @_;
     Carp::croak("missing mandatory parameter: schema") unless $args{schema};
     my $self = bless {%args}, $class;
-    $self->{query_builder} ||= SQL::Builder->new(dbh => $self->{dbh});
+    $self->{query_builder} ||= DBIx::Yakinny::QueryBuilder->new(dbh => $self->{dbh});
     return $self;
 }
 
