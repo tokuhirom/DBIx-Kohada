@@ -208,6 +208,8 @@ DBIx::Yakinny is yet another O/R mapper based on Active Record strategy.
 
 You should use trigger on RDBMS layer. It is reliable.
 
+And so, if you *really* want it, you can override the methods on DBIx::Yakinny.
+
 =item How do you use inflate/deflate?
 
 This module does not support it. But, you can use it by method modifier with L<Class::Method::Modifiers>.
@@ -215,6 +217,10 @@ This module does not support it. But, you can use it by method modifier with L<C
 =item How do you use tracer like DBIx::Skinny::Profiler::Trace?
 
 You can use tracer by DBI. And you can use the advanced tracer like this article: L<http://d.hatena.ne.jp/tokuhirom/20101201/1291196584>.
+
+=item How do you use relationships?
+
+It is not supported in core. You can write a plugin to do it.
 
 =back
 
