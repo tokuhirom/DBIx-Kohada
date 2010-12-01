@@ -3,9 +3,7 @@ use strict;
 use warnings;
 use utf8;
 use base qw/Class::Data::Inheritable/;
-use Class::Accessor::Lite;
-
-Class::Accessor::Lite->mk_accessors(qw/yakinny/);
+use Carp ();
 
 sub new {
     my $class = shift;
@@ -69,6 +67,34 @@ sub refetch {
                @{ $self->primary_key }
         }
     );
+}
+
+sub yakinny {
+    my $y = $_[0]->{yakinny};
+    if ($y) {
+        return $y;
+    } else {
+        Carp::croak("There is no DBIx::Yakinny object in this instance(This situation is caused by Storable::freeze).");
+    }
+}
+
+# storable stuff
+{
+    our $thaw_yakinny;
+
+    sub STORABLE_freeze {
+        my ($self, $is_cloning) = @_;
+        return if $is_cloning;
+        my $to_serialize = +{%$self};
+        delete $to_serialize->{yakinny};
+        return (Storable::freeze($to_serialize));
+    }
+
+    sub STORABLE_thaw {
+        my ($self, $cloning, $ice) = @_;
+        %$self = %{ Storable::thaw($ice) };
+        $self->{yakinny} = $thaw_yakinny;
+    }
 }
 
 1;
