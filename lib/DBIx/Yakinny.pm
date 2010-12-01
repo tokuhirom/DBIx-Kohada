@@ -220,6 +220,14 @@ You can use tracer by DBI. And you can use the advanced tracer like this article
 
 It is not supported in core. You can write a plugin to do it.
 
+=item How do you handle reconnect?
+
+use L<DBIx::Connector>.
+
+=item How do you use nested transaction?
+
+use L<DBIx::Connector>.
+
 =back
 
 =head1 AUTHOR
