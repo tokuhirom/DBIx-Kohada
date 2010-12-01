@@ -70,6 +70,18 @@ use [DBIx::Connector](http://search.cpan.org/perldoc?DBIx::Connector).
 
 use [DBIx::Connector](http://search.cpan.org/perldoc?DBIx::Connector).
 
+- How do you use on_connect_do like DBIC?
+
+use $dbh->{Callbacks}->{connected}.
+
+- How do you use display the profiling result like [DBIx::Skinny::Profiler](http://search.cpan.org/perldoc?DBIx::Skinny::Profiler)?
+
+use [Devel::KYTProf](http://search.cpan.org/perldoc?Devel::KYTProf).
+
+- How do you display pretty error message?
+
+use DBI's callback functions. fore modetails, see eg/dbi-callback.pl.
+
 # AUTHOR
 
 Tokuhiro Matsuno <tokuhirom AAJKLFJEF GMAIL COM>
