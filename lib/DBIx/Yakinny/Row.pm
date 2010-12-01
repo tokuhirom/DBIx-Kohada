@@ -60,13 +60,7 @@ sub delete {
 
 sub refetch {
     my $self = shift;
-
-    return $self->yakinny->single(
-        $self->table => +{
-            map { $_ => $self->get_column($_) }
-               @{ $self->primary_key }
-        }
-    );
+    return $self->yakinny->single( $self->table => $self->where_cond );
 }
 
 sub yakinny {
