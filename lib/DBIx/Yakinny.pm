@@ -228,6 +228,18 @@ use L<DBIx::Connector>.
 
 use L<DBIx::Connector>.
 
+=item How do you use on_connect_do like DBIC?
+
+use $dbh->{Callbacks}->{connected}.
+
+=item How do you use display the profiling result like L<DBIx::Skinny::Profiler>?
+
+use L<Devel::KYTProf>.
+
+=item How do you display pretty error message?
+
+use DBI's callback functions. fore modetails, see eg/dbi-callback.pl.
+
 =back
 
 =head1 AUTHOR
