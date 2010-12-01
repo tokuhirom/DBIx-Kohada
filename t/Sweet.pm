@@ -120,6 +120,14 @@ package t::Sweet;
             is $u2->name, 'u2';
         };
 
+        subtest 'refetch' => sub {
+            my $u = $db->insert(user => {name => 'u9'});
+            $u->update({email => 'u9@example.com'});
+            is $u->email, undef;
+            $u = $u->refetch();
+            is $u->email, 'u9@example.com';
+        };
+
         subtest 'update' => sub {
             {
                 my $u = $db->single(user => {name => 'u1'});

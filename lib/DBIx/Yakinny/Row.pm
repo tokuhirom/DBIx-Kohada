@@ -60,4 +60,15 @@ sub delete {
     $self->yakinny->dbh->do($sql, {}, @binds) == 1 or die;
 }
 
+sub refetch {
+    my $self = shift;
+
+    return $self->yakinny->single(
+        $self->table => +{
+            map { $_ => $self->get_column($_) }
+               @{ $self->primary_key }
+        }
+    );
+}
+
 1;
