@@ -12,16 +12,18 @@ sub new {
 }
 
 sub add_column {
-    my ($class, $name) = @_;
+    my ($class, $stuff) = @_;
+    $stuff = +{ COLUMN_NAME => $stuff } unless ref $stuff;
+    my $name = $stuff->{COLUMN_NAME} || Carp::croak "missing COLUMN_NAME";
     no strict 'refs';
     *{"${class}::$name"} = sub { $_[0]->get_column($name) };
-    push @{"${class}::COLUMNS"}, $name;
+    push @{"${class}::COLUMNS"}, $stuff;
 }
 
 sub columns {
     my $class = shift;
     no strict 'refs';
-    @{"${class}::COLUMNS"};
+    map { $_->{COLUMN_NAME} } @{"${class}::COLUMNS"};
 }
 
 sub set_primary_key {

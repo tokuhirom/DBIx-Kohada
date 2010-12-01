@@ -62,6 +62,14 @@ You can use tracer by DBI. And you can use the advanced tracer like this article
 
 It is not supported in core. You can write a plugin to do it.
 
+- How do you handle reconnect?
+
+use [DBIx::Connector](http://search.cpan.org/perldoc?DBIx::Connector).
+
+- How do you use nested transaction?
+
+use [DBIx::Connector](http://search.cpan.org/perldoc?DBIx::Connector).
+
 # AUTHOR
 
 Tokuhiro Matsuno <tokuhirom AAJKLFJEF GMAIL COM>

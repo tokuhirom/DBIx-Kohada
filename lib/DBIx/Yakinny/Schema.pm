@@ -34,7 +34,6 @@ sub register_table {
 
     $self->{map}->{$table} = $klass;
 
-
     $klass->add_column($_) for @{$attr{columns}};
 
     my $primary_key = $attr{primary_key};
