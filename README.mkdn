@@ -4,28 +4,26 @@ DBIx::Yakinny -
 
 # SYNOPSIS
 
-    package MyApp::DB::Schema;
-    use base qw/DBIx::Yakinny::Schema/;
+    package MyApp::DB::Row::User;
+    use base qw/DBIx::Yakinny::Row/;
 
-    __PACKAGE__->register_table(
-        class   => 'MyApp::DB::User',
+    package main;
+    use DBIx::Yakinny::Schema;
+    use DBIx::Yakinny;
+    use DBI;
+
+    my $schema = DBIx::Yakinny::Schema->new();
+    $schema->register_table(
+        class   => 'MyApp::DB::Row::User',
         table   => 'user',
         columns => [qw/user_id name email/],
         primary_key      => 'user_id',
     );
 
-    package MyApp::DB::User;
-    use base qw/DBIx::Yakinny::Row/;
-
-    package main;
-    use MyApp::DB::Schema;
-    use DBIx::Yakinny::Schema;
-    use DBI;
-
     my $dbh = DBI->connect(...);
     my $db = DBIx::Yakinny->new(
-        dbh     => $dbh,
-        schemas => 'MyApp::DB::Schema',
+        dbh    => $dbh,
+        schema => $schema,
     );
     $db->dbh; # => #dbh
     my $user = $db->insert('user' => {name => 'john', email => 'john@exapmle.com'});
@@ -50,9 +48,19 @@ DBIx::Yakinny is yet another O/R mapper based on Active Record strategy.
 
 You should use trigger on RDBMS layer. It is reliable.
 
+And so, if you *really* want it, you can override the methods on DBIx::Yakinny.
+
 - How do you use inflate/deflate?
 
-This module does not support it.
+This module does not support it. But, you can use it by method modifier with [Class::Method::Modifiers](http://search.cpan.org/perldoc?Class::Method::Modifiers).
+
+- How do you use tracer like DBIx::Skinny::Profiler::Trace?
+
+You can use tracer by DBI. And you can use the advanced tracer like this article: <http://d.hatena.ne.jp/tokuhirom/20101201/1291196584>.
+
+- How do you use relationships?
+
+It is not supported in core. You can write a plugin to do it.
 
 # AUTHOR
 

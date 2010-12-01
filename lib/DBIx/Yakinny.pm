@@ -160,28 +160,26 @@ DBIx::Yakinny -
 
 =head1 SYNOPSIS
 
-    package MyApp::DB::Schema;
-    use base qw/DBIx::Yakinny::Schema/;
+    package MyApp::DB::Row::User;
+    use base qw/DBIx::Yakinny::Row/;
 
-    __PACKAGE__->register_table(
-        class   => 'MyApp::DB::User',
+    package main;
+    use DBIx::Yakinny::Schema;
+    use DBIx::Yakinny;
+    use DBI;
+
+    my $schema = DBIx::Yakinny::Schema->new();
+    $schema->register_table(
+        class   => 'MyApp::DB::Row::User',
         table   => 'user',
         columns => [qw/user_id name email/],
         primary_key      => 'user_id',
     );
 
-    package MyApp::DB::User;
-    use base qw/DBIx::Yakinny::Row/;
-
-    package main;
-    use MyApp::DB::Schema;
-    use DBIx::Yakinny::Schema;
-    use DBI;
-
     my $dbh = DBI->connect(...);
     my $db = DBIx::Yakinny->new(
-        dbh     => $dbh,
-        schemas => 'MyApp::DB::Schema',
+        dbh    => $dbh,
+        schema => $schema,
     );
     $db->dbh; # => #dbh
     my $user = $db->insert('user' => {name => 'john', email => 'john@exapmle.com'});

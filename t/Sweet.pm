@@ -6,17 +6,6 @@ use DBIx::Yakinny;
 package t::Sweet;
 
 {
-    package MyApp::DB::Schema;
-    use base qw/DBIx::Yakinny::Schema/;
-    __PACKAGE__->register_table(
-        class   => 'MyApp::DB::Row::User',
-        table   => 'user',
-        columns => [qw/user_id name email created_on/],
-        primary_key      => 'user_id',
-    );
-}
-
-{
     package MyApp::DB::Row::User;
     use base qw/DBIx::Yakinny::Row/;
     use Time::Piece;
@@ -28,13 +17,22 @@ package t::Sweet;
 {
     package TestSuite;
     use Test::More;
+    use DBIx::Yakinny::Schema;
 
     sub run {
         my ($class, $dbh) = @_;
 
+        my $schema = DBIx::Yakinny::Schema->new();
+        $schema->register_table(
+            class   => 'MyApp::DB::Row::User',
+            table   => 'user',
+            columns => [qw/user_id name email created_on/],
+            primary_key      => 'user_id',
+        );
+
         my $db = DBIx::Yakinny->new(
             dbh    => $dbh,
-            schema => 'MyApp::DB::Schema',
+            schema => $schema,
         );
 
         subtest 'insert' => sub {
