@@ -6,6 +6,11 @@ use DBI;
 use DBIx::Yakinny;
 use DBIx::Yakinny::Schema::Loader;
 
+{
+    package MyApp::DB::Row::User;
+    use parent qw/DBIx::Yakinny::Row/;
+}
+
 # initialize
 my $dbh = DBI->connect('dbi:SQLite:', '', '', {RaiseError => 1}) or die 'cannot connect to db';
 $dbh->do(q{
@@ -19,6 +24,10 @@ $dbh->do(q{
 
 my $schema = DBIx::Yakinny::Schema::Loader->load(
     dbh => $dbh,
+    table2class_cb => sub {
+        is $_[0], 'user';
+        return 'MyApp::DB::Row::User';
+    },
 );
 my $db = DBIx::Yakinny->new(
     schema => $schema,

@@ -3,7 +3,6 @@ use strict;
 use warnings;
 use utf8;
 use DBIx::Inspector;
-use DBIx::Yakinny::Util;
 use DBIx::Yakinny::Schema;
 use Carp ();
 
@@ -12,10 +11,11 @@ sub load {
     my %args = @_==1 ? %{$_[0]} : @_;
 
     my $dbh = $args{dbh} or Carp::croak("missing mandatory parameter 'dbh'");
+    my $callback = $args{table2class_cb} or Carp::croak("missing mandatory parameter 'table2class_cb'");
     my $schema = DBIx::Yakinny::Schema->new();
     my $inspector = DBIx::Inspector->new(dbh => $dbh);
     for my $table ($inspector->tables) {
-        my $klass = DBIx::Yakinny::Util::create_anon_class(prefix => 'DBIx::Yakinny::AnonRow', isa => ['DBIx::Yakinny::Row']); # TODO: receive class map
+        my $klass = $callback->($table->name);
         $klass->set_table( $table->name );
         $klass->add_column( $_->name ) for $table->columns;
         $klass->set_primary_key( [ map { $_->name } $table->primary_key ] );
