@@ -147,6 +147,20 @@ sub bulk_insert {
     return;
 }
 
+sub delete_row {
+    my ($self, $row) = @_;
+
+    my ($sql, @binds) = $self->query_builder->delete($row->table, $row->where_cond);
+    $self->dbh->do($sql, {}, @binds) == 1 or die "FATAL";
+}
+
+sub update_row {
+    my ($self, $row, $attr) = @_;
+
+    my ($sql, @binds) = $self->query_builder->update($row->table, $attr, $row->where_cond);
+    $self->dbh->do($sql, {}, @binds) == 1 or die "FATAL";
+}
+
 1;
 __END__
 
@@ -243,6 +257,10 @@ use L<Module::Find>.
     use Module::Find;
     my $schema = DBIx::Yakinny::Schema->new();
     $schema->register_table($_) for useall "MyApp::DB::Row";
+
+=item How do you handle utf8 columns?
+
+You should use B<mysql_enable_utf8>, B<sqlite_unicode>, etc.
 
 =back
 

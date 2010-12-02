@@ -45,7 +45,9 @@ sub get_column {
 
 sub where_cond {
     my ($self) = @_;
-    +{ map { $_ => $self->get_column($_) } @{ $self->primary_key } }
+    my @pk = @{$self->primary_key};
+    Carp::confess("You cannot call this method whithout primary key") unless @pk;
+    return +{ map { $_ => $self->get_column($_) } @pk };
 }
 
 sub update {
@@ -56,8 +58,7 @@ sub update {
 
 sub delete {
     my $self = shift;
-    my ($sql, @binds) = $self->yakinny->query_builder->delete($self->table, $self->where_cond);
-    $self->yakinny->dbh->do($sql, {}, @binds) == 1 or die;
+    $self->yakinny->delete_row($self);
 }
 
 sub refetch {
