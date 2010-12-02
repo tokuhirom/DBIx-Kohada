@@ -95,18 +95,9 @@ sub insert  {
 
 sub last_insert_id {
     my ($self, $table) = @_;
-    my $dbh  = $self->dbh;
 
-    my $driver = $dbh->{Driver}->{Name};
-    if ( $driver eq 'mysql' ) {
-        return $dbh->{mysql_insertid};
-    } elsif ( $driver eq 'Pg' ) {
-        return $dbh->last_insert_id("","",$table,""); # Note: DBD::Pg required $table name to get last_insert_id.
-    } elsif ( $driver eq 'SQLite' ) {
-        return $dbh->last_insert_id("","","","");
-    } else {
-        Carp::croak "Don't know how to get last insert id for $driver";
-    }
+    # Note: DBD::Pg required $table name to get last_insert_id.
+    return $self->dbh->last_insert_id("","",$table,"");
 }
 
 sub find_or_create {
