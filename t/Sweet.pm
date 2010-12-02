@@ -33,6 +33,10 @@ package t::Sweet;
             schema => $schema,
         );
 
+        subtest 'tables' => sub {
+            is join(',', $db->schema->tables), 'user';
+        };
+
         subtest 'insert' => sub {
             $db->insert(user => {name => 'foo', email => 'foo@example.com'});
             is $db->last_insert_id, 1, 'insert,last_insert_id';

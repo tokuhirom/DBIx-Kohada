@@ -14,7 +14,10 @@ sub get_class_for {
     return $self->{map}->{$table};
 }
 
-# TODO: add 'tables' method?
+sub tables {
+    my $self = shift;
+    return keys %{$self->{map}};
+}
 
 sub register_table {
     my ($self, $klass) = @_;
