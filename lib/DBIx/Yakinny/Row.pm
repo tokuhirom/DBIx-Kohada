@@ -26,9 +26,10 @@ sub columns {
 }
 
 sub set_primary_key {
-    my ($class, $name) = @_;
+    my ($class, $pk) = @_;
+    $pk = [$pk] unless ref $pk;
     no strict 'refs';
-    *{"${class}::primary_key"} = sub { $name };
+    *{"${class}::primary_key"} = sub { $pk };
 }
 
 sub set_table {

@@ -160,6 +160,9 @@ DBIx::Yakinny -
 
     package MyApp::DB::Row::User;
     use base qw/DBIx::Yakinny::Row/;
+    __PACKAGE__->set_table('user');
+    __PACKAGE__->set_primary_key('user_id');
+    __PACKAGE__->add_column($_) for qw/user_id name email/;
 
     package main;
     use DBIx::Yakinny::Schema;
@@ -167,12 +170,7 @@ DBIx::Yakinny -
     use DBI;
 
     my $schema = DBIx::Yakinny::Schema->new();
-    $schema->register_table(
-        class   => 'MyApp::DB::Row::User',
-        table   => 'user',
-        columns => [qw/user_id name email/],
-        primary_key      => 'user_id',
-    );
+    $schema->register_table('MyApp::DB::Row::User');
 
     my $dbh = DBI->connect(...);
     my $db = DBIx::Yakinny->new(
@@ -237,6 +235,14 @@ use L<Devel::KYTProf>.
 =item How do you display pretty error message?
 
 use DBI's callback functions. fore modetails, see eg/dbi-callback.pl.
+
+=item How do you load child classes automatically?
+
+use L<Module::Find>.
+
+    use Module::Find;
+    my $schema = DBIx::Yakinny::Schema->new();
+    $schema->register_table($_) for useall "MyApp::DB::Row";
 
 =back
 
