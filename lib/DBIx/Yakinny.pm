@@ -101,7 +101,7 @@ sub last_insert_id {
     if ( $driver eq 'mysql' ) {
         return $dbh->{mysql_insertid};
     } elsif ( $driver eq 'Pg' ) {
-        return $dbh->last_insert_id("","",$table,"");
+        return $dbh->last_insert_id("","",$table,""); # Note: DBD::Pg required $table name to get last_insert_id.
     } elsif ( $driver eq 'SQLite' ) {
         return $dbh->last_insert_id("","","","");
     } else {
