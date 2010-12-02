@@ -15,11 +15,11 @@ sub load {
     my $schema = DBIx::Yakinny::Schema->new();
     my $inspector = DBIx::Inspector->new(dbh => $dbh);
     for my $table ($inspector->tables) {
-        $schema->register_table(
-            table   => $table->name,
-            columns => [ map { $_->name } $table->columns ],
-            primary_key      => [ map { $_->name } $table->primary_key ],
-        );
+        my $klass = DBIx::Yakinny::Util::create_anon_class(prefix => 'DBIx::Yakinny::AnonRow', isa => ['DBIx::Yakinny::Row']); # TODO: receive class map
+        $klass->set_table( $table->name );
+        $klass->add_column( $_->name ) for $table->columns;
+        $klass->set_primary_key( [ map { $_->name } $table->primary_key ] );
+        $schema->register_table($klass);
     }
     return $schema;
 }

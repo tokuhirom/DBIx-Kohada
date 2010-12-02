@@ -23,12 +23,10 @@ package t::Sweet;
         my ($class, $dbh) = @_;
 
         my $schema = DBIx::Yakinny::Schema->new();
-        $schema->register_table(
-            class   => 'MyApp::DB::Row::User',
-            table   => 'user',
-            columns => [qw/user_id name email created_on/],
-            primary_key      => 'user_id',
-        );
+        MyApp::DB::Row::User->set_table('user');
+        MyApp::DB::Row::User->add_column($_) for qw/user_id name email created_on/;
+        MyApp::DB::Row::User->set_primary_key(['user_id']);
+        $schema->register_table( 'MyApp::DB::Row::User' );
 
         my $db = DBIx::Yakinny->new(
             dbh    => $dbh,
