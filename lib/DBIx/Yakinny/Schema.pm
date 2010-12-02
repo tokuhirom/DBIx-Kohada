@@ -16,6 +16,8 @@ sub get_class_for {
     return $self->{map}->{$table};
 }
 
+# TODO: add 'tables' method?
+
 sub register_table {
     my ($self, %attr) = @_;
     my $table = $attr{table};
