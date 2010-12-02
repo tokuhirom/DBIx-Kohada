@@ -3,7 +3,6 @@ use strict;
 use warnings;
 use 5.008001;
 our $VERSION = '0.01';
-use Module::Load ();
 use Class::Accessor::Lite;
 use Carp ();
 
