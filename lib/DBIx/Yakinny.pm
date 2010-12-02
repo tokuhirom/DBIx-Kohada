@@ -78,14 +78,15 @@ sub insert  {
     my ($sql, @bind) = $self->query_builder->insert($table, $values);
     $self->dbh->do($sql, {}, @bind);
     if (defined wantarray) {
-#       my $current_last_insert_id = $self->last_insert_id;
-#       if ($current_last_insert_id) {
-#           return $self->retrieve($table => $current_last_insert_id);
-#       }
-
         # find row
         my $row_class = $self->schema->get_class_for($table);
         my $primary_key = $row_class->primary_key;
+
+        # auto increment
+        if (@$primary_key == 1 && not exists $values->{$primary_key->[0]}) {
+            return $self->retrieve($table => $self->last_insert_id);
+        }
+
         my $criteria = {};
         for my $primary_key1 (@{$row_class->primary_key}) {
             $criteria->{$primary_key1} = $values->{$primary_key1};
