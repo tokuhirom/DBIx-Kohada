@@ -6,7 +6,6 @@ our $VERSION = '0.01';
 use Module::Load ();
 use Class::Accessor::Lite;
 use Carp ();
-use Class::Load ();
 
 use DBIx::Yakinny::Iterator;
 use DBIx::Yakinny::QueryBuilder;
