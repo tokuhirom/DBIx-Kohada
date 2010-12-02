@@ -4,7 +4,7 @@ use warnings;
 use utf8;
 use Class::Accessor::Lite;
 
-Class::Accessor::Lite->mk_accessors(qw/sth table yakinny/);
+Class::Accessor::Lite->mk_accessors(qw/sth _row_class _yakinny/);
 
 sub new {
     my $class = shift;
@@ -15,8 +15,7 @@ sub new {
 sub next {
     my $self = shift;
     if (my $row = $self->sth->fetchrow_hashref) {
-        my $row_class = $self->yakinny->schema->get_class_for($self->table);
-        return $row_class->new(yakinny => $self->yakinny, row => $row);
+        return $self->_row_class->new(yakinny => $self->_yakinny, row => $row);
     } else {
         $self->sth->finish;
         return;

@@ -2,7 +2,6 @@ package DBIx::Yakinny::Row;
 use strict;
 use warnings;
 use utf8;
-use base qw/Class::Data::Inheritable/;
 use Carp ();
 
 sub new {

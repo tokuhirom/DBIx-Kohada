@@ -53,7 +53,24 @@ sub search  {
         $sth->finish;
         return @ret;
     } else {
-        return DBIx::Yakinny::Iterator->new(sth => $sth, table => $table, yakinny => $self);
+        return DBIx::Yakinny::Iterator->new(sth => $sth, _row_class => $row_class, _yakinny => $self);
+    }
+}
+
+sub search_by_sql {
+    my ($self, $table, $sql, @binds) = @_;
+    my $row_class = $self->schema->get_class_for($table);
+    my $sth = $self->dbh->prepare($sql);
+    $sth->execute(@binds);
+    if (wantarray) {
+        my @ret;
+        while (my $row = $sth->fetchrow_hashref()) {
+            push @ret, $row_class->new(yakinny => $self, row => $row);
+        }
+        $sth->finish;
+        return @ret;
+    } else {
+        return DBIx::Yakinny::Iterator->new(sth => $sth, _row_class => $row_class, _yakinny => $self);
     }
 }
 
@@ -130,23 +147,6 @@ sub bulk_insert {
         }
     }
     return;
-}
-
-sub search_by_sql {
-    my ($self, $table, $sql, @binds) = @_;
-    my $row_class = $self->schema->get_class_for($table);
-    my $sth = $self->dbh->prepare($sql);
-    $sth->execute(@binds);
-    if (wantarray) {
-        my @ret;
-        while (my $row = $sth->fetchrow_hashref()) {
-            push @ret, $row_class->new(yakinny => $self, row => $row);
-        }
-        $sth->finish;
-        return @ret;
-    } else {
-        return DBIx::Yakinny::Iterator->new(sth => $sth, table => $table, yakinny => $self);
-    }
 }
 
 1;
