@@ -79,12 +79,10 @@ sub insert  {
     $self->dbh->do($sql, {}, @bind);
     if (defined wantarray) {
         # find row
-        my $row_class = $self->schema->get_class_for($table);
+        my $row_class = $self->schema->get_class_for($table) or die "'$table' is not defined in schema";
         my $primary_key = $row_class->primary_key;
-
-        # auto increment
         if (@$primary_key == 1 && not exists $values->{$primary_key->[0]}) {
-            return $self->retrieve($table => $self->last_insert_id);
+            return $self->retrieve($table => $self->last_insert_id($table));
         }
 
         my $criteria = {};
@@ -96,14 +94,14 @@ sub insert  {
 }
 
 sub last_insert_id {
-    my $self = shift;
+    my ($self, $table) = @_;
     my $dbh  = $self->dbh;
 
     my $driver = $dbh->{Driver}->{Name};
     if ( $driver eq 'mysql' ) {
         return $dbh->{mysql_insertid};
     } elsif ( $driver eq 'Pg' ) {
-        die 'todo';
+        return $dbh->last_insert_id("","",$table,"");
     } elsif ( $driver eq 'SQLite' ) {
         return $dbh->last_insert_id("","","","");
     } else {

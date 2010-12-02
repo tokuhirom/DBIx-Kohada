@@ -19,6 +19,20 @@ $dbh->do(q{
         created_on int
     );
 });
+$dbh->do(q{
+    create table entry (
+        entry_id int primary key auto_increment,
+        user_id int not null,
+        body    text
+    );
+});
+$dbh->do(q{
+    create table good (
+        entry_id integer,
+        user_id  integer not null,
+        PRIMARY KEY (entry_id, user_id)
+    );
+});
 TestSuite->run($dbh);
 
 done_testing;

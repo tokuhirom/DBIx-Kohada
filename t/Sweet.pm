@@ -15,6 +15,13 @@ package t::Sweet;
 }
 
 {
+    package MyApp::DB::Row::Good;
+    use base qw/DBIx::Yakinny::Row/;
+    package MyApp::DB::Row::Entry;
+    use base qw/DBIx::Yakinny::Row/;
+}
+
+{
     package TestSuite;
     use Test::More;
     use DBIx::Yakinny::Schema;
@@ -28,22 +35,41 @@ package t::Sweet;
         MyApp::DB::Row::User->set_primary_key(['user_id']);
         $schema->register_table( 'MyApp::DB::Row::User' );
 
+        MyApp::DB::Row::Entry->set_table('entry');
+        MyApp::DB::Row::Entry->add_column($_) for qw/entry_id user_id body/;
+        MyApp::DB::Row::Entry->set_primary_key(['entry_id']);
+        $schema->register_table( 'MyApp::DB::Row::Entry' );
+
+        MyApp::DB::Row::Good->set_table('good');
+        MyApp::DB::Row::Good->add_column($_) for qw/user_id entry_id/;
+        MyApp::DB::Row::Good->set_primary_key(['user_id', 'entry_id']);
+        $schema->register_table( 'MyApp::DB::Row::Good' );
+
         my $db = DBIx::Yakinny->new(
             dbh    => $dbh,
             schema => $schema,
         );
 
         subtest 'tables' => sub {
-            is join(',', $db->schema->tables), 'user';
+            is join(',', sort $db->schema->tables), 'entry,good,user';
         };
 
         subtest 'insert' => sub {
             $db->insert(user => {name => 'foo', email => 'foo@example.com'});
-            is $db->last_insert_id, 1, 'insert,last_insert_id';
+            is $db->last_insert_id('user'), 1, 'insert,last_insert_id';
             $db->insert(user => {name => 'bar', email => 'bar@example.com'});
-            is $db->last_insert_id, 2, 'insert,last_insert_id';
+            is $db->last_insert_id('user'), 2, 'insert,last_insert_id';
             $db->insert(user => {name => 'baz', email => 'baz@example.com'});
-            is $db->last_insert_id, 3, 'insert,last_insert_id';
+            is $db->last_insert_id('user'), 3, 'insert,last_insert_id';
+
+            my $entry = $db->insert(entry => {user_id => 1, body => 'yay!'});
+            is $db->last_insert_id('entry'), 1, 'insert,last_insert_id';
+            isa_ok $entry, 'MyApp::DB::Row::Entry';
+            is $entry->body, 'yay!';
+
+            my $good = $db->insert(good => {user_id => 32, entry_id => 1});
+            isa_ok $good, 'MyApp::DB::Row::Good';
+            is $good->user_id, 32;
         };
 
         subtest 'single returns row' => sub {
