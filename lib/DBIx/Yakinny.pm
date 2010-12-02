@@ -78,10 +78,10 @@ sub insert  {
     my ($sql, @bind) = $self->query_builder->insert($table, $values);
     $self->dbh->do($sql, {}, @bind);
     if (defined wantarray) {
-        my $current_last_insert_id = $self->last_insert_id;
-        if ($current_last_insert_id) {
-            return $self->retrieve($table => $current_last_insert_id);
-        }
+#       my $current_last_insert_id = $self->last_insert_id;
+#       if ($current_last_insert_id) {
+#           return $self->retrieve($table => $current_last_insert_id);
+#       }
 
         # find row
         my $row_class = $self->schema->get_class_for($table);
@@ -104,7 +104,7 @@ sub last_insert_id {
     } elsif ( $driver eq 'Pg' ) {
         die 'todo';
     } elsif ( $driver eq 'SQLite' ) {
-        return $dbh->func('last_insert_rowid');
+        return $dbh->last_insert_id("","","","");
     } else {
         Carp::croak "Don't know how to get last insert id for $driver";
     }
@@ -216,7 +216,7 @@ DBIx::Yakinny is yet another O/R mapper based on Active Record strategy.
 
 You should use trigger on RDBMS layer. It is reliable.
 
-And so, if you *really* want it, you can override the methods on DBIx::Yakinny.
+But, you can use the trigger with L<Class::Method::Modifiers>. see t/07_trigger.t for more details.
 
 =item How do you use inflate/deflate?
 

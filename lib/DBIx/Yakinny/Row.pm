@@ -52,13 +52,14 @@ sub where_cond {
 
 sub update {
     my ($self, $attr) = @_;
-    my ($sql, @binds) = $self->yakinny->query_builder->update($self->table, $attr, $self->where_cond);
-    $self->yakinny->dbh->do($sql, {}, @binds) == 1 or die;
+    $self->yakinny->update_row($self, $attr);
+    return;
 }
 
 sub delete {
     my $self = shift;
     $self->yakinny->delete_row($self);
+    return;
 }
 
 sub refetch {
