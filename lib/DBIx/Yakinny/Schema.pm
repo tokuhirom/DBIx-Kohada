@@ -4,7 +4,6 @@ use warnings;
 use utf8;
 use Carp ();
 use Class::Load;
-use Class::Method::Modifiers;
 use DBIx::Yakinny::Util;
 
 sub new {
