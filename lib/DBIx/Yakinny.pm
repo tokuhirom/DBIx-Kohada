@@ -34,17 +34,7 @@ sub txn_scope {
 sub single {
     my ($self, $table, $where,) = @_;
 
-    my $row_class = $self->schema->get_class_for($table) or Carp::croak "unknown table: $table";
-    my ($sql, @bind) = $self->query_builder->select($self->dbh->quote_identifier($table), [map { $self->dbh->quote_identifier($_) } $row_class->columns], $where);
-    my $sth = $self->dbh->prepare($sql) or Carp::croak $self->dbh->errstr;
-    $sth->execute(@bind) or Carp::croak $self->dbh->errstr;
-    my $row = $sth->fetchrow_hashref();
-    $sth->finish;
-    if ($row) {
-        return $row_class->new(yakinny => $self, row => $row);
-    } else {
-        return undef;
-    }
+    $self->search($table, $where, {limit => 1})->next;
 }
 
 sub search  {
@@ -54,16 +44,8 @@ sub search  {
     my ($sql, @bind) = $self->query_builder->select($self->dbh->quote_identifier($table), [map { $self->dbh->quote_identifier($_) } $row_class->columns], $where, $opt);
     my $sth = $self->dbh->prepare($sql) or Carp::croak $self->dbh->errstr;
     $sth->execute(@bind) or Carp::croak $self->dbh->errstr;
-    if (wantarray) {
-        my @ret;
-        while (my $row = $sth->fetchrow_hashref()) {
-            push @ret, $row_class->new(yakinny => $self, row => $row);
-        }
-        $sth->finish;
-        return @ret;
-    } else {
-        return DBIx::Yakinny::Iterator->new(sth => $sth, _row_class => $row_class, _yakinny => $self);
-    }
+    my $iter = DBIx::Yakinny::Iterator->new(sth => $sth, _row_class => $row_class, _yakinny => $self);
+    return wantarray ? $iter->all : $iter;
 }
 
 sub search_by_sql {
@@ -72,16 +54,8 @@ sub search_by_sql {
     my $row_class = $self->schema->get_class_for($table);
     my $sth = $self->dbh->prepare($sql) or Carp::croak $self->dbh->errstr;
     $sth->execute(@binds) or Carp::croak $self->dbh->errstr;
-    if (wantarray) {
-        my @ret;
-        while (my $row = $sth->fetchrow_hashref()) {
-            push @ret, $row_class->new(yakinny => $self, row => $row);
-        }
-        $sth->finish;
-        return @ret;
-    } else {
-        return DBIx::Yakinny::Iterator->new(sth => $sth, _row_class => $row_class, _yakinny => $self);
-    }
+    my $iter = DBIx::Yakinny::Iterator->new(sth => $sth, _row_class => $row_class, _yakinny => $self);
+    return wantarray ? $iter->all : $iter;
 }
 
 sub insert  {

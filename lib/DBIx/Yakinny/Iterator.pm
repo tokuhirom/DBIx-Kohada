@@ -22,6 +22,15 @@ sub next {
     }
 }
 
+sub all {
+    my $self = shift;
+    my @row;
+    while (my $row = $self->next) {
+        push @row, $row;
+    }
+    return @row;
+}
+
 sub rows { $_[0]->sth->rows }
 
 1;
