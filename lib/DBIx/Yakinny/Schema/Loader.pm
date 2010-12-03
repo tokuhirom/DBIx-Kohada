@@ -4,6 +4,7 @@ use warnings;
 use utf8;
 use DBIx::Inspector;
 use DBIx::Yakinny::Schema;
+use DBIx::Yakinny::Row;
 use Carp ();
 
 sub load {
@@ -16,6 +17,10 @@ sub load {
     my $inspector = DBIx::Inspector->new(dbh => $dbh);
     for my $table ($inspector->tables) {
         my $klass = $callback->($table->name);
+        unless ($klass->isa('DBIx::Yakinny::Row')) {
+            no strict 'refs';
+            unshift @{"${klass}::ISA"}, 'DBIx::Yakinny::Row'
+        }
         $klass->set_table( $table->name );
         $klass->add_column( $_->name ) for $table->columns;
         $klass->set_primary_key( [ map { $_->name } $table->primary_key ] );

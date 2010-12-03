@@ -6,6 +6,8 @@ our $VERSION = '0.01';
 use Class::Accessor::Lite;
 use Carp ();
 
+use DBIx::TransactionManager;
+
 use DBIx::Yakinny::Iterator;
 use DBIx::Yakinny::QueryBuilder;
 use Try::Tiny;
@@ -21,6 +23,12 @@ sub new {
     my $self = bless {%args}, $class;
     $self->{query_builder} ||= DBIx::Yakinny::QueryBuilder->new(dbh => $self->{dbh});
     return $self;
+}
+
+sub txn_scope {
+    my $self = shift;
+    my $manager = ($self->{_txn_manager} ||= DBIx::TransactionManager->new($self->dbh));
+    return $manager->txn_scope();
 }
 
 sub single {

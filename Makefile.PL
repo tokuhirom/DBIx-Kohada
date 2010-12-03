@@ -9,6 +9,7 @@ readme_markdown_from 'lib/DBIx/Yakinny.pm';
 requires 'DBI';
 requires 'SQL::Builder';
 requires 'parent';
+requires 'DBIx::TransactionManager';
 
 tests 't/*.t t/*/*.t t/*/*/*.t t/*/*/*/*.t';
 test_requires 'Test::More' => 0.96; # done_testing, subtest
