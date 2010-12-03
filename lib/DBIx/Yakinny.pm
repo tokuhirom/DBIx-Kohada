@@ -8,6 +8,7 @@ use Carp ();
 
 use DBIx::Yakinny::Iterator;
 use DBIx::Yakinny::QueryBuilder;
+use Try::Tiny;
 
 Class::Accessor::Lite->mk_accessors(qw/dbh query_builder schema/);
 
@@ -20,56 +21,82 @@ sub new {
     return $self;
 }
 
+sub show_error {
+    my ($class, $err, $sql, $bind) = @_;
+
+    local $Carp::CarpLevel = $Carp::CarpLevel + 1;
+    Carp::croak(join("\n",
+        '@@@@@@@@@@@@@@@@@@@@@',
+        '@@@ Yakinny Error @@@',
+        "Error: $err",
+        "SQL: $sql",
+        '@@@@@@@@@@@@@@@@@@@@@',
+    ));
+}
+
 sub single {
     my ($self, $table, $where,) = @_;
 
     my $row_class = $self->schema->get_class_for($table) or Carp::croak "unknown table: $table";
-    my ($sql, @bind) = $self->query_builder->select($table, [$row_class->columns], $where);
-    my $sth = $self->dbh->prepare($sql);
-    $sth->execute(@bind);
-    my $row = $sth->fetchrow_hashref();
-    $sth->finish;
-    if ($row) {
-        return $row_class->new(yakinny => $self, row => $row);
-    } else {
-        return undef;
-    }
+    my ($sql, @bind) = $self->query_builder->select($self->dbh->quote_identifier($table), [map { $self->dbh->quote_identifier($_) } $row_class->columns], $where);
+    try {
+        my $sth = $self->dbh->prepare($sql);
+        $sth->execute(@bind) or die $self->dbh->errstr;
+        my $row = $sth->fetchrow_hashref();
+        $sth->finish;
+        if ($row) {
+            return $row_class->new(yakinny => $self, row => $row);
+        } else {
+            return undef;
+        }
+    } catch {
+        $self->show_error($_, $sql, \@bind);
+    };
 }
 
 sub search  {
     my ($self, $table, $where, $opt) = @_;
     my $row_class = $self->schema->get_class_for($table);
 
-    my ($sql, @bind) = $self->query_builder->select($table, [$row_class->columns], $where, $opt);
-    my $sth = $self->dbh->prepare($sql);
-    $sth->execute(@bind);
-    if (wantarray) {
-        my @ret;
-        while (my $row = $sth->fetchrow_hashref()) {
-            push @ret, $row_class->new(yakinny => $self, row => $row);
+    my ($sql, @bind) = $self->query_builder->select($self->dbh->quote_identifier($table), [map { $self->dbh->quote_identifier($_) } $row_class->columns], $where, $opt);
+    try {
+        my $sth = $self->dbh->prepare($sql);
+        $sth->execute(@bind);
+        if (wantarray) {
+            my @ret;
+            while (my $row = $sth->fetchrow_hashref()) {
+                push @ret, $row_class->new(yakinny => $self, row => $row);
+            }
+            $sth->finish;
+            return @ret;
+        } else {
+            return DBIx::Yakinny::Iterator->new(sth => $sth, _row_class => $row_class, _yakinny => $self);
         }
-        $sth->finish;
-        return @ret;
-    } else {
-        return DBIx::Yakinny::Iterator->new(sth => $sth, _row_class => $row_class, _yakinny => $self);
-    }
+    } catch {
+        $self->show_error($_, $sql, \@binds);
+    };
 }
 
 sub search_by_sql {
     my ($self, $table, $sql, @binds) = @_;
+
     my $row_class = $self->schema->get_class_for($table);
-    my $sth = $self->dbh->prepare($sql);
-    $sth->execute(@binds);
-    if (wantarray) {
-        my @ret;
-        while (my $row = $sth->fetchrow_hashref()) {
-            push @ret, $row_class->new(yakinny => $self, row => $row);
+    try {
+        my $sth = $self->dbh->prepare($sql);
+        $sth->execute(@binds);
+        if (wantarray) {
+            my @ret;
+            while (my $row = $sth->fetchrow_hashref()) {
+                push @ret, $row_class->new(yakinny => $self, row => $row);
+            }
+            $sth->finish;
+            return @ret;
+        } else {
+            return DBIx::Yakinny::Iterator->new(sth => $sth, _row_class => $row_class, _yakinny => $self);
         }
-        $sth->finish;
-        return @ret;
-    } else {
-        return DBIx::Yakinny::Iterator->new(sth => $sth, _row_class => $row_class, _yakinny => $self);
-    }
+    } catch {
+        $self->show_error($_, $sql, \@binds);
+    };
 }
 
 sub insert  {
