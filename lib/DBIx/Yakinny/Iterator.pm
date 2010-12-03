@@ -22,5 +22,7 @@ sub next {
     }
 }
 
+sub rows { $_[0]->sth->rows }
+
 1;
 
