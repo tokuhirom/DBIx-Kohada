@@ -46,9 +46,7 @@ DBIx::Yakinny is yet another O/R mapper based on Active Record strategy.
 
 You should use trigger on RDBMS layer. It is reliable.
 
-And so, if you *really* want it, you can override the methods on DBIx::Yakinny.
-
-pre_insert / post_insert / pre_update / post_update / pre_delete / post_delete
+But, you can use the trigger with [Class::Method::Modifiers](http://search.cpan.org/perldoc?Class::Method::Modifiers). see t/07_trigger.t for more details.
 
 - How do you use inflate/deflate?
 
@@ -90,7 +88,7 @@ use [Module::Find](http://search.cpan.org/perldoc?Module::Find).
     my $schema = DBIx::Yakinny::Schema->new();
     $schema->register_table($_) for useall "MyApp::DB::Row";
 
-# How do you handle utf8 columns?
+- How do you handle utf8 columns?
 
 You should use __mysql_enable_utf8__, __sqlite_unicode__, etc.
 
