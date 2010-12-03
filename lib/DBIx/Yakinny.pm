@@ -10,6 +10,8 @@ use DBIx::Yakinny::Iterator;
 use DBIx::Yakinny::QueryBuilder;
 use Try::Tiny;
 
+$Carp::Internal{ (__PACKAGE__) }++;
+
 Class::Accessor::Lite->mk_accessors(qw/dbh query_builder schema/);
 
 sub new {
@@ -21,38 +23,20 @@ sub new {
     return $self;
 }
 
-# TODO: $Carp::Internal{ (__PACKAGE__) }++ is needed? Instead of this?
-sub show_error {
-    my ($class, $err, $sql, $bind) = @_;
-
-    local $Carp::CarpLevel = $Carp::CarpLevel + 1;
-    Carp::croak(join("\n",
-        '@@@@@@@@@@@@@@@@@@@@@',
-        '@@@ Yakinny Error @@@',
-        "Error: $err",
-        "SQL: $sql",
-        '@@@@@@@@@@@@@@@@@@@@@',
-    ));
-}
-
 sub single {
     my ($self, $table, $where,) = @_;
 
     my $row_class = $self->schema->get_class_for($table) or Carp::croak "unknown table: $table";
     my ($sql, @bind) = $self->query_builder->select($self->dbh->quote_identifier($table), [map { $self->dbh->quote_identifier($_) } $row_class->columns], $where);
-    try {
-        my $sth = $self->dbh->prepare($sql);
-        $sth->execute(@bind) or die $self->dbh->errstr;
-        my $row = $sth->fetchrow_hashref();
-        $sth->finish;
-        if ($row) {
-            return $row_class->new(yakinny => $self, row => $row);
-        } else {
-            return undef;
-        }
-    } catch {
-        $self->show_error($_, $sql, \@bind);
-    };
+    my $sth = $self->dbh->prepare($sql) or Carp::croak $self->dbh->errstr;
+    $sth->execute(@bind) or Carp::croak $self->dbh->errstr;
+    my $row = $sth->fetchrow_hashref();
+    $sth->finish;
+    if ($row) {
+        return $row_class->new(yakinny => $self, row => $row);
+    } else {
+        return undef;
+    }
 }
 
 sub search  {
@@ -60,51 +44,43 @@ sub search  {
     my $row_class = $self->schema->get_class_for($table);
 
     my ($sql, @bind) = $self->query_builder->select($self->dbh->quote_identifier($table), [map { $self->dbh->quote_identifier($_) } $row_class->columns], $where, $opt);
-    try {
-        my $sth = $self->dbh->prepare($sql);
-        $sth->execute(@bind);
-        if (wantarray) {
-            my @ret;
-            while (my $row = $sth->fetchrow_hashref()) {
-                push @ret, $row_class->new(yakinny => $self, row => $row);
-            }
-            $sth->finish;
-            return @ret;
-        } else {
-            return DBIx::Yakinny::Iterator->new(sth => $sth, _row_class => $row_class, _yakinny => $self);
+    my $sth = $self->dbh->prepare($sql) or Carp::croak $self->dbh->errstr;
+    $sth->execute(@bind) or Carp::croak $self->dbh->errstr;
+    if (wantarray) {
+        my @ret;
+        while (my $row = $sth->fetchrow_hashref()) {
+            push @ret, $row_class->new(yakinny => $self, row => $row);
         }
-    } catch {
-        $self->show_error($_, $sql, \@binds);
-    };
+        $sth->finish;
+        return @ret;
+    } else {
+        return DBIx::Yakinny::Iterator->new(sth => $sth, _row_class => $row_class, _yakinny => $self);
+    }
 }
 
 sub search_by_sql {
     my ($self, $table, $sql, @binds) = @_;
 
     my $row_class = $self->schema->get_class_for($table);
-    try {
-        my $sth = $self->dbh->prepare($sql);
-        $sth->execute(@binds);
-        if (wantarray) {
-            my @ret;
-            while (my $row = $sth->fetchrow_hashref()) {
-                push @ret, $row_class->new(yakinny => $self, row => $row);
-            }
-            $sth->finish;
-            return @ret;
-        } else {
-            return DBIx::Yakinny::Iterator->new(sth => $sth, _row_class => $row_class, _yakinny => $self);
+    my $sth = $self->dbh->prepare($sql) or Carp::croak $self->dbh->errstr;
+    $sth->execute(@binds) or Carp::croak $self->dbh->errstr;
+    if (wantarray) {
+        my @ret;
+        while (my $row = $sth->fetchrow_hashref()) {
+            push @ret, $row_class->new(yakinny => $self, row => $row);
         }
-    } catch {
-        $self->show_error($_, $sql, \@binds);
-    };
+        $sth->finish;
+        return @ret;
+    } else {
+        return DBIx::Yakinny::Iterator->new(sth => $sth, _row_class => $row_class, _yakinny => $self);
+    }
 }
 
 sub insert  {
     my ($self, $table, $values) = @_;
 
     my ($sql, @bind) = $self->query_builder->insert($table, $values);
-    $self->dbh->do($sql, {}, @bind);
+    $self->dbh->do($sql, {}, @bind) or Carp::croak $self->dbh->errstr;
     if (defined wantarray) {
         # find row
         my $row_class = $self->schema->get_class_for($table) or die "'$table' is not defined in schema";
@@ -154,12 +130,12 @@ sub bulk_insert {
     my $driver = $self->dbh->{Driver}->{Name};
     if ($driver eq 'mysql') {
         my ($sql, @binds) = $self->query_builder->insert_multi($table, $rows);
-        $self->dbh->do($sql, {}, @binds);
+        $self->dbh->do($sql, {}, @binds) or Carp::croak $self->dbh->errstr;
     } else {
         for my $row (@$rows) {
             # do not use $self->insert here for consistent behaivour
             my ($sql, @binds) = $self->query_builder->insert($table, $row);
-            $self->dbh->do($sql, {}, @binds);
+            $self->dbh->do($sql, {}, @binds) or Carp::croak $self->dbh->errstr;
         }
     }
     return;
