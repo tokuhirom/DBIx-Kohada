@@ -21,6 +21,7 @@ sub new {
     return $self;
 }
 
+# TODO: $Carp::Internal{ (__PACKAGE__) }++ is needed? Instead of this?
 sub show_error {
     my ($class, $err, $sql, $bind) = @_;
 
