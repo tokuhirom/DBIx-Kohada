@@ -59,9 +59,19 @@ sub search_by_sql {
 }
 
 sub insert  {
-    my ($self, $table, $values) = @_;
+    my ($self, $table, $values, $opt) = @_;
+    return $self->_insert_or_replace($table, $values, $opt);
+}
 
-    my ($sql, @bind) = $self->query_builder->insert($table, $values);
+sub replace  {
+    my ($self, $table, $values, $opt) = @_;
+    return $self->_insert_or_replace($table, $values, +{%{$opt || +{}}, prefix => 'REPLACE'});
+}
+
+sub _insert_or_replace {
+    my ($self, $table, $values, $opt) = @_;
+
+    my ($sql, @bind) = $self->query_builder->insert($table, $values, $opt);
     $self->dbh->do($sql, {}, @bind) or Carp::croak $self->dbh->errstr;
     if (defined wantarray) {
         # find row

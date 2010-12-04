@@ -30,8 +30,19 @@ $dbh->do(q{
         PRIMARY KEY (entry_id, user_id)
     );
 });
-TestSuite->run($dbh);
+subtest 'suite' => sub {
+    TestSuite->run($dbh);
+};
 
+subtest 'replace' => sub {
+    my $schema = TestSuite->make_schema();
+    my $db = DBIx::Yakinny->new(schema => $schema, dbh => $dbh);
+    $db->insert(user => {user_id => 99, name => 'john'});
+    $db->replace(user => {user_id => 99, name => 'man'});
+    my @user = $db->search(user => {user_id => 99});
+    is scalar(@user), 1;
+    is $user[0]->name, 'man';
+};
 
 done_testing;
 

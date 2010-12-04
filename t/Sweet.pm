@@ -26,28 +26,37 @@ package t::Sweet;
     use Test::More;
     use DBIx::Yakinny::Schema;
 
+    my $schema;
+
+    sub make_schema {
+        $schema ||= do {
+            my $s = DBIx::Yakinny::Schema->new();
+
+            MyApp::DB::Row::User->set_table('user');
+            MyApp::DB::Row::User->add_column($_) for qw/user_id name email created_on/;
+            MyApp::DB::Row::User->set_primary_key(['user_id']);
+            $s->register_table( 'MyApp::DB::Row::User' );
+
+            MyApp::DB::Row::Entry->set_table('entry');
+            MyApp::DB::Row::Entry->add_column($_) for qw/entry_id user_id body/;
+            MyApp::DB::Row::Entry->set_primary_key(['entry_id']);
+            $s->register_table( 'MyApp::DB::Row::Entry' );
+
+            MyApp::DB::Row::Good->set_table('good');
+            MyApp::DB::Row::Good->add_column($_) for qw/user_id entry_id/;
+            MyApp::DB::Row::Good->set_primary_key(['user_id', 'entry_id']);
+            $s->register_table( 'MyApp::DB::Row::Good' );
+
+            $s;
+        };
+    }
+
     sub run {
         my ($class, $dbh) = @_;
 
-        my $schema = DBIx::Yakinny::Schema->new();
-        MyApp::DB::Row::User->set_table('user');
-        MyApp::DB::Row::User->add_column($_) for qw/user_id name email created_on/;
-        MyApp::DB::Row::User->set_primary_key(['user_id']);
-        $schema->register_table( 'MyApp::DB::Row::User' );
-
-        MyApp::DB::Row::Entry->set_table('entry');
-        MyApp::DB::Row::Entry->add_column($_) for qw/entry_id user_id body/;
-        MyApp::DB::Row::Entry->set_primary_key(['entry_id']);
-        $schema->register_table( 'MyApp::DB::Row::Entry' );
-
-        MyApp::DB::Row::Good->set_table('good');
-        MyApp::DB::Row::Good->add_column($_) for qw/user_id entry_id/;
-        MyApp::DB::Row::Good->set_primary_key(['user_id', 'entry_id']);
-        $schema->register_table( 'MyApp::DB::Row::Good' );
-
         my $db = DBIx::Yakinny->new(
             dbh    => $dbh,
-            schema => $schema,
+            schema => $class->make_schema(),
         );
 
         subtest 'tables' => sub {
