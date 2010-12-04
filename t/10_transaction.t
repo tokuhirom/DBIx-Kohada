@@ -6,13 +6,19 @@ use DBIx::Yakinny::Schema::Loader;
 use Test::Requires 'DBD::SQLite';
 use DBI;
 
+{
+    package MyApp::DB;
+    use base qw/DBIx::Yakinny/;
+    __PACKAGE__->load_plugin(qw/TransactionManager/);
+}
+
 my $dbh = DBI->connect('dbi:SQLite:');
 $dbh->do(q{CREATE TABLE foo (bar)});
 my $schema = DBIx::Yakinny::Schema::Loader->load(dbh => $dbh, table2class_cb => sub {
     local $_ = shift;
     "MyApp::DB::Row::$_";
 });
-my $db = DBIx::Yakinny->new(dbh => $dbh, schema => $schema);
+my $db = MyApp::DB->new(dbh => $dbh, schema => $schema);
 my $txn = $db->txn_scope();
 $db->insert(foo => {bar => 'baz'});
 is [$db->dbh->selectrow_array('SELECT COUNT(*) FROM foo')]->[0], 1;

@@ -46,7 +46,7 @@ DBIx::Yakinny is yet another O/R mapper based on Active Record strategy.
 
 You should use trigger on RDBMS layer. It is reliable.
 
-But, you can use the trigger with [Class::Method::Modifiers](http://search.cpan.org/perldoc?Class::Method::Modifiers). see t/07_trigger.t for more details.
+But, you can use the trigger with [DBIx::Yakinny::Plugin::Trigger](http://search.cpan.org/perldoc?DBIx::Yakinny::Plugin::Trigger).
 
 - How do you use inflate/deflate?
 
@@ -66,7 +66,7 @@ use [DBIx::Connector](http://search.cpan.org/perldoc?DBIx::Connector).
 
 - How do you use nested transaction?
 
-use [DBIx::Connector](http://search.cpan.org/perldoc?DBIx::Connector).
+use [DBIx::Yakinny::Plugin::TransactionManager](http://search.cpan.org/perldoc?DBIx::Yakinny::Plugin::TransactionManager).
 
 - How do you use on_connect_do like DBIC?
 

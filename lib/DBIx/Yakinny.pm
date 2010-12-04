@@ -6,8 +6,6 @@ our $VERSION = '0.01';
 use Class::Accessor::Lite;
 use Carp ();
 
-use DBIx::TransactionManager;
-
 use DBIx::Yakinny::Iterator;
 use DBIx::Yakinny::QueryBuilder;
 require Role::Tiny;
@@ -29,12 +27,6 @@ sub load_plugin {
     my ($class, $name) = @_;
     $name = $name =~ s/^\+// ? $name : "DBIx::Yakinny::Plugin::$name";
     Role::Tiny->apply_role_to_package($class, $name);
-}
-
-sub txn_scope {
-    my $self = shift;
-    my $manager = ($self->{_txn_manager} ||= DBIx::TransactionManager->new($self->dbh));
-    return $manager->txn_scope();
 }
 
 sub single {
@@ -208,7 +200,7 @@ DBIx::Yakinny is yet another O/R mapper based on Active Record strategy.
 
 You should use trigger on RDBMS layer. It is reliable.
 
-But, you can use the trigger with L<Class::Method::Modifiers>. see t/07_trigger.t for more details.
+But, you can use the trigger with L<DBIx::Yakinny::Plugin::Trigger>.
 
 =item How do you use inflate/deflate?
 
@@ -228,7 +220,7 @@ use L<DBIx::Connector>.
 
 =item How do you use nested transaction?
 
-use L<DBIx::Connector>.
+use L<DBIx::Yakinny::Plugin::TransactionManager>.
 
 =item How do you use on_connect_do like DBIC?
 
