@@ -60,16 +60,6 @@ sub search_by_sql {
 
 sub insert  {
     my ($self, $table, $values, $opt) = @_;
-    return $self->_insert_or_replace($table, $values, $opt);
-}
-
-sub replace  {
-    my ($self, $table, $values, $opt) = @_;
-    return $self->_insert_or_replace($table, $values, +{%{$opt || +{}}, prefix => 'REPLACE'});
-}
-
-sub _insert_or_replace {
-    my ($self, $table, $values, $opt) = @_;
 
     my ($sql, @bind) = $self->query_builder->insert($table, $values, $opt);
     $self->dbh->do($sql, {}, @bind) or Carp::croak $self->dbh->errstr;
@@ -87,6 +77,11 @@ sub _insert_or_replace {
         }
         return $self->single($table => $criteria);
     }
+}
+
+sub replace  {
+    my ($self, $table, $values, $opt) = @_;
+    return $self->insert($table, $values, +{%{$opt || +{}}, prefix => 'REPLACE'});
 }
 
 sub last_insert_id {
