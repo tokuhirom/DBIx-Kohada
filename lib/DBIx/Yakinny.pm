@@ -148,6 +148,18 @@ sub update_row {
     $self->dbh->do($sql, {}, @binds) == 1 or die "FATAL";
 }
 
+sub delete {
+    my ($self, $table, $where) = @_;
+    my ($sql, @binds) = $self->query_builder->delete($table, $where);
+    $self->dbh->do($sql, {}, @binds);
+}
+
+sub update {
+    my ($self, $table, $attr, $where) = @_;
+    my ($sql, @binds) = $self->query_builder->update($table, $attr, $where);
+    $self->dbh->do($sql, {}, @binds);
+}
+
 1;
 __END__
 

@@ -166,7 +166,7 @@ package t::Sweet;
             is $u->email, 'u9@example.com';
         };
 
-        subtest 'update' => sub {
+        subtest 'update_row' => sub {
             {
                 my $u = $db->single(user => {name => 'u1'});
                 $u->update({name => 'u3'});
@@ -180,6 +180,34 @@ package t::Sweet;
             {
                 my $u = $db->single(user => {name => 'u3'});
                 is $u->name, 'u3';
+            }
+        };
+
+        subtest 'update' => sub {
+            {
+                my $u = $db->single(user => {name => 'u3'});
+                ok $u;
+                my $b = $db->single(user => {name => 'bee'});
+                ok !$b;
+            }
+            $db->update('user' => {name => 'bee'}, {name => 'u3'});
+            {
+                my $u = $db->single(user => {name => 'u3'});
+                ok !$u;
+                my $b = $db->single(user => {name => 'bee'});
+                ok $b;
+            }
+        };
+
+        subtest 'delete' => sub {
+            {
+                my $b = $db->single(user => {name => 'bee'});
+                ok $b;
+            }
+            $db->delete('user' => {name => 'bee'});
+            {
+                my $b = $db->single(user => {name => 'bee'});
+                ok !$b;
             }
         };
     }
