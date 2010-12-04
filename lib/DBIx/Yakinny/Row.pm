@@ -40,7 +40,7 @@ sub set_table {
 
 sub get_column {
     my ($self, $name) = @_;
-    $self->{row}->{$name};
+    $self->{$name};
 }
 
 sub where_cond {
@@ -68,7 +68,7 @@ sub refetch {
 }
 
 sub yakinny {
-    my $y = $_[0]->{yakinny};
+    my $y = $_[0]->{__yakinny__};
     if ($y) {
         return $y;
     } else {
@@ -84,14 +84,14 @@ sub yakinny {
         my ($self, $is_cloning) = @_;
         return if $is_cloning;
         my $to_serialize = +{%$self};
-        delete $to_serialize->{yakinny};
+        delete $to_serialize->{__yakinny__};
         return (Storable::freeze($to_serialize));
     }
 
     sub STORABLE_thaw {
         my ($self, $cloning, $ice) = @_;
         %$self = %{ Storable::thaw($ice) };
-        $self->{yakinny} = $thaw_yakinny;
+        $self->{__yakinny__} = $thaw_yakinny;
     }
 }
 

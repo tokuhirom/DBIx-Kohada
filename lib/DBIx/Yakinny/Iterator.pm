@@ -15,7 +15,7 @@ sub new {
 sub next {
     my $self = shift;
     if (my $row = $self->sth->fetchrow_hashref) {
-        return $self->_row_class->new(yakinny => $self->_yakinny, row => $row);
+        return $self->_row_class->new(__yakinny__ => $self->_yakinny, %$row);
     } else {
         $self->sth->finish;
         return;
