@@ -12,7 +12,8 @@ require Role::Tiny;
 
 $Carp::Internal{ (__PACKAGE__) }++;
 
-Class::Accessor::Lite->mk_accessors(qw/dbh query_builder schema/);
+Class::Accessor::Lite->mk_ro_accessors(qw/dbh/); # because it breaks TransactionManger.
+Class::Accessor::Lite->mk_accessors(qw/query_builder schema/);
 
 sub new {
     my $class = shift;
