@@ -4,7 +4,7 @@ use warnings;
 use utf8;
 use Class::Accessor::Lite;
 
-Class::Accessor::Lite->mk_accessors(qw/sth _row_class _yakinny/);
+Class::Accessor::Lite->mk_ro_accessors(qw/sth _row_class _yakinny/);
 
 sub new {
     my $class = shift;
@@ -34,4 +34,32 @@ sub all {
 sub rows { $_[0]->sth->rows }
 
 1;
+__END__
 
+=head1 NAME
+
+DBIx::Yakinny::Iterator - Iterator Object for Yakinny
+
+=head1 SYNOPSIS
+
+    while (my $row = $iter->next) {
+        ...
+    }
+
+=head1 METHODS
+
+=over 4
+
+=item my $item = $iter->next()
+
+Fetch one row from iterator. It returns undef when end of iteration.
+
+=item my @items = $iter->all()
+
+Fetch items at once.
+
+=item my $rows = $iter->rows()
+
+This is synonym for $iter->sth->rows
+
+=back
