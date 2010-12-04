@@ -8,6 +8,7 @@ use Carp ();
 
 use DBIx::Yakinny::Iterator;
 use DBIx::Yakinny::QueryBuilder;
+use Module::Load ();
 require Role::Tiny;
 
 $Carp::Internal{ (__PACKAGE__) }++;
@@ -27,6 +28,7 @@ sub new {
 sub load_plugin {
     my ($class, $name) = @_;
     $name = $name =~ s/^\+// ? $name : "DBIx::Yakinny::Plugin::$name";
+    Module::Load::load($name);
     Role::Tiny->apply_role_to_package($class, $name);
 }
 
