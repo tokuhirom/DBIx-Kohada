@@ -10,7 +10,6 @@ use DBIx::TransactionManager;
 
 use DBIx::Yakinny::Iterator;
 use DBIx::Yakinny::QueryBuilder;
-use Try::Tiny;
 
 $Carp::Internal{ (__PACKAGE__) }++;
 
