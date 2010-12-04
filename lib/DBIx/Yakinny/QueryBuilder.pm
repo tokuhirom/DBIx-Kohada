@@ -5,7 +5,7 @@ use utf8;
 use parent qw/SQL::Builder/;
 
 __PACKAGE__->load_plugin($_)
-    for qw/InsertMulti Replace/;
+    for qw/InsertMulti/;
 
 1;
 
