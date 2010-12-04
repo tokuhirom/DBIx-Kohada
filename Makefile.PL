@@ -10,6 +10,7 @@ requires 'DBI';
 requires 'SQL::Builder';
 requires 'parent';
 requires 'DBIx::TransactionManager';
+requires 'Role::Tiny';
 
 tests 't/*.t t/*/*.t t/*/*/*.t t/*/*/*/*.t';
 test_requires 'Test::More' => 0.96; # done_testing, subtest

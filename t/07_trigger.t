@@ -4,44 +4,69 @@ use Test::More;
 use Test::Requires 'Class::Method::Modifiers', 'DBD::SQLite';
 use DBIx::Yakinny::Schema;
 
-plan tests => 8;
-
-# pre_insert / post_insert / pre_update / post_update / pre_delete / post_delete
+plan tests => 15;
 
 {
     package MyApp::DB;
     use parent qw/DBIx::Yakinny/;
     use Class::Method::Modifiers;
 
-    our $cnt;
+    __PACKAGE__->load_plugin('Trigger');
 
-    before 'insert' => sub {
-        my ($yakinny, $table, $val) = @_;
-        ::is $table, 'user';
-        $val->{token} = 'HIJLK';
-    };
-    around 'insert' => sub {
-        my $code = shift;
-        my $row = $code->(@_);
-        $row->{AFTER_INSERT_HOOK_OK} = 1;
-        return $row;
-    };
-    before 'update_row' => sub {
-        my ($yakinny, $row, $attr) = @_;
-        $attr->{name} = uc $attr->{name} if $attr->{name};
-    };
-    after 'update_row' => sub {
-        my ($yakinny, $row, $attr) = @_;
-        ::is $row->table, 'user';
-    };
-    before 'delete_row' => sub {
-        my ($yakinny, $row) = @_;
-        ::is $row->table, 'user';
-    };
-    after 'update_row' => sub {
-        my ($yakinny, $row) = @_;
-        ::is $row->table, 'user';
-    };
+    our $CNT = 0;
+
+    __PACKAGE__->add_trigger(
+        'user' => 'before_insert' => sub {
+            my ($yakinny, $val) = @_;
+            ::isa_ok $yakinny, 'DBIx::Yakinny';
+            $val->{token} = 'HIJLK';
+            $CNT++;
+        },
+    );
+
+    __PACKAGE__->add_trigger(
+        'user' => 'after_insert' => sub {
+            my ($yakinny, $row) = @_;
+            ::isa_ok $yakinny, 'DBIx::Yakinny';
+            $row->{AFTER_INSERT_HOOK_OK} = 1;
+            $CNT++;
+        },
+    );
+
+    __PACKAGE__->add_trigger(
+        'user' => 'before_update' => sub {
+            my ($yakinny, $row, $attr) = @_;
+            ::isa_ok $yakinny, 'DBIx::Yakinny';
+            ::isa_ok $row, 'DBIx::Yakinny::Row';
+            $attr->{name} = uc $attr->{name} if $attr->{name};
+            $CNT++;
+        }
+    );
+    __PACKAGE__->add_trigger(
+        'user' => 'after_update' => sub {
+            my ($yakinny, $row, $attr) = @_;
+            ::isa_ok $yakinny, 'DBIx::Yakinny';
+            ::isa_ok $row, 'DBIx::Yakinny::Row';
+            $CNT++;
+        }
+    );
+
+    __PACKAGE__->add_trigger(
+        'user' => 'before_delete' => sub {
+            my ($yakinny, $row, $attr) = @_;
+            ::isa_ok $yakinny, 'DBIx::Yakinny';
+            ::isa_ok $row, 'DBIx::Yakinny::Row';
+            $CNT++;
+        }
+    );
+    __PACKAGE__->add_trigger(
+        'user' => 'after_delete' => sub {
+            my ($yakinny, $row, $attr) = @_;
+            ::isa_ok $yakinny, 'DBIx::Yakinny';
+            ::isa_ok $row, 'DBIx::Yakinny::Row';
+            $CNT++;
+        }
+    );
 }
 
 {
@@ -69,5 +94,7 @@ $row = $row->refetch();
 is $row->name, 'POO';
 
 $row->delete();
+
+is $MyApp::DB::CNT, 6;
 
 

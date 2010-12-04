@@ -10,6 +10,7 @@ use DBIx::TransactionManager;
 
 use DBIx::Yakinny::Iterator;
 use DBIx::Yakinny::QueryBuilder;
+require Role::Tiny;
 
 $Carp::Internal{ (__PACKAGE__) }++;
 
@@ -22,6 +23,12 @@ sub new {
     my $self = bless {%args}, $class;
     $self->{query_builder} ||= DBIx::Yakinny::QueryBuilder->new(dbh => $self->{dbh});
     return $self;
+}
+
+sub load_plugin {
+    my ($class, $name) = @_;
+    $name = $name =~ s/^\+// ? $name : "DBIx::Yakinny::Plugin::$name";
+    Role::Tiny->apply_role_to_package($class, $name);
 }
 
 sub txn_scope {
@@ -59,6 +66,16 @@ sub search_by_sql {
 
 sub insert  {
     my ($self, $table, $values, $opt) = @_;
+    return $self->_insert_or_replace($table, $values, $opt);
+}
+
+sub replace  {
+    my ($self, $table, $values, $opt) = @_;
+    return $self->_insert_or_replace($table, $values, +{%{$opt || +{}}, prefix => 'REPLACE'});
+}
+
+sub _insert_or_replace {
+    my ($self, $table, $values, $opt) = @_;
 
     my ($sql, @bind) = $self->query_builder->insert($table, $values, $opt);
     $self->dbh->do($sql, {}, @bind) or Carp::croak $self->dbh->errstr;
@@ -76,11 +93,6 @@ sub insert  {
         }
         return $self->single($table => $criteria);
     }
-}
-
-sub replace  {
-    my ($self, $table, $values, $opt) = @_;
-    return $self->insert($table, $values, +{%{$opt || +{}}, prefix => 'REPLACE'});
 }
 
 sub last_insert_id {
