@@ -15,7 +15,7 @@ sub search_with_pager {
     my $page = delete $opt->{page};
     my $rows = delete $opt->{rows};
 
-    my ($sql, @bind) = $self->query_builder->select($self->dbh->quote_identifier($table), [map { $self->dbh->quote_identifier($_) } $row_class->columns], $where, +{
+    my ($sql, @bind) = $self->query_builder->select($table, [$row_class->columns], $where, +{
         %$opt,
         limit => $rows + 1,
         offset => $rows*($page-1),

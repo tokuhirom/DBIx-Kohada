@@ -14,14 +14,20 @@ require Role::Tiny;
 $Carp::Internal{ (__PACKAGE__) }++;
 
 Class::Accessor::Lite->mk_ro_accessors(qw/dbh/); # because it breaks TransactionManger.
-Class::Accessor::Lite->mk_accessors(qw/query_builder schema/);
+Class::Accessor::Lite->mk_accessors(qw/query_builder schema name_sep quote_char/);
 
 sub new {
     my $class = shift;
     my %args = @_ == 1 ? %{$_[0]} : @_;
     Carp::croak("missing mandatory parameter: schema") unless $args{schema};
     my $self = bless {%args}, $class;
-    $self->{query_builder} ||= DBIx::Yakinny::QueryBuilder->new(dbh => $self->{dbh});
+    $self->{quote_char} = $self->dbh->get_info(29) || q{"};
+    $self->{name_sep}   = $self->dbh->get_info(41) || q{.};
+    $self->{query_builder} ||= DBIx::Yakinny::QueryBuilder->new(
+        driver     => $self->dbh->{Driver}->{Name},
+        quote_char => $self->quote_char,
+        name_sep   => $self->name_sep,
+    );
     return $self;
 }
 
@@ -42,7 +48,7 @@ sub search  {
     my ($self, $table, $where, $opt) = @_;
     my $row_class = $self->schema->get_class_for($table);
 
-    my ($sql, @bind) = $self->query_builder->select($self->dbh->quote_identifier($table), [map { $self->dbh->quote_identifier($_) } $row_class->columns], $where, $opt);
+    my ($sql, @bind) = $self->query_builder->select($table, [$row_class->columns], $where, $opt);
     my $sth = $self->dbh->prepare($sql) or Carp::croak $self->dbh->errstr;
     $sth->execute(@bind) or Carp::croak $self->dbh->errstr;
     my $iter = DBIx::Yakinny::Iterator->new(sth => $sth, _row_class => $row_class, _yakinny => $self);
