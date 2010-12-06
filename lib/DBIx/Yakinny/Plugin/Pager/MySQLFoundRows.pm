@@ -26,7 +26,7 @@ sub search_with_pager {
     $sth->execute(@bind) or Carp::croak $self->dbh->errstr;
     my $total_entries = $self->dbh->selectrow_array(q{SELECT FOUND_ROWS()});
 
-    my $iter = DBIx::Yakinny::Iterator->new(sth => $sth, row_class => $row_class);
+    my $iter = $self->new_iterator(sth => $sth, row_class => $row_class);
 
     my $pager = Data::Page->new();
     $pager->entries_per_page($rows);

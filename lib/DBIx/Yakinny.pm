@@ -32,6 +32,11 @@ sub new {
     return $self;
 }
 
+sub new_iterator {
+    my ($self, @args) = @_;
+    return DBIx::Yakinny::Iterator->new(@args);
+}
+
 sub load_plugin {
     my ($class, $name) = @_;
     $name = $name =~ s/^\+// ? $name : "DBIx::Yakinny::Plugin::$name";
@@ -47,12 +52,12 @@ sub single {
 
 sub search  {
     my ($self, $table, $where, $opt) = @_;
-    my $row_class = $self->schema->get_class_for($table);
+    my $row_class = $self->schema->get_class_for($table) or Carp::croak "Unknown table : $table";
 
     my ($sql, @bind) = $self->query_builder->select($table, [$row_class->columns], $where, $opt);
     my $sth = $self->dbh->prepare($sql) or Carp::croak $self->dbh->errstr;
     $sth->execute(@bind) or Carp::croak $self->dbh->errstr;
-    my $iter = DBIx::Yakinny::Iterator->new(sth => $sth, row_class => $row_class);
+    my $iter = $self->new_iterator(sth => $sth, row_class => $row_class);
     return wantarray ? $iter->all : $iter;
 }
 
@@ -62,7 +67,7 @@ sub search_by_sql {
     my $row_class = $self->schema->get_class_for($table);
     my $sth = $self->dbh->prepare($sql) or Carp::croak $self->dbh->errstr;
     $sth->execute(@binds) or Carp::croak $self->dbh->errstr;
-    my $iter = DBIx::Yakinny::Iterator->new(sth => $sth, row_class => $row_class);
+    my $iter = $self->new_iterator(sth => $sth, row_class => $row_class);
     return wantarray ? $iter->all : $iter;
 }
 
