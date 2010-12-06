@@ -19,7 +19,7 @@ sub dump {
     local $Data::Dumper::Terse    = 1;
     local $Data::Dumper::Indent   = 0;
     local $Data::Dumper::Sortkeys = 1;
-    for my $table ($inspector->tables) {
+    for my $table (sort { $_->name } $inspector->tables) {
         my $klass = $callback->($table->name);
         $ret .= "{\n";
         $ret .= "require ${class};\n";
