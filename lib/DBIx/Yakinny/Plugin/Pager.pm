@@ -39,9 +39,9 @@ sub search_with_pager {
 }
 
 package DBIx::Yakinny::Plugin::Pager::Page;
-use Class::Accessor::Lite;
-
-Class::Accessor::Lite->mk_ro_accessors(qw/entries_per_page current_page has_next entries_on_this_page/);
+use Class::Accessor::Lite (
+    ro => [qw/entries_per_page current_page has_next entries_on_this_page/],
+);
 
 sub new {
     my $class = shift;

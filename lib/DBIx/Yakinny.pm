@@ -3,7 +3,10 @@ use strict;
 use warnings;
 use 5.008001;
 our $VERSION = '0.01';
-use Class::Accessor::Lite;
+use Class::Accessor::Lite (
+    ro => [qw/dbh/], # because if it change this attribute, then it breaks TransactionManger's state.
+    rw => [qw/query_builder schema name_sep quote_char/],
+);
 use Carp ();
 
 use DBIx::Yakinny::Iterator;
@@ -13,9 +16,6 @@ use Scalar::Util ();
 require Role::Tiny;
 
 $Carp::Internal{ (__PACKAGE__) }++;
-
-Class::Accessor::Lite->mk_ro_accessors(qw/dbh/); # because if it change this attribute, then it breaks TransactionManger's state.
-Class::Accessor::Lite->mk_accessors(qw/query_builder schema name_sep quote_char/);
 
 sub new {
     my $class = shift;

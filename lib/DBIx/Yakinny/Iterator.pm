@@ -2,9 +2,9 @@ package DBIx::Yakinny::Iterator;
 use strict;
 use warnings;
 use utf8;
-use Class::Accessor::Lite;
-
-Class::Accessor::Lite->mk_ro_accessors(qw/sth row_class/);
+use Class::Accessor::Lite (
+    ro => [qw/sth row_class/],
+);
 
 sub new {
     my $class = shift;
