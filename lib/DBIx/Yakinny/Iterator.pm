@@ -4,7 +4,7 @@ use warnings;
 use utf8;
 use Class::Accessor::Lite;
 
-Class::Accessor::Lite->mk_ro_accessors(qw/sth _row_class _yakinny/);
+Class::Accessor::Lite->mk_ro_accessors(qw/sth row_class/);
 
 sub new {
     my $class = shift;
@@ -15,7 +15,7 @@ sub new {
 sub next {
     my $self = shift;
     if (my $row = $self->sth->fetchrow_hashref) {
-        return $self->_row_class->new(__yakinny__ => $self->_yakinny, %$row);
+        return $self->row_class->new(%$row);
     } else {
         $self->sth->finish;
         return;
@@ -30,8 +30,6 @@ sub all {
     }
     return @row;
 }
-
-sub rows { $_[0]->sth->rows }
 
 1;
 __END__
@@ -56,10 +54,6 @@ Fetch one row from iterator. It returns undef when end of iteration.
 
 =item my @items = $iter->all()
 
-Fetch items at once.
-
-=item my $rows = $iter->rows()
-
-This is synonym for $iter->sth->rows
+Fetch all items at once.
 
 =back

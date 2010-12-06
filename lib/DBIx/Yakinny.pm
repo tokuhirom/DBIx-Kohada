@@ -9,11 +9,12 @@ use Carp ();
 use DBIx::Yakinny::Iterator;
 use DBIx::Yakinny::QueryBuilder;
 use Module::Load ();
+use Scalar::Util ();
 require Role::Tiny;
 
 $Carp::Internal{ (__PACKAGE__) }++;
 
-Class::Accessor::Lite->mk_ro_accessors(qw/dbh/); # because it breaks TransactionManger.
+Class::Accessor::Lite->mk_ro_accessors(qw/dbh/); # because if it change this attribute, then it breaks TransactionManger's state.
 Class::Accessor::Lite->mk_accessors(qw/query_builder schema name_sep quote_char/);
 
 sub new {
@@ -51,7 +52,7 @@ sub search  {
     my ($sql, @bind) = $self->query_builder->select($table, [$row_class->columns], $where, $opt);
     my $sth = $self->dbh->prepare($sql) or Carp::croak $self->dbh->errstr;
     $sth->execute(@bind) or Carp::croak $self->dbh->errstr;
-    my $iter = DBIx::Yakinny::Iterator->new(sth => $sth, _row_class => $row_class, _yakinny => $self);
+    my $iter = DBIx::Yakinny::Iterator->new(sth => $sth, row_class => $row_class);
     return wantarray ? $iter->all : $iter;
 }
 
@@ -61,7 +62,7 @@ sub search_by_sql {
     my $row_class = $self->schema->get_class_for($table);
     my $sth = $self->dbh->prepare($sql) or Carp::croak $self->dbh->errstr;
     $sth->execute(@binds) or Carp::croak $self->dbh->errstr;
-    my $iter = DBIx::Yakinny::Iterator->new(sth => $sth, _row_class => $row_class, _yakinny => $self);
+    my $iter = DBIx::Yakinny::Iterator->new(sth => $sth, row_class => $row_class);
     return wantarray ? $iter->all : $iter;
 }
 
@@ -155,15 +156,30 @@ sub update_row {
 }
 
 sub delete {
-    my ($self, $table, $where) = @_;
-    my ($sql, @binds) = $self->query_builder->delete($table, $where);
-    $self->dbh->do($sql, {}, @binds);
+    my $self = shift;
+    if (@_==1 && Scalar::Util::blessed($_[0])) {
+        $self->delete_row(@_);
+    } else {
+        my ($table, $where) = @_;
+        my ($sql, @binds) = $self->query_builder->delete($table, $where);
+        $self->dbh->do($sql, {}, @binds);
+    }
 }
 
 sub update {
-    my ($self, $table, $attr, $where) = @_;
-    my ($sql, @binds) = $self->query_builder->update($table, $attr, $where);
-    $self->dbh->do($sql, {}, @binds);
+    my $self = shift;
+    if (@_==2 && Scalar::Util::blessed($_[0])) {
+        return $self->update_row(@_);
+    } else {
+        my ($table, $attr, $where) = @_;
+        my ($sql, @binds) = $self->query_builder->update($table, $attr, $where);
+        $self->dbh->do($sql, {}, @binds);
+    }
+}
+
+sub refetch {
+    my ($self, $row) = @_;
+    $self->single($row->table, $row->where_cond);
 }
 
 1;

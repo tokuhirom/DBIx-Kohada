@@ -89,11 +89,11 @@ ok $row, 'returned row';
 is $row->token, 'HIJLK';
 ok $row->{AFTER_INSERT_HOOK_OK};
 
-$row->update({name => 'poo'});
-$row = $row->refetch();
+$db->update($row, {name => 'poo'});
+$row = $db->refetch($row);
 is $row->name, 'POO';
 
-$row->delete();
+$db->delete($row);
 
 is $MyApp::DB::CNT, 6;
 

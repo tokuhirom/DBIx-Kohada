@@ -23,7 +23,7 @@ sub search_with_pager {
     my $sth = $self->dbh->prepare($sql) or Carp::croak $self->dbh->errstr;
     $sth->execute(@bind) or Carp::croak $self->dbh->errstr;
 
-    my $ret = [DBIx::Yakinny::Iterator->new(sth => $sth, _row_class => $row_class, _yakinny => $self, limit => $rows)->all];
+    my $ret = [DBIx::Yakinny::Iterator->new(sth => $sth, row_class => $row_class, limit => $rows)->all];
 
     my $has_next = ( $rows + 1 == scalar(@$ret) ) ? 1 : 0;
     if ($has_next) { pop @$ret }
