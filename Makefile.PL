@@ -11,6 +11,7 @@ requires 'SQL::Builder';
 requires 'parent';
 requires 'DBIx::TransactionManager';
 requires 'Role::Tiny';
+requires 'Class::Accessor::Lite' => 0.05;
 
 tests 't/*.t t/*/*.t t/*/*/*.t t/*/*/*/*.t';
 test_requires 'Test::More' => 0.96; # done_testing, subtest
