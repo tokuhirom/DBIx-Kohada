@@ -13,8 +13,8 @@ sub search_with_pager {
 
     my $row_class = $self->schema->get_class_for($table) or Carp::croak("'$table' is unknown table");
 
-    my $page = delete $opt->{page};
-    my $rows = delete $opt->{rows};
+    my $page = $opt->{page};
+    my $rows = $opt->{rows};
 
     my ($sql, @bind) = $self->query_builder->select($table, [$row_class->columns], $where, +{
         %$opt,
