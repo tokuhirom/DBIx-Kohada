@@ -37,7 +37,7 @@ plan tests => 15;
         'user' => 'before_update' => sub {
             my ($yakinny, $row, $attr) = @_;
             ::isa_ok $yakinny, 'DBIx::Yakinny';
-            ::isa_ok $row, 'DBIx::Yakinny::Row';
+            ::isa_ok $row, 'MyApp::DB::Row::User';
             $attr->{name} = uc $attr->{name} if $attr->{name};
             $CNT++;
         }
@@ -46,7 +46,7 @@ plan tests => 15;
         'user' => 'after_update' => sub {
             my ($yakinny, $row, $attr) = @_;
             ::isa_ok $yakinny, 'DBIx::Yakinny';
-            ::isa_ok $row, 'DBIx::Yakinny::Row';
+            ::isa_ok $row, 'MyApp::DB::Row::User';
             $CNT++;
         }
     );
@@ -55,7 +55,7 @@ plan tests => 15;
         'user' => 'before_delete' => sub {
             my ($yakinny, $row, $attr) = @_;
             ::isa_ok $yakinny, 'DBIx::Yakinny';
-            ::isa_ok $row, 'DBIx::Yakinny::Row';
+            ::isa_ok $row, 'MyApp::DB::Row::User';
             $CNT++;
         }
     );
@@ -63,7 +63,7 @@ plan tests => 15;
         'user' => 'after_delete' => sub {
             my ($yakinny, $row, $attr) = @_;
             ::isa_ok $yakinny, 'DBIx::Yakinny';
-            ::isa_ok $row, 'DBIx::Yakinny::Row';
+            ::isa_ok $row, 'MyApp::DB::Row::User';
             $CNT++;
         }
     );
@@ -71,17 +71,23 @@ plan tests => 15;
 
 {
     package MyApp::DB::Row::User;
-    use parent qw/DBIx::Yakinny::Row/;
-    __PACKAGE__->set_table('user');
-    __PACKAGE__->add_column($_) for qw/name email token/;
-    __PACKAGE__->set_primary_key('email');
+    use Class::Accessor::Lite (
+        new => 1,
+        rw => [qw/name email token/],
+    );
 }
+
+my $user_table = DBIx::Yakinny::Schema::Table->new(
+    name        => 'user',
+    primary_key => [qw/email/],
+);
+$user_table->add_column($_) for qw/name email token/;
 
 my $dbh = DBI->connect('dbi:SQLite:', '', '') or die;
 $dbh->do(q{create table user (name text, email text PRIMARY KEY, token text);});
 
 my $schema = DBIx::Yakinny::Schema->new();
-$schema->register_table('MyApp::DB::Row::User');
+$schema->map_table($user_table => 'MyApp::DB::Row::User');
 
 my $db = MyApp::DB->new(schema => $schema, dbh => $dbh);
 my $row = $db->insert(user => {name => 'john', email => 'john@example.com'});

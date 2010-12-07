@@ -11,12 +11,13 @@ use Role::Tiny;
 sub search_with_pager {
     my ($self, $table, $where, $opt) = @_;
 
-    my $row_class = $self->schema->get_class_for($table) or Carp::croak("'$table' is unknown table");
+    my $row_class = $self->schema->get_row_class_for($table) or Carp::croak("'$table' is unknown table");
 
     my $page = $opt->{page};
     my $rows = $opt->{rows};
 
-    my ($sql, @bind) = $self->query_builder->select($table, [$row_class->columns], $where, +{
+    my $table_info = $self->schema->get_table_object_from_row_class($row_class);
+    my ($sql, @bind) = $self->query_builder->select($table, [$table_info->column_names], $where, +{
         %$opt,
         limit => $rows,
         offset => $rows*($page-1),

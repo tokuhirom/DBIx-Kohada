@@ -10,6 +10,7 @@ use Class::Accessor::Lite (
 use Carp ();
 
 use DBIx::Yakinny::Iterator;
+use DBIx::Yakinny::Schema::Table;
 use DBIx::Yakinny::QueryBuilder;
 use Module::Load ();
 use Scalar::Util ();
@@ -52,9 +53,10 @@ sub single {
 
 sub search  {
     my ($self, $table, $where, $opt) = @_;
-    my $row_class = $self->schema->get_class_for($table) or Carp::croak "Unknown table : $table";
+    my $row_class = $self->schema->get_row_class_for($table) or Carp::croak "Unknown table : $table";
+    my @columns = $self->schema->get_table_info_for($table)->column_names;
 
-    my ($sql, @bind) = $self->query_builder->select($table, [$row_class->columns], $where, $opt);
+    my ($sql, @bind) = $self->query_builder->select($table, \@columns, $where, $opt);
     my $sth = $self->dbh->prepare($sql) or Carp::croak $self->dbh->errstr;
     $sth->execute(@bind) or Carp::croak $self->dbh->errstr;
     my $iter = $self->new_iterator(sth => $sth, row_class => $row_class);
@@ -64,7 +66,7 @@ sub search  {
 sub search_by_sql {
     my ($self, $table, $sql, @binds) = @_;
 
-    my $row_class = $self->schema->get_class_for($table);
+    my $row_class = $self->schema->get_row_class_for($table);
     my $sth = $self->dbh->prepare($sql) or Carp::croak $self->dbh->errstr;
     $sth->execute(@binds) or Carp::croak $self->dbh->errstr;
     my $iter = $self->new_iterator(sth => $sth, row_class => $row_class);
@@ -88,14 +90,15 @@ sub _insert_or_replace {
     $self->dbh->do($sql, {}, @bind) or Carp::croak $self->dbh->errstr;
     if (defined wantarray) {
         # find row
-        my $row_class = $self->schema->get_class_for($table) or die "'$table' is not defined in schema";
-        my $primary_key = $row_class->primary_key;
+        my $row_class = $self->schema->get_row_class_for($table) or die "'$table' is not defined in schema";
+        my $table_info = $self->schema->get_table_info_for($table) or die "'$table' is not defined in schema";
+        my $primary_key = $table_info->primary_key;
         if (@$primary_key == 1 && not exists $values->{$primary_key->[0]}) {
             return $self->retrieve($table => $self->last_insert_id($table));
         }
 
         my $criteria = {};
-        for my $primary_key1 (@{$row_class->primary_key}) {
+        for my $primary_key1 (@$primary_key) {
             $criteria->{$primary_key1} = $values->{$primary_key1};
         }
         return $self->single($table => $criteria);
@@ -119,11 +122,12 @@ sub find_or_create {
 sub retrieve {
     my ($self, $table, $vals) = @_;
     $vals = [$vals] unless ref $vals;
-    my $row_class = $self->schema->get_class_for($table);
+    my $row_class = $self->schema->get_row_class_for($table);
+    my $pk = $self->schema->get_table_info_for($table)->primary_key;
 
     my $criteria = {};
-    for (my $i=0; $i<@{$row_class->primary_key}; $i++) {
-        my $k = $row_class->primary_key->[$i];
+    for (my $i=0; $i<@{$pk}; $i++) {
+        my $k = $pk->[$i];
         my $v = $vals->[$i];
         $criteria->{$k} = $v;
     }
@@ -149,14 +153,26 @@ sub bulk_insert {
 sub delete_row {
     my ($self, $row) = @_;
 
-    my ($sql, @binds) = $self->query_builder->delete($row->table, $row->where_cond);
+    my $table_info = $self->schema->get_table_object_from_row_class(ref $row);
+    my $where = $self->row_where($row);
+    my ($sql, @binds) = $self->query_builder->delete($table_info->name, $where);
     $self->dbh->do($sql, {}, @binds) == 1 or die "FATAL";
+}
+
+sub row_where {
+    my ($self, $row) = @_;
+    my $table_info = $self->schema->get_table_object_from_row_class(ref $row);
+    my @pk = @{$table_info->primary_key};
+    Carp::confess("You cannot call this method whithout primary key") unless @pk;
+    return +{ map { $_ => $row->$_() } @pk };
 }
 
 sub update_row {
     my ($self, $row, $attr) = @_;
 
-    my ($sql, @binds) = $self->query_builder->update($row->table, $attr, $row->where_cond);
+    my $table_info = $self->schema->get_table_object_from_row_class(ref $row);
+    my $where = $self->row_where($row);
+    my ($sql, @binds) = $self->query_builder->update($table_info->name, $attr, $where);
     $self->dbh->do($sql, {}, @binds) == 1 or die "FATAL";
 }
 
@@ -184,7 +200,9 @@ sub update {
 
 sub refetch {
     my ($self, $row) = @_;
-    $self->single($row->table, $row->where_cond);
+    my $table_info = $self->schema->get_table_object_from_row_class(ref $row);
+    my $where = $self->row_where($row);
+    $self->single($table_info->name, $where);
 }
 
 1;

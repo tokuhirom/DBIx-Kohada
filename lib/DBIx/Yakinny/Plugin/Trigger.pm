@@ -28,13 +28,14 @@ around 'insert' => sub {
 around 'update_row' => sub {
     my $orig = shift;
     my ($self, $row, $attr) = @_;
-    if (my $triggers = $TRIGGERS{ref $self}->{$row->table}->{before_update}) {
+    my $table_info = $self->schema->get_table_object_from_row_class(ref $row);
+    if (my $triggers = $TRIGGERS{ref $self}->{$table_info->name}->{before_update}) {
         for my $trigger (@$triggers) {
             $trigger->($self, $row, $attr);
         }
     }
     $orig->(@_);
-    if (my $triggers = $TRIGGERS{ref $self}->{$row->table}->{after_update}) {
+    if (my $triggers = $TRIGGERS{ref $self}->{$table_info->name}->{after_update}) {
         for my $trigger (@$triggers) {
             $trigger->($self, $row, $attr);
         }
@@ -44,13 +45,14 @@ around 'update_row' => sub {
 around 'delete_row' => sub {
     my $orig = shift;
     my ($self, $row, $attr) = @_;
-    if (my $triggers = $TRIGGERS{ref $self}->{$row->table}->{before_delete}) {
+    my $table_info = $self->schema->get_table_object_from_row_class(ref $row);
+    if (my $triggers = $TRIGGERS{ref $self}->{$table_info->name}->{before_delete}) {
         for my $trigger (@$triggers) {
             $trigger->($self, $row, $attr);
         }
     }
     $orig->(@_);
-    if (my $triggers = $TRIGGERS{ref $self}->{$row->table}->{after_delete}) {
+    if (my $triggers = $TRIGGERS{ref $self}->{$table_info->name}->{after_delete}) {
         for my $trigger (@$triggers) {
             $trigger->($self, $row, $attr);
         }

@@ -10,50 +10,11 @@ sub new {
     return bless {%attr}, $class;
 }
 
-sub add_column {
-    my ($class, $stuff) = @_;
-    $stuff = +{ COLUMN_NAME => $stuff } unless ref $stuff;
-    my $name = $stuff->{COLUMN_NAME} || Carp::croak "missing COLUMN_NAME";
-    no strict 'refs';
-    *{"${class}::$name"} = sub { $_[0]->{$name} };
-    push @{"${class}::COLUMNS"}, $stuff;
-}
-
-sub columns {
-    my $class = shift;
-    no strict 'refs';
-    my @columns = map { $_->{COLUMN_NAME} } @{"${class}::COLUMNS"};
-    return wantarray ? @columns : \@columns;
-}
-
-sub set_primary_key {
-    my ($class, $pk) = @_;
-    $pk = [$pk] unless ref $pk;
-    no strict 'refs';
-    *{"${class}::primary_key"} = sub { $pk };
-}
-
-sub set_table {
-    my ($class, $table) = @_;
-    no strict 'refs';
-    *{"${class}::table"} = sub { $table };
-}
-
-# abstract methods
-sub table       { Carp::confess "Please set table name before use" }
-sub primary_key { Carp::confess "Please set table name before use" }
-
 sub get_column {
     my ($self, $name) = @_;
     $self->{$name};
 }
 
-sub where_cond {
-    my ($self) = @_;
-    my @pk = @{$self->primary_key};
-    Carp::confess("You cannot call this method whithout primary key") unless @pk;
-    return +{ map { $_ => $self->get_column($_) } @pk };
-}
 
 1;
 __END__

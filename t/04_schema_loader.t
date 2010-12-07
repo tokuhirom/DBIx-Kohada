@@ -8,7 +8,10 @@ use DBIx::Yakinny::Schema::Loader;
 
 {
     package MyApp::DB::Row::User;
-    use parent qw/DBIx::Yakinny::Row/;
+    use Class::Accessor::Lite (
+        new => 1,
+        rw => [qw/user_id name email created_on/],
+    );
 }
 
 # initialize
@@ -33,10 +36,13 @@ my $db = DBIx::Yakinny->new(
     schema => $schema,
     dbh    => $dbh,
 );
-my $user = $db->schema->get_class_for('user');
-is($user->table, 'user');
-is(join(',', @{$user->primary_key}), 'user_id');
-is(join(',', $user->columns), 'user_id,name,email,created_on');
+my $user = $db->schema->get_row_class_for('user');
+is $user, 'MyApp::DB::Row::User';
+my $table_info  = $db->schema->get_table_object_from_row_class('MyApp::DB::Row::User');
+ok $table_info;
+is($table_info->name, 'user');
+is(join(',', @{$table_info->primary_key}), 'user_id');
+is(join(',', $table_info->column_names), 'user_id,name,email,created_on');
 
 done_testing;
 

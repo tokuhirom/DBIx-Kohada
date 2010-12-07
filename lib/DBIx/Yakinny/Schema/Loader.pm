@@ -4,6 +4,7 @@ use warnings;
 use utf8;
 use DBIx::Inspector;
 use DBIx::Yakinny::Schema;
+use DBIx::Yakinny::Schema::Table;
 use DBIx::Yakinny::Row;
 use Carp ();
 
@@ -15,16 +16,14 @@ sub load {
     my $callback = $args{table2class_cb} or Carp::croak("missing mandatory parameter 'table2class_cb'");
     my $schema = DBIx::Yakinny::Schema->new();
     my $inspector = DBIx::Inspector->new(dbh => $dbh);
-    for my $table ($inspector->tables) {
-        my $klass = $callback->($table->name);
-        unless ($klass->isa('DBIx::Yakinny::Row')) {
-            no strict 'refs';
-            unshift @{"${klass}::ISA"}, 'DBIx::Yakinny::Row'
-        }
-        $klass->set_table( $table->name );
-        $klass->add_column( $_->name ) for $table->columns;
-        $klass->set_primary_key( [ map { $_->name } $table->primary_key ] );
-        $schema->register_table($klass);
+    for my $table_info ($inspector->tables) {
+        my $row_class = $callback->($table_info->name);
+        my $table = DBIx::Yakinny::Schema::Table->new(
+            name => $table_info->name,
+            columns => [ map { my $column = $_; +{ map { $_ => $column->{$_}} qw/COLUMN_NAME DECIMAL_DIGITS COLUMN_DEF NUM_PREC_RADIX CHAR_OCTET_LENGTH REMARKS IS_NULLABLE COLUMN_SIZE ORDINAL_POSITION TYPE_NAME NULLABLE DATA_TYPE SQL_DATA_TYPE SQL_DATETIME_SUB/ } } $table_info->columns ],
+            primary_key => [map { $_->name } $table_info->primary_key],
+        );
+        $schema->map_table($table => $row_class);
     }
     return $schema;
 }

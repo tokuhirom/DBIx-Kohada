@@ -16,6 +16,13 @@ my $mysqld = Test::mysqld->new(
     use base qw/DBIx::Yakinny/;
     __PACKAGE__->load_plugin('Pager::MySQLFoundRows');
 }
+{
+    package MyApp::DB::Row::foo;
+    use Class::Accessor::Lite (
+        new => 1,
+        rw => [qw/b/],
+    );
+}
 
 my $dbh = DBI->connect($mysqld->dsn);
 $dbh->do(q{create table foo (b integer not null) TYPE=InnoDB}) or die;

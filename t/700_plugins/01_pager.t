@@ -11,6 +11,14 @@ use DBIx::Yakinny::Schema::Loader;
     __PACKAGE__->load_plugin('Pager');
 }
 
+{
+    package MyApp::DB::Row::foo;
+    use Class::Accessor::Lite (
+        new => 1,
+        rw => [qw/b/],
+    );
+}
+
 my $dbh = DBI->connect('dbi:SQLite:', '', '');
 $dbh->do(q{create table foo (b int)}) or die;
 my $schema = DBIx::Yakinny::Schema::Loader->load(dbh => $dbh, table2class_cb => sub {

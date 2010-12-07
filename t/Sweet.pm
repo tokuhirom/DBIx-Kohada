@@ -25,27 +25,56 @@ package t::Sweet;
     package TestSuite;
     use Test::More;
     use DBIx::Yakinny::Schema;
+    use DBIx::Yakinny::Schema::Table;
 
     my $schema;
+
+    {
+        package MyApp::DB::Row::User;
+        use Class::Accessor::Lite (
+            new => 1,
+            rw  => [qw/user_id name email created_on/],
+        );
+    }
+    {
+        package MyApp::DB::Row::Entry;
+        use Class::Accessor::Lite (
+            new => 1,
+            rw  => [qw/entry_id user_id body/],
+        );
+    }
+    {
+        package MyApp::DB::Row::Good;
+        use Class::Accessor::Lite (
+            new => 1,
+            rw  => [qw/entry_id user_id/],
+        );
+    }
 
     sub make_schema {
         $schema ||= do {
             my $s = DBIx::Yakinny::Schema->new();
 
-            MyApp::DB::Row::User->set_table('user');
-            MyApp::DB::Row::User->add_column($_) for qw/user_id name email created_on/;
-            MyApp::DB::Row::User->set_primary_key(['user_id']);
-            $s->register_table( 'MyApp::DB::Row::User' );
+            my $user_table = DBIx::Yakinny::Schema::Table->new(
+                name        => 'user',
+                primary_key => [qw/user_id/],
+            );
+            $user_table->add_column($_) for qw/user_id name email created_on/;
+            $s->map_table( $user_table => 'MyApp::DB::Row::User' );
 
-            MyApp::DB::Row::Entry->set_table('entry');
-            MyApp::DB::Row::Entry->add_column($_) for qw/entry_id user_id body/;
-            MyApp::DB::Row::Entry->set_primary_key(['entry_id']);
-            $s->register_table( 'MyApp::DB::Row::Entry' );
+            my $entry_table = DBIx::Yakinny::Schema::Table->new(
+                name        => 'entry',
+                primary_key => [qw/entry_id/],
+            );
+            $entry_table->add_column($_) for qw/entry_id user_id body/;
+            $s->map_table( $entry_table => 'MyApp::DB::Row::Entry' );
 
-            MyApp::DB::Row::Good->set_table('good');
-            MyApp::DB::Row::Good->add_column($_) for qw/user_id entry_id/;
-            MyApp::DB::Row::Good->set_primary_key(['user_id', 'entry_id']);
-            $s->register_table( 'MyApp::DB::Row::Good' );
+            my $good_table = DBIx::Yakinny::Schema::Table->new(
+                name        => 'good',
+                primary_key => [qw/user_id entry_id/],
+            );
+            $good_table->add_column($_) for qw/user_id entry_id/;
+            $s->map_table( $good_table => 'MyApp::DB::Row::Good' );
 
             $s;
         };
@@ -60,7 +89,7 @@ package t::Sweet;
         );
 
         subtest 'tables' => sub {
-            is join(',', sort $db->schema->tables), 'entry,good,user';
+            is join(',', sort map { $_->name } $db->schema->tables), 'entry,good,user';
         };
 
         subtest 'insert' => sub {
