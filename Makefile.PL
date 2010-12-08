@@ -11,6 +11,7 @@ requires 'SQL::Builder';
 requires 'parent';
 requires 'DBIx::TransactionManager';
 requires 'Role::Tiny';
+requires 'Class::Method::Modifiers';
 requires 'Class::Accessor::Lite' => 0.05;
 
 tests 't/*.t t/*/*.t t/*/*/*.t t/*/*/*/*.t';

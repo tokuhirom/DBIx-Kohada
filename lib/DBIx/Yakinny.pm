@@ -10,6 +10,7 @@ use Class::Accessor::Lite (
 use Carp ();
 
 use DBIx::Yakinny::Iterator;
+use DBIx::Yakinny::AnonRow;
 use DBIx::Yakinny::QueryBuilder;
 use Module::Load ();
 require Role::Tiny;
@@ -21,7 +22,9 @@ $Carp::Internal{ (__PACKAGE__) }++;
 sub new {
     my $class = shift;
     my %args = @_ == 1 ? %{$_[0]} : @_;
-    Carp::croak("missing mandatory parameter: schema") unless $args{schema};
+    for (qw/schema dbh/) {
+        Carp::croak("missing mandatory parameter: $_") unless $args{$_};
+    }
     my $self = bless {%args}, $class;
     $self->{quote_char} = $self->dbh->get_info(29) || q{"};
     $self->{name_sep}   = $self->dbh->get_info(41) || q{.};
@@ -65,10 +68,14 @@ sub search  {
 sub search_by_sql {
     my ($self, $table, $sql, @binds) = @_;
 
-    my $row_class = $self->schema->get_class_for($table);
+    my $row_class;
+    if ($table) {
+        $row_class = $self->schema->get_class_for($table);
+    }
+    $row_class ||= 'DBIx::Yakinny::AnonRow';
     my $sth = $self->dbh->prepare($sql) or Carp::croak $self->dbh->errstr;
     $sth->execute(@binds) or Carp::croak $self->dbh->errstr;
-    my $iter = $self->new_iterator(sth => $sth, row_class => $row_class);
+    my $iter = $self->new_iterator(sth => $sth, row_class => $row_class, query => $sql);
     return wantarray ? $iter->all : $iter;
 }
 

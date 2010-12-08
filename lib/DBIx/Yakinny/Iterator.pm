@@ -3,7 +3,7 @@ use strict;
 use warnings;
 use utf8;
 use Class::Accessor::Lite (
-    ro => [qw/sth row_class yakinny/],
+    ro => [qw/sth row_class yakinny query/],
 );
 
 sub new {
@@ -15,7 +15,7 @@ sub new {
 sub next {
     my $self = shift;
     if (my $row = $self->sth->fetchrow_hashref) {
-        return $self->row_class->new(__yakinny__ => $self->yakinny, %$row);
+        return $self->row_class->new(__query => $self->query, __yakinny => $self->yakinny, %$row);
     } else {
         $self->sth->finish;
         return;

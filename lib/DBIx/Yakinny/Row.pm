@@ -75,7 +75,7 @@ sub refetch {
 }
 
 sub yakinny {
-    my $y = $_[0]->{__yakinny__};
+    my $y = $_[0]->{__yakinny};
     if ($y) {
         return $y;
     } else {
@@ -91,14 +91,14 @@ sub yakinny {
         my ($self, $is_cloning) = @_;
         return if $is_cloning;
         my $to_serialize = +{%$self};
-        delete $to_serialize->{__yakinny__};
+        delete $to_serialize->{__yakinny};
         return (Storable::freeze($to_serialize));
     }
 
     sub STORABLE_thaw {
         my ($self, $cloning, $ice) = @_;
         %$self = %{ Storable::thaw($ice) };
-        $self->{__yakinny__} = $thaw_yakinny;
+        $self->{__yakinny} = $thaw_yakinny;
     }
 }
 
