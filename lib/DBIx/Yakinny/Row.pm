@@ -83,23 +83,4 @@ sub yakinny {
     }
 }
 
-# storable stuff
-{
-    our $thaw_yakinny;
-
-    sub STORABLE_freeze {
-        my ($self, $is_cloning) = @_;
-        return if $is_cloning;
-        my $to_serialize = +{%$self};
-        delete $to_serialize->{__yakinny};
-        return (Storable::freeze($to_serialize));
-    }
-
-    sub STORABLE_thaw {
-        my ($self, $cloning, $ice) = @_;
-        %$self = %{ Storable::thaw($ice) };
-        $self->{__yakinny} = $thaw_yakinny;
-    }
-}
-
 1;
