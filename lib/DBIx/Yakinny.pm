@@ -117,13 +117,6 @@ sub last_insert_id {
     return $self->dbh->last_insert_id("","",$table,"");
 }
 
-sub find_or_create {
-    my ($self, $table, $values) = @_;
-    my $row = $self->single($table, $values);
-    return $row if $row;
-    return $self->insert($table, $values);
-}
-
 sub retrieve {
     my ($self, $table, $vals) = @_;
     $vals = [$vals] unless ref $vals;

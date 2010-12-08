@@ -107,19 +107,6 @@ package t::Sweet;
             is scalar(@names), 0;
         };
 
-        subtest 'find_or_create' => sub {
-            {
-                my $user = $db->find_or_create(user => {user_id => 4, name => 'john'});
-                is $user->user_id, 4;
-                is $user->name, 'john';
-            }
-            {
-                my $user = $db->find_or_create(user => {user_id => 4, name => 'john'});
-                is $user->user_id, 4;
-                is $user->name, 'john';
-            }
-        };
-
         subtest 'retrieve' => sub {
             my $user = $db->retrieve(user => 3);
             is $user->name, 'baz';
