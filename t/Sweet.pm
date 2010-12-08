@@ -121,11 +121,12 @@ package t::Sweet;
         subtest 'search_by_sql' => sub {
             my $table = $db->dbh->quote_identifier('user');
             my ($u) = $db->search_by_sql(user => qq{SELECT COUNT(*) AS cnt FROM $table});
-            is $u->get_column('cnt'), 4;
+            is $u->get_column('cnt'), 3;
             is join(',', map { $_->name } $db->search_by_sql(user => qq{SELECT * FROM $table WHERE name LIKE 'ba%' ORDER BY name})), 'bar,baz';
         };
 
         subtest 'delete' => sub {
+            $db->insert(user => {name => 'john'});
             {
                 my $u = $db->single(user => {name => 'john'});
                 $u->delete();
