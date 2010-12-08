@@ -3,6 +3,7 @@ use strict;
 use warnings;
 use utf8;
 use Carp ();
+use DBIx::Yakinny;
 
 sub new {
     my $class = shift;
@@ -10,12 +11,13 @@ sub new {
     return bless {%attr}, $class;
 }
 
+# TODO: alias support?
 sub add_column {
     my ($class, $stuff) = @_;
     $stuff = +{ COLUMN_NAME => $stuff } unless ref $stuff;
     my $name = $stuff->{COLUMN_NAME} || Carp::croak "missing COLUMN_NAME";
     no strict 'refs';
-    *{"${class}::$name"} = sub { $_[0]->get_column($name) };
+    *{"${class}::$name"} = $DBIx::Yakinny::FATAL ? sub { $_[0]->get_column($name) } : sub { $_[0]->{$name} };
     push @{"${class}::COLUMNS"}, $stuff;
 }
 
@@ -40,7 +42,12 @@ sub set_table {
 
 sub get_column {
     my ($self, $name) = @_;
-    $self->{$name};
+    return $self->{$name} if exists $self->{$name};
+    Carp::croak("$name was not fetched by query.");
+}
+
+sub get_columns {
+    my ($self, $name) = @_;
 }
 
 sub where_cond {

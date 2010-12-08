@@ -14,6 +14,8 @@ use DBIx::Yakinny::QueryBuilder;
 use Module::Load ();
 require Role::Tiny;
 
+our $FATAL;
+
 $Carp::Internal{ (__PACKAGE__) }++;
 
 sub new {
