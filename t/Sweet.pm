@@ -141,7 +141,7 @@ package t::Sweet;
         subtest 'delete' => sub {
             {
                 my $u = $db->single(user => {name => 'john'});
-                $db->delete_row($u);
+                $u->delete();
             }
 
             {
@@ -160,16 +160,16 @@ package t::Sweet;
 
         subtest 'refetch' => sub {
             my $u = $db->insert(user => {name => 'u9'});
-            $db->update_row($u, {email => 'u9@example.com'});
+            $u->update({email => 'u9@example.com'});
             is $u->email, undef;
-            $u = $db->refetch($u);
+            $u = $u->refetch();
             is $u->email, 'u9@example.com';
         };
 
         subtest 'update_row' => sub {
             {
                 my $u = $db->single(user => {name => 'u1'});
-                $db->update_row($u, {name => 'u3'});
+                $u->update({name => 'u3'});
             }
 
             {

@@ -12,7 +12,6 @@ use Carp ();
 use DBIx::Yakinny::Iterator;
 use DBIx::Yakinny::QueryBuilder;
 use Module::Load ();
-use Scalar::Util ();
 require Role::Tiny;
 
 $Carp::Internal{ (__PACKAGE__) }++;
@@ -34,7 +33,7 @@ sub new {
 
 sub new_iterator {
     my ($self, @args) = @_;
-    return DBIx::Yakinny::Iterator->new(@args);
+    return DBIx::Yakinny::Iterator->new(@args, yakinny => $self);
 }
 
 sub load_plugin {
@@ -161,30 +160,15 @@ sub update_row {
 }
 
 sub delete {
-    my $self = shift;
-    if (@_==1 && Scalar::Util::blessed($_[0])) {
-        $self->delete_row(@_);
-    } else {
-        my ($table, $where) = @_;
-        my ($sql, @binds) = $self->query_builder->delete($table, $where);
-        $self->dbh->do($sql, {}, @binds);
-    }
+    my ($self, $table, $where) = @_;
+    my ($sql, @binds) = $self->query_builder->delete($table, $where);
+    $self->dbh->do($sql, {}, @binds);
 }
 
 sub update {
-    my $self = shift;
-    if (@_==2 && Scalar::Util::blessed($_[0])) {
-        return $self->update_row(@_);
-    } else {
-        my ($table, $attr, $where) = @_;
-        my ($sql, @binds) = $self->query_builder->update($table, $attr, $where);
-        $self->dbh->do($sql, {}, @binds);
-    }
-}
-
-sub refetch {
-    my ($self, $row) = @_;
-    $self->single($row->table, $row->where_cond);
+    my ($self, $table, $attr, $where) = @_;
+    my ($sql, @binds) = $self->query_builder->update($table, $attr, $where);
+    $self->dbh->do($sql, {}, @binds);
 }
 
 1;
