@@ -22,8 +22,6 @@ sub add_column_accessors {
     }
 }
 
-sub primary_key { $_[0]->table->primary_key }
-
 sub update {
     my ($self, $attr) = @_;
     $self->yakinny->update_row($self, $attr);

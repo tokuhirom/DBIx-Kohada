@@ -27,8 +27,6 @@ sub add_column_accessors {
     }
 }
 
-sub primary_key { $_[0]->table->primary_key }
-
 sub get_dirty_columns {
     my ($self) = @_;
     +{ map { $_ => $self->get_column($_) } keys %{$self->{dirty_columns}} };

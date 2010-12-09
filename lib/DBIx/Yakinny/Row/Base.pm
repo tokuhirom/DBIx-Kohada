@@ -23,7 +23,7 @@ sub get_columns {
 
 sub where_cond {
     my ($self) = @_;
-    my @pk = @{$self->primary_key};
+    my @pk = @{$self->table->primary_key};
     Carp::confess("You cannot call this method whithout primary key") unless @pk;
     return +{ map { $_ => $self->get_column($_) } @pk };
 }
