@@ -28,13 +28,13 @@ around 'insert' => sub {
 around 'update_row' => sub {
     my $orig = shift;
     my ($self, $row, $attr) = @_;
-    if (my $triggers = $TRIGGERS{ref $self}->{$row->table}->{before_update}) {
+    if (my $triggers = $TRIGGERS{ref $self}->{$row->table->name}->{before_update}) {
         for my $trigger (@$triggers) {
             $trigger->($self, $row, $attr);
         }
     }
     $orig->(@_);
-    if (my $triggers = $TRIGGERS{ref $self}->{$row->table}->{after_update}) {
+    if (my $triggers = $TRIGGERS{ref $self}->{$row->table->name}->{after_update}) {
         for my $trigger (@$triggers) {
             $trigger->($self, $row, $attr);
         }
@@ -44,13 +44,13 @@ around 'update_row' => sub {
 around 'delete_row' => sub {
     my $orig = shift;
     my ($self, $row, $attr) = @_;
-    if (my $triggers = $TRIGGERS{ref $self}->{$row->table}->{before_delete}) {
+    if (my $triggers = $TRIGGERS{ref $self}->{$row->table->name}->{before_delete}) {
         for my $trigger (@$triggers) {
             $trigger->($self, $row, $attr);
         }
     }
     $orig->(@_);
-    if (my $triggers = $TRIGGERS{ref $self}->{$row->table}->{after_delete}) {
+    if (my $triggers = $TRIGGERS{ref $self}->{$row->table->name}->{after_delete}) {
         for my $trigger (@$triggers) {
             $trigger->($self, $row, $attr);
         }

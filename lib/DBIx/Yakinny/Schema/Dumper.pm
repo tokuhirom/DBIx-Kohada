@@ -19,18 +19,18 @@ sub dump {
     local $Data::Dumper::Terse    = 1;
     local $Data::Dumper::Indent   = 0;
     local $Data::Dumper::Sortkeys = 1;
-    for my $table (sort { $_->name } $inspector->tables) {
-        my $klass = $callback->($table->name);
+    for my $table_info (sort { $_->name } $inspector->tables) {
+        my $klass = $callback->($table_info->name);
         $ret .= "{\n";
         $ret .= "require ${class};\n";
-        $ret .= sprintf("${klass}->set_table(q{%s});\n", $table->name);
-        $ret .= sprintf("${klass}->add_column(\$_) for (\n");
-        for my $column ($table->columns) {
+        $ret .= sprintf("my \$table = DBIx::Yakinny::Table->new(name => q{%s}, primary_key => [qw/%s/]);\n", $table_info->name, join(' ', map { $_->name } $table_info->primary_key));
+        $ret .= sprintf("\$table->add_column(\$_) for (\n");
+        for my $column ($table_info->columns) {
         my $src = +{ map { $_ => $column->{$_}} qw/COLUMN_NAME DECIMAL_DIGITS COLUMN_DEF NUM_PREC_RADIX CHAR_OCTET_LENGTH REMARKS IS_NULLABLE COLUMN_SIZE ORDINAL_POSITION TYPE_NAME NULLABLE DATA_TYPE SQL_DATA_TYPE SQL_DATETIME_SUB/ };
         $ret .= sprintf("    %s,\n", Data::Dumper::Dumper($src));
         }
         $ret .= sprintf(");\n");
-        $ret .= sprintf("${klass}->set_primary_key([qw(%s)]);\n", join(' ', map { $_->name } $table->primary_key));
+        $ret .= "${klass}->set_table(\$table);\n";
         $ret .= "\$schema->register_table('${klass}');\n";
         $ret .= "}\n";
     }

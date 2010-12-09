@@ -37,9 +37,9 @@ diag $@ if $@;
 my $db = DBIx::Yakinny->new(dbh => $dbh, schema => $schema);
 my $user = $db->schema->get_class_for('user');
 isa_ok $user, 'MyApp::DB::Row::User';
-is($user->table, 'user');
+is($user->table->name, 'user');
 is(join(',', @{$user->primary_key}), 'user_id');
-is(join(',', $user->columns), 'user_id,name,email,created_on');
+is(join(',', $user->table->columns), 'user_id,name,email,created_on');
 
 done_testing;
 

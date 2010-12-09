@@ -15,15 +15,18 @@ sub load {
     my $callback = $args{table2class_cb} or Carp::croak("missing mandatory parameter 'table2class_cb'");
     my $schema = DBIx::Yakinny::Schema->new();
     my $inspector = DBIx::Inspector->new(dbh => $dbh);
-    for my $table ($inspector->tables) {
-        my $klass = $callback->($table->name);
+    for my $table_info ($inspector->tables) {
+        my $klass = $callback->($table_info->name);
         unless ($klass->isa('DBIx::Yakinny::Row')) {
             no strict 'refs';
             unshift @{"${klass}::ISA"}, 'DBIx::Yakinny::Row'
         }
-        $klass->set_table( $table->name );
-        $klass->add_column( $_->name ) for $table->columns;
-        $klass->set_primary_key( [ map { $_->name } $table->primary_key ] );
+        my $table = DBIx::Yakinny::Table->new(
+            name => $table_info->name,
+            primary_key => [map { $_->name } $table_info->primary_key],
+        );
+        $table->add_column( $_->name ) for $table_info->columns;
+        $klass->set_table( $table );
         $schema->register_table($klass);
     }
     return $schema;

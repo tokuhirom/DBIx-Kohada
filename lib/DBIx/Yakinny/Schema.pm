@@ -16,7 +16,7 @@ sub get_class_for {
 
 sub tables {
     my $self = shift;
-    return keys %{$self->{map}};
+    return map { $_->table } values %{$self->{map}};
 }
 
 sub register_table {
@@ -24,7 +24,7 @@ sub register_table {
 
     Carp::croak("$klass must inherit DBIx::Yakinny::Row") unless $klass->isa('DBIx::Yakinny::Row');
 
-    $self->{map}->{$klass->table} = $klass;
+    $self->{map}->{$klass->table->name} = $klass;
 }
 
 1;

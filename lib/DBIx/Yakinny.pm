@@ -12,6 +12,7 @@ use Carp ();
 use DBIx::Yakinny::Iterator;
 use DBIx::Yakinny::AnonRow;
 use DBIx::Yakinny::QueryBuilder;
+use DBIx::Yakinny::Table;
 use Module::Load ();
 require Role::Tiny;
 
@@ -58,7 +59,7 @@ sub search  {
     my ($self, $table, $where, $opt) = @_;
     my $row_class = $self->schema->get_class_for($table) or Carp::croak "Unknown table : $table";
 
-    my ($sql, @bind) = $self->query_builder->select($table, [$row_class->columns], $where, $opt);
+    my ($sql, @bind) = $self->query_builder->select($table, [$row_class->table->columns], $where, $opt);
     my $sth = $self->dbh->prepare($sql) or Carp::croak $self->dbh->errstr;
     $sth->execute(@bind) or Carp::croak $self->dbh->errstr;
     my $iter = $self->new_iterator(sth => $sth, row_class => $row_class);
@@ -97,13 +98,13 @@ sub _insert_or_replace {
     if (defined wantarray) {
         # find row
         my $row_class = $self->schema->get_class_for($table) or die "'$table' is not defined in schema";
-        my $primary_key = $row_class->primary_key;
+        my $primary_key = $row_class->table->primary_key;
         if (@$primary_key == 1 && not exists $values->{$primary_key->[0]}) {
             return $self->retrieve($table => $self->last_insert_id($table));
         }
 
         my $criteria = {};
-        for my $primary_key1 (@{$row_class->primary_key}) {
+        for my $primary_key1 (@{$row_class->table->primary_key}) {
             $criteria->{$primary_key1} = $values->{$primary_key1};
         }
         return $self->single($table => $criteria);
@@ -123,8 +124,8 @@ sub retrieve {
     my $row_class = $self->schema->get_class_for($table);
 
     my $criteria = {};
-    for (my $i=0; $i<@{$row_class->primary_key}; $i++) {
-        my $k = $row_class->primary_key->[$i];
+    for (my $i=0; $i<@{$row_class->table->primary_key}; $i++) {
+        my $k = $row_class->table->primary_key->[$i];
         my $v = $vals->[$i];
         $criteria->{$k} = $v;
     }
@@ -150,14 +151,14 @@ sub bulk_insert {
 sub delete_row {
     my ($self, $row) = @_;
 
-    my ($sql, @binds) = $self->query_builder->delete($row->table, $row->where_cond);
+    my ($sql, @binds) = $self->query_builder->delete($row->table->name, $row->where_cond);
     $self->dbh->do($sql, {}, @binds) == 1 or die "FATAL";
 }
 
 sub update_row {
     my ($self, $row, $attr) = @_;
 
-    my ($sql, @binds) = $self->query_builder->update($row->table, $attr, $row->where_cond);
+    my ($sql, @binds) = $self->query_builder->update($row->table->name, $attr, $row->where_cond);
     $self->dbh->do($sql, {}, @binds) == 1 or die "FATAL";
 }
 

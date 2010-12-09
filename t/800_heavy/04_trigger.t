@@ -72,9 +72,12 @@ plan tests => 15;
 {
     package MyApp::DB::Row::User;
     use parent qw/DBIx::Yakinny::Row/;
-    __PACKAGE__->set_table('user');
-    __PACKAGE__->add_column($_) for qw/name email token/;
-    __PACKAGE__->set_primary_key('email');
+    my $table = DBIx::Yakinny::Table->new(
+        name        => 'user',
+        primary_key => [qw/email/],
+    );
+    $table->add_column($_) for qw/name email token/;
+    __PACKAGE__->set_table($table);
 }
 
 my $dbh = DBI->connect('dbi:SQLite:', '', '') or die;

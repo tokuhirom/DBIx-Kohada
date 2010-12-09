@@ -9,7 +9,10 @@ use DBIx::Yakinny::Schema;
 {
     package MyApp::DB::Row::Foo;
     use base qw/DBIx::Yakinny::Row/;
-    __PACKAGE__->set_table("foo");
+    my $table = DBIx::Yakinny::Table->new(
+        name => 'foo',
+    );
+    __PACKAGE__->set_table($table);
 }
 
 my $dbh = DBI->connect('dbi:SQLite:', '', '', {PrintError => 0});

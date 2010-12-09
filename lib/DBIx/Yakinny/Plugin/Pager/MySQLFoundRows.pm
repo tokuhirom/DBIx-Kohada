@@ -16,7 +16,7 @@ sub search_with_pager {
     my $page = $opt->{page};
     my $rows = $opt->{rows};
 
-    my ($sql, @bind) = $self->query_builder->select($table, [$row_class->columns], $where, +{
+    my ($sql, @bind) = $self->query_builder->select($table, [$row_class->table->columns], $where, +{
         %$opt,
         limit => $rows,
         offset => $rows*($page-1),

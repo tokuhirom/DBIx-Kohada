@@ -92,6 +92,10 @@ use [Module::Find](http://search.cpan.org/perldoc?Module::Find).
 
 You should use __mysql_enable_utf8__, __sqlite_unicode__, etc.
 
+- Why don't you implement 'find_or_create' method?
+
+It is not atomic operation. It makes issue at somtime.
+
 # AUTHOR
 
 Tokuhiro Matsuno <tokuhirom AAJKLFJEF GMAIL COM>

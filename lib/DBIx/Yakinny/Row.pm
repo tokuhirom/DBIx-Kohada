@@ -11,34 +11,25 @@ sub new {
     return bless {%attr}, $class;
 }
 
-# TODO: alias support?
 sub add_column {
-    my ($class, $stuff) = @_;
-    $stuff = +{ COLUMN_NAME => $stuff } unless ref $stuff;
-    my $name = $stuff->{COLUMN_NAME} || Carp::croak "missing COLUMN_NAME";
+    my ($class, $name) = @_;
     no strict 'refs';
-    *{"${class}::$name"} = $DBIx::Yakinny::FATAL ? sub { $_[0]->get_column($name) } : sub { $_[0]->{$name} };
-    push @{"${class}::COLUMNS"}, $stuff;
 }
 
 sub columns {
-    my $class = shift;
-       $class = ref $class if ref $class;
-    no strict 'refs';
-    map { $_->{COLUMN_NAME} } @{"${class}::COLUMNS"};
+    my $self = shift;
+    grep !/^__/, keys %$self;
 }
 
-sub set_primary_key {
-    my ($class, $pk) = @_;
-    $pk = [$pk] unless ref $pk;
-    no strict 'refs';
-    *{"${class}::primary_key"} = sub { $pk };
-}
+sub primary_key { $_[0]->table->primary_key }
 
 sub set_table {
     my ($class, $table) = @_;
     no strict 'refs';
     *{"${class}::table"} = sub { $table };
+    for my $col ($table->columns) {
+        *{"${class}::$col"} = sub { $_[0]->get_column($col) };
+    }
 }
 
 sub get_column {
@@ -73,7 +64,7 @@ sub delete {
 
 sub refetch {
     my $self = shift;
-    return $self->yakinny->single( $self->table => $self->where_cond );
+    return $self->yakinny->single( $self->table->name => $self->where_cond );
 }
 
 sub yakinny {

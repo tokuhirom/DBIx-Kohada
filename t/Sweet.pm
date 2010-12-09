@@ -32,19 +32,28 @@ package t::Sweet;
         $schema ||= do {
             my $s = DBIx::Yakinny::Schema->new();
 
-            MyApp::DB::Row::User->set_table('user');
-            MyApp::DB::Row::User->add_column($_) for qw/user_id name email created_on/;
-            MyApp::DB::Row::User->set_primary_key(['user_id']);
+            my $user_table = DBIx::Yakinny::Table->new(
+                name => 'user',
+                primary_key => [qw/user_id/],
+            );
+            $user_table->add_column($_) for qw/user_id name email created_on/;
+            MyApp::DB::Row::User->set_table($user_table);
             $s->register_table( 'MyApp::DB::Row::User' );
 
-            MyApp::DB::Row::Entry->set_table('entry');
-            MyApp::DB::Row::Entry->add_column($_) for qw/entry_id user_id body/;
-            MyApp::DB::Row::Entry->set_primary_key(['entry_id']);
+            my $entry_table = DBIx::Yakinny::Table->new(
+                name => 'entry',
+                primary_key => [qw/entry_id/],
+            );
+            $entry_table->add_column($_) for qw/entry_id user_id body/;
+            MyApp::DB::Row::Entry->set_table($entry_table);
             $s->register_table( 'MyApp::DB::Row::Entry' );
 
-            MyApp::DB::Row::Good->set_table('good');
-            MyApp::DB::Row::Good->add_column($_) for qw/user_id entry_id/;
-            MyApp::DB::Row::Good->set_primary_key(['user_id', 'entry_id']);
+            my $good_table = DBIx::Yakinny::Table->new(
+                name => 'good',
+                primary_key => [qw/user_id entry_id/],
+            );
+            $good_table->add_column($_) for qw/user_id entry_id/;
+            MyApp::DB::Row::Good->set_table($good_table);
             $s->register_table( 'MyApp::DB::Row::Good' );
 
             $s;
@@ -60,7 +69,7 @@ package t::Sweet;
         );
 
         subtest 'tables' => sub {
-            is join(',', sort $db->schema->tables), 'entry,good,user';
+            is join(',', sort map {$_->name } $db->schema->tables), 'entry,good,user';
         };
 
         subtest 'insert' => sub {
@@ -88,7 +97,6 @@ package t::Sweet;
             is $user->name, 'bar';
             is $user->email, 'bar@example.com';
             is $user->user_id, 2;
-            is join(',', $user->columns), 'user_id,name,email,created_on';
             is_deeply $user->get_columns(), +{ user_id => 2, name => 'bar', email => 'bar@example.com', created_on => undef};
         };
 
