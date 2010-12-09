@@ -7,7 +7,7 @@ all_from 'lib/DBIx/Yakinny.pm';
 readme_markdown_from 'lib/DBIx/Yakinny.pm';
 
 requires 'DBI';
-requires 'SQL::Builder';
+requires 'SQL::Maker';
 requires 'parent';
 requires 'DBIx::TransactionManager';
 requires 'Role::Tiny';
