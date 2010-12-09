@@ -13,7 +13,7 @@ sub new {
 
 sub columns {
     my $self = shift;
-    grep !/^__/, keys %$self;
+    keys %{$self->{row_data}};
 }
 
 sub add_column_accessors {
@@ -21,7 +21,7 @@ sub add_column_accessors {
     no strict 'refs';
     for my $name (@_) {
         *{"${class}::$name"} = sub {
-            return $_[0]->{$name} if exists $_[0]->{$name};
+            return $_[0]->{row_data}->{$name} if exists $_[0]->{row_data}->{$name};
             Carp::croak("$name was not fetched by query.");
         };
     }
@@ -41,13 +41,13 @@ sub set_table {
 
 sub get_column {
     my ($self, $name) = @_;
-    return $self->{$name} if exists $self->{$name};
+    return $self->{row_data}->{$name} if exists $self->{row_data}->{$name};
     Carp::croak("$name was not fetched by query.");
 }
 
 sub get_columns {
     my ($self) = @_;
-    return +{ map { $_ => $self->{$_} } $self->columns };
+    return +{ map { $_ => $self->{row_data}->{$_} } $self->columns };
 }
 
 sub where_cond {

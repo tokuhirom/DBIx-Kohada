@@ -7,8 +7,7 @@ use Carp ();
 sub new {
     my $class = shift;
     my %attr = @_ == 1 ? %{$_[0]} : @_;
-    delete $attr{__yakinny}; # it's completely useless for anon row
-    return bless {%attr}, $class;
+    return bless {%{$attr{row_data}}}, $class;
 }
 
 sub columns {

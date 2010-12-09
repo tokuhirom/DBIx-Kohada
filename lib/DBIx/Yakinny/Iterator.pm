@@ -10,7 +10,7 @@ use Class::Accessor::Lite (
 sub next {
     my $self = shift;
     if (my $row = $self->sth->fetchrow_hashref) {
-        return $self->row_class->new(__query => $self->query, __yakinny => $self->yakinny, %$row);
+        return $self->row_class->new(__query => $self->query, __yakinny => $self->yakinny, row_data => $row);
     } else {
         $self->sth->finish;
         return;
