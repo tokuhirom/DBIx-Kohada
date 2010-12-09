@@ -188,7 +188,7 @@ DBIx::Yakinny -
 =head1 SYNOPSIS
 
     package MyApp::DB::Row::User;
-    use base qw/DBIx::Yakinny::Row/;
+    use parent qw/DBIx::Yakinny::Row/;
     my $table = DBIx::Yakinny::Table->new(
         name => 'user',
         primary_key => [qw/user_id/],

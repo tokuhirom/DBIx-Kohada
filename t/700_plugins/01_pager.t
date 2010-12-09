@@ -7,7 +7,7 @@ use DBIx::Yakinny::Schema::Loader;
 
 {
     package MyApp::DB;
-    use base qw/DBIx::Yakinny/;
+    use parent qw/DBIx::Yakinny/;
     __PACKAGE__->load_plugin('Pager');
 }
 

@@ -8,7 +8,7 @@ use DBIx::Yakinny::Schema;
 
 {
     package MyApp::DB::Row::Foo;
-    use base qw/DBIx::Yakinny::Row/;
+    use parent qw/DBIx::Yakinny::Row/;
 }
 
 my $dbh = DBI->connect('dbi:SQLite:', '', '', {PrintError => 0});

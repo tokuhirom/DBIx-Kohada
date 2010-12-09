@@ -7,7 +7,7 @@ package t::Sweet;
 
 {
     package MyApp::DB::Row::User;
-    use base qw/DBIx::Yakinny::Row/;
+    use parent qw/DBIx::Yakinny::Row/;
     use Time::Piece;
     sub created_on_piece {
         Time::Piece->new($_[0]->created_on);
@@ -16,9 +16,9 @@ package t::Sweet;
 
 {
     package MyApp::DB::Row::Good;
-    use base qw/DBIx::Yakinny::Row/;
+    use parent qw/DBIx::Yakinny::Row/;
     package MyApp::DB::Row::Entry;
-    use base qw/DBIx::Yakinny::Row/;
+    use parent qw/DBIx::Yakinny::Row/;
 }
 
 {

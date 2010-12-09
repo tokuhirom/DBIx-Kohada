@@ -37,7 +37,7 @@ __END__
 =head1 SYNOPSIS
 
     package MyApp::DB;
-    use base qw/DBIx::Yakinny::Schema/;
+    use parent qw/DBIx::Yakinny::Schema/;
     my $dbh = DBI->connect(...) or die;
     my $schema = DBIx::Yakinny::Schema::Loader->load( dbh => $dbh );
     my $db = DBIx::Yakinny->new(dbh => $dbh, schema => $schema);
