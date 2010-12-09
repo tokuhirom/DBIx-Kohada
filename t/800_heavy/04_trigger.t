@@ -91,7 +91,8 @@ ok $row, 'returned row';
 is $row->token, 'HIJLK';
 ok $row->{AFTER_INSERT_HOOK_OK};
 
-$row->update({name => 'poo'});
+$row->set_columns({name => 'poo'});
+$row->update();
 $row = $row->refetch();
 is $row->name, 'POO';
 

@@ -155,8 +155,8 @@ package t::Sweet;
 
         subtest 'refetch' => sub {
             my $u = $db->insert(user => {name => 'u9'});
-            $u->update({email => 'u9@example.com'});
-            is $u->email, undef;
+            $u->set_columns({email => 'u9@example.com'});
+            $u->update();
             $u = $u->refetch();
             is $u->email, 'u9@example.com';
         };
@@ -164,7 +164,8 @@ package t::Sweet;
         subtest 'update_row' => sub {
             {
                 my $u = $db->single(user => {name => 'u1'});
-                $u->update({name => 'u3'});
+                $u->name('u3');
+                $u->update();
             }
 
             {
