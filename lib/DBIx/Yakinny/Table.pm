@@ -4,22 +4,23 @@ use utf8;
 
 package DBIx::Yakinny::Table;
 use Class::Accessor::Lite (
-    ro => [
+    rw => [
         'name',         # Str
         'primary_key',  # ArrayRef[Str]
+    ],
+    ro => [
         'column_infos', # ArrayRef[HashRef]
     ],
 );
 
-sub columns {
-    my $self = shift;
-    return wantarray ? @{$self->{columns}} : $self->{columns};
-}
-
 sub new {
     my $class = shift;
-    my %args = @_==1?%{$_[0]}:@_;
-    bless {column_infos => [], columns => [], %args}, $class;
+    my %args = @_ == 1 ? %{ $_[0] } : @_;
+    bless {
+        column_infos => [],
+        columns      => [],
+        %args
+    }, $class;
 }
 
 sub add_column {
@@ -28,6 +29,11 @@ sub add_column {
     my $name = $stuff->{COLUMN_NAME} || Carp::croak "missing COLUMN_NAME";
     push @{$self->column_infos}, $stuff;
     push @{$self->columns}, $stuff->{COLUMN_NAME};
+}
+
+sub columns {
+    my $self = shift;
+    return wantarray ? @{$self->{columns}} : $self->{columns};
 }
 
 1;
