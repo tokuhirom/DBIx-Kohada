@@ -16,6 +16,7 @@ my $schema = DBIx::Yakinny::Schema->new();
 my $table = DBIx::Yakinny::Table->new(
     name => 'foo',
 );
+$table->add_column('bar');
 $schema->register_table($table => 'MyApp::DB::Row::Foo');
 my $db = DBIx::Yakinny->new(dbh => $dbh, schema => $schema);
 eval {$db->single(foo => {foo_id => 1})};

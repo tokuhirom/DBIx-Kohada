@@ -3,6 +3,8 @@ use warnings;
 use Test::More;
 use Test::Requires 'DBD::SQLite';
 use DBIx::Yakinny::Schema;
+use DBIx::Yakinny;
+use DBIx::Yakinny::Table;
 use DBIx::Yakinny::Schema::Loader;
 use DBI;
 
