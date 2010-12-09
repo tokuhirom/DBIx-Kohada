@@ -33,6 +33,7 @@ sub register_table {
     my ($self, $table, $row_class) = @_;
     Carp::croak(__PACKAGE__ . "->register_table(\$table, \$row_class);") unless @_==3;
     Carp::confess("\$table should be object") unless ref $table;
+    Carp::confess("The table @{[ $table->name ]} does not contain any column") unless @{$table->columns};
 
     $row_class->add_column_accessors($table->columns);
 

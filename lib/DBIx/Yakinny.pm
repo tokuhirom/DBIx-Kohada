@@ -101,6 +101,9 @@ sub _insert_or_replace {
         # find row
         my $table_obj = $self->schema->table_name2table($table) or die "'$table' is not defined in schema";
         my $primary_key = $table_obj->primary_key;
+        if (@$primary_key == 0) {
+            Carp::confess("Cannot retrieve row after insert row. Because table '$table' does not have a PRIMARY KEY");
+        }
         if (@$primary_key == 1 && not exists $values->{$primary_key->[0]}) {
             return $self->retrieve($table => $self->last_insert_id($table));
         }
@@ -123,7 +126,7 @@ sub last_insert_id {
 sub retrieve {
     my ($self, $table, $vals) = @_;
     $vals = [$vals] unless ref $vals;
-    my $table_obj = $self->schema->table_name2table($table);
+    my $table_obj = $self->schema->table_name2table($table) or Carp::croak("Unknown table: $table");
 
     my $criteria = {};
     for (my $i=0; $i<@{$table_obj->primary_key}; $i++) {
