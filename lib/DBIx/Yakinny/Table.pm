@@ -19,6 +19,7 @@ sub new {
     bless {
         column_infos => [],
         columns      => [],
+        primary_key  => [],
         %args
     }, $class;
 }
