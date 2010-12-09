@@ -57,7 +57,7 @@ sub single {
 
 sub search  {
     my ($self, $table, $where, $opt) = @_;
-    my $row_class = $self->schema->get_class_for($table) or Carp::croak "Unknown table : $table";
+    my $row_class = $self->schema->table2row_class($table) or Carp::croak "Unknown table : $table";
 
     my ($sql, @bind) = $self->query_builder->select($table, [$row_class->table->columns], $where, $opt);
     my $sth = $self->dbh->prepare($sql) or Carp::croak $self->dbh->errstr;
@@ -71,7 +71,7 @@ sub search_by_sql {
 
     my $row_class;
     if ($table) {
-        $row_class = $self->schema->get_class_for($table);
+        $row_class = $self->schema->table2row_class($table);
     }
     $row_class ||= 'DBIx::Yakinny::AnonRow';
     my $sth = $self->dbh->prepare($sql) or Carp::croak $self->dbh->errstr;
@@ -97,7 +97,7 @@ sub _insert_or_replace {
     $self->dbh->do($sql, {}, @bind) or Carp::croak $self->dbh->errstr;
     if (defined wantarray) {
         # find row
-        my $row_class = $self->schema->get_class_for($table) or die "'$table' is not defined in schema";
+        my $row_class = $self->schema->table2row_class($table) or die "'$table' is not defined in schema";
         my $primary_key = $row_class->table->primary_key;
         if (@$primary_key == 1 && not exists $values->{$primary_key->[0]}) {
             return $self->retrieve($table => $self->last_insert_id($table));
@@ -121,7 +121,7 @@ sub last_insert_id {
 sub retrieve {
     my ($self, $table, $vals) = @_;
     $vals = [$vals] unless ref $vals;
-    my $row_class = $self->schema->get_class_for($table);
+    my $row_class = $self->schema->table2row_class($table);
 
     my $criteria = {};
     for (my $i=0; $i<@{$row_class->table->primary_key}; $i++) {

@@ -10,7 +10,7 @@ use DBI;
 sub search_with_pager {
     my ($self, $table, $where, $opt) = @_;
 
-    my $row_class = $self->schema->get_class_for($table) or Carp::croak("'$table' is unknown table");
+    my $row_class = $self->schema->table2row_class($table) or Carp::croak("'$table' is unknown table");
 
     my $page = $opt->{page};
     my $rows = $opt->{rows};

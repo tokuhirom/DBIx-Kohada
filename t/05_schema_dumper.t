@@ -35,7 +35,7 @@ my $schema = eval $code;
 diag $@ if $@;
 
 my $db = DBIx::Yakinny->new(dbh => $dbh, schema => $schema);
-my $user = $db->schema->get_class_for('user');
+my $user = $db->schema->table2row_class('user');
 isa_ok $user, 'MyApp::DB::Row::User';
 is($user->table->name, 'user');
 is(join(',', @{$user->primary_key}), 'user_id');

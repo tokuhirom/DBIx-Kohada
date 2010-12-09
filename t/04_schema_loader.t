@@ -33,7 +33,7 @@ my $db = DBIx::Yakinny->new(
     schema => $schema,
     dbh    => $dbh,
 );
-my $user = $db->schema->get_class_for('user');
+my $user = $db->schema->table2row_class('user');
 is($user->table->name, 'user');
 is(join(',', @{$user->primary_key}), 'user_id');
 is(join(',', $user->table->columns), 'user_id,name,email,created_on');

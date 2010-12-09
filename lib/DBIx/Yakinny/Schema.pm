@@ -6,25 +6,25 @@ use Carp ();
 
 sub new {
     my $class = shift;
-    bless {'map' => +{}}, $class;
+    bless {'table2row_class' => +{}}, $class;
 }
 
-sub get_class_for {
+sub table2row_class {
     my ($self, $table) = @_;
-    return $self->{map}->{$table};
+    return $self->{table2row_class}->{$table};
 }
 
 sub tables {
     my $self = shift;
-    return map { $_->table } values %{$self->{map}};
+    return map { $_->table } values %{$self->{table2row_class}};
 }
 
 sub register_table {
-    my ($self, $klass) = @_;
+    my ($self, $row_class) = @_;
 
-    Carp::croak("$klass must inherit DBIx::Yakinny::Row") unless $klass->isa('DBIx::Yakinny::Row');
+    Carp::croak("$row_class must inherit DBIx::Yakinny::Row") unless $row_class->isa('DBIx::Yakinny::Row');
 
-    $self->{map}->{$klass->table->name} = $klass;
+    $self->{table2row_class}->{$row_class->table->name} = $row_class;
 }
 
 1;
