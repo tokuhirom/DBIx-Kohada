@@ -37,24 +37,21 @@ package t::Sweet;
                 primary_key => [qw/user_id/],
             );
             $user_table->add_column($_) for qw/user_id name email created_on/;
-            MyApp::DB::Row::User->set_table($user_table);
-            $s->register_row_class( 'MyApp::DB::Row::User' );
+            $s->register_table( $user_table => 'MyApp::DB::Row::User' );
 
             my $entry_table = DBIx::Yakinny::Table->new(
                 name => 'entry',
                 primary_key => [qw/entry_id/],
             );
             $entry_table->add_column($_) for qw/entry_id user_id body/;
-            MyApp::DB::Row::Entry->set_table($entry_table);
-            $s->register_row_class( 'MyApp::DB::Row::Entry' );
+            $s->register_table( $entry_table => 'MyApp::DB::Row::Entry' );
 
             my $good_table = DBIx::Yakinny::Table->new(
                 name => 'good',
                 primary_key => [qw/user_id entry_id/],
             );
             $good_table->add_column($_) for qw/user_id entry_id/;
-            MyApp::DB::Row::Good->set_table($good_table);
-            $s->register_row_class( 'MyApp::DB::Row::Good' );
+            $s->register_table( $good_table => 'MyApp::DB::Row::Good' );
 
             $s;
         };

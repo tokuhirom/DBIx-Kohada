@@ -20,7 +20,7 @@ sub dump {
     local $Data::Dumper::Indent   = 0;
     local $Data::Dumper::Sortkeys = 1;
     for my $table_info (sort { $_->name } $inspector->tables) {
-        my $klass = $callback->($table_info->name);
+        my $row_class = $callback->($table_info->name);
         $ret .= "{\n";
         $ret .= "require ${class};\n";
         $ret .= sprintf("my \$table = DBIx::Yakinny::Table->new(name => q{%s}, primary_key => [qw/%s/]);\n", $table_info->name, join(' ', map { $_->name } $table_info->primary_key));
@@ -30,8 +30,7 @@ sub dump {
         $ret .= sprintf("    %s,\n", Data::Dumper::Dumper($src));
         }
         $ret .= sprintf(");\n");
-        $ret .= "${klass}->set_table(\$table);\n";
-        $ret .= "\$schema->register_row_class('${klass}');\n";
+        $ret .= "\$schema->register_table(\$table, '${row_class}');\n";
         $ret .= "}\n";
     }
     $ret .= "\n\$schema;\n}\n";

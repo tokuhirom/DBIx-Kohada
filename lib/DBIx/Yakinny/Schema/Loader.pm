@@ -16,18 +16,17 @@ sub load {
     my $schema = DBIx::Yakinny::Schema->new();
     my $inspector = DBIx::Inspector->new(dbh => $dbh);
     for my $table_info ($inspector->tables) {
-        my $klass = $callback->($table_info->name);
-        unless ($klass->isa('DBIx::Yakinny::Row')) {
+        my $row_class = $callback->($table_info->name);
+        unless ($row_class->isa('DBIx::Yakinny::Row')) {
             no strict 'refs';
-            unshift @{"${klass}::ISA"}, 'DBIx::Yakinny::Row'
+            unshift @{"${row_class}::ISA"}, 'DBIx::Yakinny::Row'
         }
         my $table = DBIx::Yakinny::Table->new(
             name => $table_info->name,
             primary_key => [map { $_->name } $table_info->primary_key],
         );
         $table->add_column( $_->name ) for $table_info->columns;
-        $klass->set_table( $table );
-        $schema->register_row_class($klass);
+        $schema->register_table($table => $row_class);
     }
     return $schema;
 }

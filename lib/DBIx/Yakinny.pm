@@ -57,9 +57,10 @@ sub single {
 
 sub search  {
     my ($self, $table, $where, $opt) = @_;
-    my $row_class = $self->schema->table2row_class($table) or Carp::croak "Unknown table : $table";
+    my $table_obj = $self->schema->table_name2table($table) or Carp::croak "Unknown table : $table";
+    my $row_class = $self->schema->table_name2row_class($table) or Carp::croak "Unknown table : $table";
 
-    my ($sql, @bind) = $self->query_builder->select($table, [$row_class->table->columns], $where, $opt);
+    my ($sql, @bind) = $self->query_builder->select($table, [$table_obj->columns], $where, $opt);
     my $sth = $self->dbh->prepare($sql) or Carp::croak $self->dbh->errstr;
     $sth->execute(@bind) or Carp::croak $self->dbh->errstr;
     my $iter = $self->new_iterator(sth => $sth, row_class => $row_class);
@@ -70,10 +71,11 @@ sub search_by_sql {
     my ($self, $table, $sql, @binds) = @_;
 
     my $row_class;
-    if ($table) {
-        $row_class = $self->schema->table2row_class($table);
+    if (defined $table) {
+        $row_class = $self->schema->table_name2row_class($table) or Carp::croak("unknown table : $table");
+    } else {
+        $row_class = 'DBIx::Yakinny::AnonRow';
     }
-    $row_class ||= 'DBIx::Yakinny::AnonRow';
     my $sth = $self->dbh->prepare($sql) or Carp::croak $self->dbh->errstr;
     $sth->execute(@binds) or Carp::croak $self->dbh->errstr;
     my $iter = $self->new_iterator(sth => $sth, row_class => $row_class, query => $sql);
@@ -97,14 +99,14 @@ sub _insert_or_replace {
     $self->dbh->do($sql, {}, @bind) or Carp::croak $self->dbh->errstr;
     if (defined wantarray) {
         # find row
-        my $row_class = $self->schema->table2row_class($table) or die "'$table' is not defined in schema";
-        my $primary_key = $row_class->table->primary_key;
+        my $table_obj = $self->schema->table_name2table($table) or die "'$table' is not defined in schema";
+        my $primary_key = $table_obj->primary_key;
         if (@$primary_key == 1 && not exists $values->{$primary_key->[0]}) {
             return $self->retrieve($table => $self->last_insert_id($table));
         }
 
         my $criteria = {};
-        for my $primary_key1 (@{$row_class->table->primary_key}) {
+        for my $primary_key1 (@{$table_obj->primary_key}) {
             $criteria->{$primary_key1} = $values->{$primary_key1};
         }
         return $self->single($table => $criteria);
@@ -121,11 +123,11 @@ sub last_insert_id {
 sub retrieve {
     my ($self, $table, $vals) = @_;
     $vals = [$vals] unless ref $vals;
-    my $row_class = $self->schema->table2row_class($table);
+    my $table_obj = $self->schema->table_name2table($table);
 
     my $criteria = {};
-    for (my $i=0; $i<@{$row_class->table->primary_key}; $i++) {
-        my $k = $row_class->table->primary_key->[$i];
+    for (my $i=0; $i<@{$table_obj->primary_key}; $i++) {
+        my $k = $table_obj->primary_key->[$i];
         my $v = $vals->[$i];
         $criteria->{$k} = $v;
     }

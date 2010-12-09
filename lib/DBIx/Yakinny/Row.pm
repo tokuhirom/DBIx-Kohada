@@ -2,8 +2,8 @@ package DBIx::Yakinny::Row;
 use strict;
 use warnings;
 use utf8;
-use Carp ();
 use DBIx::Yakinny;
+use Carp ();
 
 sub new {
     my $class = shift;
@@ -16,12 +16,24 @@ sub columns {
     grep !/^__/, keys %$self;
 }
 
+sub add_column_accessors {
+    my $class = shift;
+    no strict 'refs';
+    for my $name (@_) {
+        *{"${class}::$name"} = sub {
+            return $_[0]->{$name} if exists $_[0]->{$name};
+            Carp::croak("$name was not fetched by query.");
+        };
+    }
+}
+
+sub table { $_[0]->yakinny->schema->row_class2table(ref $_[0]) }
+
 sub primary_key { $_[0]->table->primary_key }
 
 sub set_table {
     my ($class, $table) = @_;
     no strict 'refs';
-    *{"${class}::table"} = sub { $table };
     for my $col ($table->columns) {
         *{"${class}::$col"} = sub { $_[0]->get_column($col) };
     }
@@ -63,6 +75,8 @@ sub refetch {
 }
 
 sub yakinny {
+    Carp::confess($_[0] . "->yakinny is a instance method.") unless ref $_[0];
+
     my $y = $_[0]->{__yakinny};
     if ($y) {
         return $y;
