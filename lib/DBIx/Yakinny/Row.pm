@@ -11,11 +11,6 @@ sub new {
     return bless {%attr}, $class;
 }
 
-sub add_column {
-    my ($class, $name) = @_;
-    no strict 'refs';
-}
-
 sub columns {
     my $self = shift;
     grep !/^__/, keys %$self;
