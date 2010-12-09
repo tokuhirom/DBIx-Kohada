@@ -3,14 +3,9 @@ use strict;
 use warnings;
 use utf8;
 use Class::Accessor::Lite (
-    ro => [qw/sth row_class yakinny query/],
+    new => 1,
+    ro  => [qw/sth row_class yakinny query/],
 );
-
-sub new {
-    my $class = shift;
-    my %args = @_==1 ? %{$_[0]} : @_;
-    bless {%args}, $class;
-}
 
 sub next {
     my $self = shift;
