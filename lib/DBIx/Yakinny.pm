@@ -276,7 +276,7 @@ You should use B<mysql_enable_utf8>, B<sqlite_unicode>, etc.
 
 =item Why don't you implement 'find_or_create' method?
 
-It is not atomic operation.
+It is not atomic operation. It makes issue at somtime.
 
 =back
 
