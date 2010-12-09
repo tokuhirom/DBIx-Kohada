@@ -88,6 +88,8 @@ package t::Sweet;
             is $user->name, 'bar';
             is $user->email, 'bar@example.com';
             is $user->user_id, 2;
+            is join(',', $user->columns), 'user_id,name,email,created_on';
+            is_deeply $user->get_columns(), +{ user_id => 2, name => 'bar', email => 'bar@example.com', created_on => undef};
         };
 
         subtest 'search returns array' => sub {

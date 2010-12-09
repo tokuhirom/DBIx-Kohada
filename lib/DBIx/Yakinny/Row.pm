@@ -23,6 +23,7 @@ sub add_column {
 
 sub columns {
     my $class = shift;
+       $class = ref $class if ref $class;
     no strict 'refs';
     map { $_->{COLUMN_NAME} } @{"${class}::COLUMNS"};
 }
@@ -47,7 +48,8 @@ sub get_column {
 }
 
 sub get_columns {
-    my ($self, $name) = @_;
+    my ($self) = @_;
+    return +{ map { $_ => $self->{$_} } $self->columns };
 }
 
 sub where_cond {
