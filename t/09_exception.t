@@ -17,7 +17,7 @@ use DBIx::Yakinny::Schema;
 
 my $dbh = DBI->connect('dbi:SQLite:', '', '', {PrintError => 0});
 my $schema = DBIx::Yakinny::Schema->new();
-$schema->register_table('MyApp::DB::Row::Foo');
+$schema->register_row_class('MyApp::DB::Row::Foo');
 my $db = DBIx::Yakinny->new(dbh => $dbh, schema => $schema);
 eval {$db->single(foo => {foo_id => 1})};
 like($@, qr{t/09_exception.t}) or diag $@;

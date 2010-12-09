@@ -27,7 +27,7 @@ sub load {
         );
         $table->add_column( $_->name ) for $table_info->columns;
         $klass->set_table( $table );
-        $schema->register_table($klass);
+        $schema->register_row_class($klass);
     }
     return $schema;
 }

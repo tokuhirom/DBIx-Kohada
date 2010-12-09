@@ -19,7 +19,7 @@ sub tables {
     return map { $_->table } values %{$self->{table2row_class}};
 }
 
-sub register_table {
+sub register_row_class {
     my ($self, $row_class) = @_;
 
     Carp::croak("$row_class must inherit DBIx::Yakinny::Row") unless $row_class->isa('DBIx::Yakinny::Row');

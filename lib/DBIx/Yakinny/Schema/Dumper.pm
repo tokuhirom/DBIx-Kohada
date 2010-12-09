@@ -31,7 +31,7 @@ sub dump {
         }
         $ret .= sprintf(");\n");
         $ret .= "${klass}->set_table(\$table);\n";
-        $ret .= "\$schema->register_table('${klass}');\n";
+        $ret .= "\$schema->register_row_class('${klass}');\n";
         $ret .= "}\n";
     }
     $ret .= "\n\$schema;\n}\n";

@@ -187,9 +187,12 @@ DBIx::Yakinny -
 
     package MyApp::DB::Row::User;
     use base qw/DBIx::Yakinny::Row/;
-    __PACKAGE__->set_table('user');
-    __PACKAGE__->set_primary_key('user_id');
-    __PACKAGE__->add_column($_) for qw/user_id name email/;
+    my $table = DBIx::Yakinny::Table->new(
+        name => 'user',
+        primary_key => [qw/user_id/],
+    );
+    $table->add_column($_) for qw/user_id name email/;
+    __PACKAGE__->set_table($table);
 
     package main;
     use DBIx::Yakinny::Schema;
@@ -197,7 +200,7 @@ DBIx::Yakinny -
     use DBI;
 
     my $schema = DBIx::Yakinny::Schema->new();
-    $schema->register_table('MyApp::DB::Row::User');
+    $schema->register_row_class('MyApp::DB::Row::User');
 
     my $dbh = DBI->connect(...);
     my $db = DBIx::Yakinny->new(
@@ -269,7 +272,7 @@ use L<Module::Find>.
 
     use Module::Find;
     my $schema = DBIx::Yakinny::Schema->new();
-    $schema->register_table($_) for useall "MyApp::DB::Row";
+    $schema->register_row_class($_) for useall "MyApp::DB::Row";
 
 =item How do you handle utf8 columns?
 

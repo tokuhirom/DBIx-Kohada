@@ -9,7 +9,7 @@ SYNOPSIS
         package MyApp::DB::Schema;
         use base qw/DBIx::Yakinny::Schema/;
 
-        __PACKAGE__->register_table(
+        __PACKAGE__->register_row_class(
             class   => 'MyApp::DB::User',
             table   => 'user',
             columns => [qw/user_id name email/],
