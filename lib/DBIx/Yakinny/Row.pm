@@ -31,14 +31,6 @@ sub table { $_[0]->yakinny->schema->row_class2table(ref $_[0]) }
 
 sub primary_key { $_[0]->table->primary_key }
 
-sub set_table {
-    my ($class, $table) = @_;
-    no strict 'refs';
-    for my $col ($table->columns) {
-        *{"${class}::$col"} = sub { $_[0]->get_column($col) };
-    }
-}
-
 sub get_column {
     my ($self, $name) = @_;
     return $self->{row_data}->{$name} if exists $self->{row_data}->{$name};
