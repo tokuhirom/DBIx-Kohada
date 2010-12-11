@@ -1,0 +1,11 @@
+digraph yakinny {
+    Schema->Table
+    Schema->Row
+    Row->Table
+    "$dbh" -> DB
+    DB->Schema
+    DB->Iterator
+    Iterator->Row
+    Iterator->Schema
+    DB->TransactionManager
+};
