@@ -28,7 +28,7 @@ sub DESTROY { 1 } # dummy for AUTOLOAD.
 sub get_column {
     my ($self, $name) = @_;
     return $self->{$name} if exists $self->{$name};
-    Carp::croak("$name was not fetched by query.");
+    Carp::croak("'$name' was not fetched by query.");
 }
 
 sub get_columns {
