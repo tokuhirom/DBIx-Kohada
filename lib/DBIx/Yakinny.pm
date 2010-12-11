@@ -91,14 +91,16 @@ sub insert  {
 
 sub replace  {
     my ($self, $table, $values, $opt) = @_;
+    Carp::croak("Usage: " . __PACKAGE__ . '->replace(\$table, \%values[, \%opt])') if ref $table;
     return $self->_insert_or_replace($table, $values, +{%{$opt || +{}}, prefix => 'REPLACE'});
 }
 
 sub _insert_or_replace {
     my ($self, $table, $values, $opt) = @_;
 
+    $self->_do_deflate($table, $values);
     my ($sql, @bind) = $self->query_builder->insert($table, $values, $opt);
-    $self->dbh->do($sql, {}, @bind) or Carp::croak $self->dbh->errstr;
+    $self->dbh->do($sql, {}, @bind) or Carp::croak $sql . ' : ' . $self->dbh->errstr;
     if (defined wantarray) {
         # find row
         my $table_obj = $self->schema->table_name2table($table) or die "'$table' is not defined in schema";
@@ -167,6 +169,7 @@ sub delete_row {
 sub update_row {
     my ($self, $row, $attr) = @_;
 
+    $self->_do_deflate($row->table->name, $attr);
     my ($sql, @binds) = $self->query_builder->update($row->table->name, $attr, $row->where_cond);
     $self->dbh->do($sql, {}, @binds) == 1 or die "FATAL";
 }
@@ -179,8 +182,20 @@ sub delete {
 
 sub update {
     my ($self, $table, $attr, $where) = @_;
+
+    $self->_do_deflate($table, $attr);
     my ($sql, @binds) = $self->query_builder->update($table, $attr, $where);
     $self->dbh->do($sql, {}, @binds);
+}
+
+sub _do_deflate {
+    my ($self, $table_name, $attr) = @_;
+    my $row_class = $self->schema->table_name2row_class($table_name)
+        or return; # since I don't need how to deflate it, but it's not critical issue.
+
+    for my $col (keys %$attr) {
+        $attr->{$col} = $row_class->deflate($col, $attr->{$col});
+    }
 }
 
 1;

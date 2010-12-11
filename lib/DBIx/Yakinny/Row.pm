@@ -5,6 +5,9 @@ use utf8;
 package DBIx::Yakinny::Row;
 use Carp ();
 
+our %INFLATE_RULE;
+our %DEFLATE_RULE;
+
 sub new {
     my $class = shift;
     my %attr = @_ == 1 ? %{$_[0]} : @_;
@@ -68,7 +71,7 @@ sub mk_column_accessors {
     for my $name (@_) {
         *{"${class}::$name"} = sub {
             return $_[0]->set_column($name, $_[1]) if @_==2;
-            return $_[0]->get_column($name);
+            return $_[0]->inflate( $name => $_[0]->get_column($name) );
         };
     }
 }
@@ -105,6 +108,35 @@ sub update {
         $self->yakinny->update_row($self, $attr);
     }
     return;
+}
+
+# ------------------------------------------------------------------------- 
+# inflate/deflate
+
+sub set_inflation_rule {
+    my ($class, $column_name, $code) = @_;
+    Carp::croak("This is a class method, not a instance method") if ref $class;
+    $INFLATE_RULE{$class}->{$column_name} = $code;
+}
+
+sub set_deflation_rule {
+    my ($class, $column_name, $code) = @_;
+    Carp::croak("This is a class method, not a instance method") if ref $class;
+    $DEFLATE_RULE{$class}->{$column_name} = $code;
+}
+
+sub inflate {
+    my ($class, $column_name, $value) = @_;
+    my $code = $INFLATE_RULE{(ref $class || $class)}->{$column_name};
+    return $code ? $code->($value) : $value;
+}
+
+sub deflate {
+    my ($class, $column_name, $value) = @_;
+    return $value if ref $value && ref $value eq 'SCALAR'; # to ignore \"foo + 1"
+
+    my $code = $DEFLATE_RULE{(ref $class || $class)}->{$column_name};
+    return $code ? $code->($value) : $value;
 }
 
 1;
