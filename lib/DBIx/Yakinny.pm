@@ -18,8 +18,6 @@ use DBIx::Yakinny::Table;
 use Module::Load ();
 require Role::Tiny;
 
-our $FATAL;
-
 $Carp::Internal{ (__PACKAGE__) }++;
 
 sub new {
