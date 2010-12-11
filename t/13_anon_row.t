@@ -28,7 +28,7 @@ is $row->b, 1;
 subtest "exception when it's not selected field" => sub {
     eval { $row->c };
     ok $@;
-    like $@, qr/c was not fetched by query./;
+    like $@, qr/'c' was not fetched by query./;
 };
 
 is_deeply $row->get_columns, +{b=> 1};
