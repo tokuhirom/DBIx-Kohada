@@ -6,6 +6,12 @@ use DBIx::Yakinny;
 package t::Sweet;
 
 {
+    package MyApp::DB;
+    use parent qw/DBIx::Yakinny/;
+    __PACKAGE__->load_plugin('TransactionManager');
+}
+
+{
     package MyApp::DB::Row::User;
     use parent qw/DBIx::Yakinny::Row/;
     use Time::Piece;
@@ -60,7 +66,7 @@ package t::Sweet;
     sub run {
         my ($class, $dbh) = @_;
 
-        my $db = DBIx::Yakinny->new(
+        my $db = MyApp::DB->new(
             dbh    => $dbh,
             schema => $class->make_schema(),
         );
@@ -162,21 +168,32 @@ package t::Sweet;
         };
 
         subtest 'update_row' => sub {
-            {
-                my $u = $db->single(user => {name => 'u1'});
-                $u->name('u3');
-                $u->update();
-            }
+            subtest 'simple' => sub {
+                {
+                    my $u = $db->single(user => {name => 'u1'});
+                    $u->name('u3');
+                    $u->update();
+                }
 
-            {
-                my $u = $db->single(user => {name => 'u1'});
-                is $u, undef;
-            }
+                {
+                    my $u = $db->single(user => {name => 'u1'});
+                    is $u, undef;
+                }
 
-            {
+                {
+                    my $u = $db->single(user => {name => 'u3'});
+                    is $u->name, 'u3';
+                }
+            };
+            subtest 'fetch' => sub {
+                my $txn = $db->txn_scope();
                 my $u = $db->single(user => {name => 'u3'});
-                is $u->name, 'u3';
-            }
+                $u->update({name => 'u4'});
+                is $u->name, 'u3', 'DO NOT OVERWRITE ATTRIBUTES INPLACE.';
+                $u = $u->refetch;
+                is $u->name, 'u4', 'updated in db';
+                $txn->rollback();
+            };
         };
 
         subtest 'update' => sub {

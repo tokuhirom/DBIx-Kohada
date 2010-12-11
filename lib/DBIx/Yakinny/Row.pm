@@ -92,9 +92,15 @@ sub set_columns {
 }
 
 sub update {
-    my ($self) = @_;
-    Carp::confess("Usage: \$row->update()") unless @_==1;
+    my ($self, $more_attr) = @_;
     my $attr = $self->get_dirty_columns();
+    if ($more_attr) {
+        Carp::croak "Usage: ->update([\%more_attr])" unless ref $more_attr eq 'HASH';
+        while (my ($col, $val) = each %$more_attr) {
+            Carp::croak("You passed '$col' set to '$val', but it is dirty column, overwritten by '$attr->{$col}'") if exists $attr->{$col};
+            $attr->{$col} = $val;
+        }
+    }
     if (%$attr) {
         $self->yakinny->update_row($self, $attr);
     }
