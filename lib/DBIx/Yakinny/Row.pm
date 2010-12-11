@@ -11,12 +11,16 @@ sub new {
     return bless {%attr, selected_columns => [keys %{$attr{row_data}}]}, $class;
 }
 
+sub table {
+    my $self = shift;
+    return $self->{table} if exists $self->{table};
+    Carp::confess "Missing mandatory parameter 'table' for DB related operation";
+}
+
 sub columns {
     my $self = shift;
     keys %{$self->{row_data}};
 }
-
-sub table { $_[0]->yakinny->schema->row_class2table(ref $_[0]) }
 
 sub get_column {
     my ($self, $name) = @_;

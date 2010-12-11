@@ -24,7 +24,7 @@ sub search_with_pager {
     my $sth = $self->dbh->prepare($sql) or Carp::croak $self->dbh->errstr;
     $sth->execute(@bind) or Carp::croak $self->dbh->errstr;
 
-    my $ret = [$self->new_iterator(sth => $sth, row_class => $row_class)->all];
+    my $ret = [$self->new_iterator(sth => $sth, row_class => $row_class, table => $table, query => $sql)->all];
 
     my $has_next = ( $rows + 1 == scalar(@$ret) ) ? 1 : 0;
     if ($has_next) { pop @$ret }

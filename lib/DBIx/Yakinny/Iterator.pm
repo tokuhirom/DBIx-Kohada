@@ -11,7 +11,7 @@ use Class::Accessor::Lite (
 sub next {
     my $self = shift;
     if (my $row = $self->sth->fetchrow_hashref) {
-        return $self->row_class->new(__query => $self->query, yakinny => $self->yakinny, row_data => $row);
+        return $self->row_class->new(query => $self->query, yakinny => $self->yakinny, row_data => $row, table => $self->table);
     } else {
         $self->sth->finish;
         return;
