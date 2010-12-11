@@ -20,6 +20,18 @@ require Role::Tiny;
 
 $Carp::Internal{ (__PACKAGE__) }++;
 
+# utility
+sub _ddf {
+    my $value = shift;
+    if ( defined $value && ref($value) ) {
+        require Data::Dumper;
+        local $Data::Dumper::Terse  = 1;
+        local $Data::Dumper::Indent = 0;
+        $value = Data::Dumper::Dumper($value);
+    }
+    $value;
+}
+
 sub new {
     my $class = shift;
     my %args = @_ == 1 ? %{$_[0]} : @_;
@@ -66,6 +78,19 @@ sub search  {
     my $iter = $self->new_iterator(sth => $sth, row_class => $row_class, query => $sql, table => $table_obj);
     return wantarray ? $iter->all : $iter;
 }
+
+sub search_by_query_object {
+    my ($self, $query) = @_;
+    Carp::croak('Usage: ->search_by_query_object($query)') unless ref $query;
+
+    my $sql  = $query->as_sql();
+    my @bind = $query->bind();
+    my $sth = $self->dbh->prepare($sql) or Carp::croak(sprintf("search_by_query_object: $sql, %s", _ddf(\@bind)));
+    $sth->execute(@bind) or Carp::croak $self->dbh->errstr;
+    my $iter = $self->new_iterator(sth => $sth, row_class => 'DBIx::Yakinny::AnonRow', query => $sql);
+    return wantarray ? $iter->all : $iter;
+}
+
 
 sub search_by_sql {
     my ($self, $table, $sql, @binds) = @_;
@@ -196,6 +221,11 @@ sub _do_deflate {
     for my $col (keys %$attr) {
         $attr->{$col} = $row_class->deflate($col, $attr->{$col});
     }
+}
+
+sub new_query_object {
+    my ($self) = @_;
+    return $self->query_builder->new_select();
 }
 
 1;

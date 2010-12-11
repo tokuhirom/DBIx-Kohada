@@ -223,6 +223,19 @@ package t::Sweet;
                 ok !$b;
             }
         };
+
+        subtest 'select_by_query_object' => sub {
+            my $query = $db->new_query_object()
+                           ->add_select('*')
+                           ->add_from('user')
+                           ->add_where(name => {like => 'ba%'})
+                           ->add_order_by('name');
+
+            my @users = $db->search_by_query_object($query);
+            is scalar(@users), 2;
+            is $users[0]->name, 'bar';
+            is $users[1]->name, 'baz';
+        };
     }
 }
 
