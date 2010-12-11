@@ -13,7 +13,7 @@ sub new {
 
 sub columns {
     my $self = shift;
-    grep !/^__/, keys %$self;
+    keys %$self;
 }
 
 our $AUTOLOAD;
