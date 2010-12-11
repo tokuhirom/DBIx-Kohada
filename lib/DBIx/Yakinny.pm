@@ -1,6 +1,8 @@
-package DBIx::Yakinny;
 use strict;
-use warnings;
+use warnings FATAL => 'all';
+use utf8;
+
+package DBIx::Yakinny;
 use 5.008001;
 our $VERSION = '0.01';
 use Class::Accessor::Lite (

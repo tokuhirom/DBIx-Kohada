@@ -1,7 +1,8 @@
-package DBIx::Yakinny::Schema::Loader;
 use strict;
-use warnings;
+use warnings FATAL => 'all';
 use utf8;
+
+package DBIx::Yakinny::Schema::Loader;
 use DBIx::Inspector;
 use DBIx::Yakinny::Schema;
 use DBIx::Yakinny::Row;

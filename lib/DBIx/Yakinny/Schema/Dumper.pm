@@ -1,7 +1,8 @@
-package DBIx::Yakinny::Schema::Dumper;
 use strict;
-use warnings;
+use warnings FATAL => 'all';
 use utf8;
+
+package DBIx::Yakinny::Schema::Dumper;
 use DBIx::Inspector 0.03;
 use Carp ();
 use Data::Dumper ();

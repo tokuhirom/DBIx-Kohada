@@ -1,7 +1,8 @@
-package DBIx::Yakinny::Plugin::Trigger;
 use strict;
-use warnings;
+use warnings FATAL => 'all';
 use utf8;
+
+package DBIx::Yakinny::Plugin::Trigger;
 use Role::Tiny;
 
 my %TRIGGERS;

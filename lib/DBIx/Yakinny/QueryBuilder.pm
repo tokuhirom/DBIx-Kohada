@@ -1,7 +1,8 @@
-package DBIx::Yakinny::QueryBuilder;
 use strict;
-use warnings;
+use warnings FATAL => 'all';
 use utf8;
+
+package DBIx::Yakinny::QueryBuilder;
 use parent qw/SQL::Maker/;
 
 __PACKAGE__->load_plugin($_)

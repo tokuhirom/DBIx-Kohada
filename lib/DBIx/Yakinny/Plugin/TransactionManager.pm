@@ -1,7 +1,8 @@
-package DBIx::Yakinny::Plugin::TransactionManager;
 use strict;
-use warnings;
+use warnings FATAL => 'all';
 use utf8;
+
+package DBIx::Yakinny::Plugin::TransactionManager;
 use Role::Tiny;
 use DBIx::TransactionManager;
 

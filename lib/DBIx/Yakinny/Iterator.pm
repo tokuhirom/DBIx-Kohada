@@ -1,7 +1,8 @@
-package DBIx::Yakinny::Iterator;
 use strict;
-use warnings;
+use warnings FATAL => 'all';
 use utf8;
+
+package DBIx::Yakinny::Iterator;
 use Class::Accessor::Lite (
     new => 1,
     ro  => [qw/sth row_class yakinny query/],

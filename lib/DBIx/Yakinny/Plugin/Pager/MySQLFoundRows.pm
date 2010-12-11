@@ -1,7 +1,8 @@
-package DBIx::Yakinny::Plugin::Pager::MySQLFoundRows;
 use strict;
-use warnings;
+use warnings FATAL => 'all';
 use utf8;
+
+package DBIx::Yakinny::Plugin::Pager::MySQLFoundRows;
 use Data::Page;
 use DBIx::Yakinny::Iterator;
 use Carp ();
