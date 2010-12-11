@@ -1,7 +1,8 @@
-package DBIx::Yakinny::Row;
 use strict;
 use warnings FATAL => 'all';
 use utf8;
+
+package DBIx::Yakinny::Row;
 use Carp ();
 
 sub new {
