@@ -143,6 +143,8 @@ sub retrieve {
 
 sub bulk_insert {
     my ($self, $table, $rows) = @_;
+    return unless @$rows; # because 0 rows makes invalid query
+
     my $driver = $self->dbh->{Driver}->{Name};
     if ($driver eq 'mysql') {
         my ($sql, @binds) = $self->query_builder->insert_multi($table, $rows);
