@@ -5,13 +5,13 @@ use utf8;
 package DBIx::Yakinny::Iterator;
 use Class::Accessor::Lite (
     new => 1,
-    ro  => [qw/sth row_class yakinny query/],
+    ro  => [qw/sth row_class yakinny query table/],
 );
 
 sub next {
     my $self = shift;
     if (my $row = $self->sth->fetchrow_hashref) {
-        return $self->row_class->new(__query => $self->query, __yakinny => $self->yakinny, row_data => $row);
+        return $self->row_class->new(__query => $self->query, yakinny => $self->yakinny, row_data => $row);
     } else {
         $self->sth->finish;
         return;

@@ -50,7 +50,7 @@ sub refetch {
 sub yakinny {
     Carp::confess($_[0] . "->yakinny is a instance method.") unless ref $_[0];
 
-    my $y = $_[0]->{__yakinny};
+    my $y = $_[0]->{yakinny};
     if ($y) {
         return $y;
     } else {

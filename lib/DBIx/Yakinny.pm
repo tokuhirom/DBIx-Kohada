@@ -65,7 +65,7 @@ sub search  {
     my ($sql, @bind) = $self->query_builder->select($table, [$table_obj->columns], $where, $opt);
     my $sth = $self->dbh->prepare($sql) or Carp::croak $self->dbh->errstr;
     $sth->execute(@bind) or Carp::croak $self->dbh->errstr;
-    my $iter = $self->new_iterator(sth => $sth, row_class => $row_class);
+    my $iter = $self->new_iterator(sth => $sth, row_class => $row_class, query => $sql);
     return wantarray ? $iter->all : $iter;
 }
 
