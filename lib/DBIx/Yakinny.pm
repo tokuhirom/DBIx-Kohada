@@ -306,6 +306,24 @@ You should use B<mysql_enable_utf8>, B<sqlite_unicode>, etc.
 
 It is not atomic operation. It makes issue at somtime.
 
+=item How do you inflate by rule like DBIx::Skinny?
+
+You can use following snipet code.
+
+    for my $table ($schema->tables()) {
+        my $row_classs = $schema->table_name2row_class($table->name);
+        for my $column ($table->columns()) {
+            if ($column eq 'ctime') {
+                $row_class->set_inflation_rule(
+                    $column => sub { Time::Piece->new($_[0]) }
+                );
+                $row_class->set_deflation_rule(
+                    $column => sub { $_[0]->epoch }
+                );
+            }
+        }
+    }
+
 =back
 
 =head1 AUTHOR
