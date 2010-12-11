@@ -16,12 +16,17 @@ use Class::Accessor::Lite (
 sub new {
     my $class = shift;
     my %args = @_ == 1 ? %{ $_[0] } : @_;
-    bless {
+    my $columns = delete $args{columns};
+    my $self = bless {
         column_infos => [],
         columns      => [],
         primary_key  => [],
         %args
     }, $class;
+    if ($columns) {
+        $self->add_column($_) for @$columns;
+    }
+    return $self;
 }
 
 sub add_column {
