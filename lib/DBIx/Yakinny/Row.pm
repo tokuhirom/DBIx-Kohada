@@ -58,7 +58,7 @@ sub yakinny {
     }
 }
 
-sub add_column_accessors {
+sub mk_column_accessors {
     my $class = shift;
     no strict 'refs';
     for my $name (@_) {

@@ -36,7 +36,7 @@ sub register_table {
     Carp::confess("\$table should be object") unless ref $table;
     Carp::confess("The table @{[ $table->name ]} does not contain any column") unless @{$table->columns};
 
-    $row_class->add_column_accessors($table->columns);
+    $row_class->mk_column_accessors($table->columns);
 
     $self->{table_name2row_class}->{$table->name}  = $row_class;
     $self->{table_name2table}->{$table->name} = $table;
