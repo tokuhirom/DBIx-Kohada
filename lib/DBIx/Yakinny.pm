@@ -111,7 +111,16 @@ sub search_by_sql {
 
 sub insert  {
     my ($self, $table, $values, $opt) = @_;
-    return $self->_insert_or_replace($table, $values, $opt);
+
+    my $row_class = $self->schema->table_name2row_class($table) or Carp::croak("'$table' is not registered in schema");
+    $row_class->call_trigger("before_insert", $values);
+    if ($row_class->has_trigger('after_insert')) {
+        my $row = $self->_insert_or_replace($table, $values, $opt);
+        $row->call_trigger("after_insert");
+        return $row;
+    } else {
+        return $self->_insert_or_replace($table, $values, $opt);
+    }
 }
 
 sub replace  {

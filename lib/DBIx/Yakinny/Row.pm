@@ -45,7 +45,9 @@ sub where_cond {
 
 sub delete {
     my $self = shift;
+    $self->call_trigger('before_delete');
     $self->yakinny->delete_row($self);
+    $self->call_trigger('after_delete');
     return;
 }
 
@@ -105,9 +107,30 @@ sub update {
         }
     }
     if (%$attr) {
+        $self->call_trigger('before_update', $attr);
         $self->yakinny->update_row($self, $attr);
+        $self->call_trigger('after_update', $attr);
     }
     return;
+}
+
+# ------------------------------------------------------------------------- 
+# trigger
+
+our %TRIGGERS;
+sub add_trigger {
+    my ($class, $point, $code) = @_;
+    push @{$TRIGGERS{$class}->{$point}}, $code;
+}
+sub call_trigger {
+    my ($self, $point, @args) = @_;
+    for my $code (@{$TRIGGERS{ref $self || $self}->{$point} || []}) {
+        $code->($self, @args);
+    }
+}
+sub has_trigger {
+    my ($class, $point) = @_;
+    $TRIGGERS{$class}->{$point} ? 1 : 0;
 }
 
 # ------------------------------------------------------------------------- 

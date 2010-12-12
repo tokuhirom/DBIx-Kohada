@@ -1,77 +1,70 @@
 use strict;
 use warnings;
 use Test::More;
-use Test::Requires 'Class::Method::Modifiers', 'DBD::SQLite';
+use Test::Requires 'DBD::SQLite';
 use DBIx::Yakinny::Schema;
 
-plan tests => 15;
+plan tests => 11;
 
 {
     package MyApp::DB;
     use parent qw/DBIx::Yakinny/;
-    use Class::Method::Modifiers;
+}
 
-    __PACKAGE__->load_plugin('Trigger');
+{
+    package MyApp::DB::Row::User;
+    use parent qw/DBIx::Yakinny::Row/;
 
     our $CNT = 0;
 
     __PACKAGE__->add_trigger(
-        'user' => 'before_insert' => sub {
-            my ($yakinny, $val) = @_;
-            ::isa_ok $yakinny, 'DBIx::Yakinny';
+        'before_insert' => sub {
+            my ($row_class, $val) = @_;
+            ::is $row_class, 'MyApp::DB::Row::User';
             $val->{token} = 'HIJLK';
             $CNT++;
         },
     );
 
     __PACKAGE__->add_trigger(
-        'user' => 'after_insert' => sub {
-            my ($yakinny, $row) = @_;
-            ::isa_ok $yakinny, 'DBIx::Yakinny';
+        'after_insert' => sub {
+            my ($row) = @_;
+            ::isa_ok $row, 'MyApp::DB::Row::User';
             $row->{AFTER_INSERT_HOOK_OK} = 1;
             $CNT++;
         },
     );
 
     __PACKAGE__->add_trigger(
-        'user' => 'before_update' => sub {
-            my ($yakinny, $row, $attr) = @_;
-            ::isa_ok $yakinny, 'DBIx::Yakinny';
-            ::isa_ok $row, 'DBIx::Yakinny::Row';
+        'before_update' => sub {
+            my ($row, $attr) = @_;
+            ::isa_ok $row, 'MyApp::DB::Row::User';
             $attr->{name} = uc $attr->{name} if $attr->{name};
             $CNT++;
         }
     );
     __PACKAGE__->add_trigger(
-        'user' => 'after_update' => sub {
-            my ($yakinny, $row, $attr) = @_;
-            ::isa_ok $yakinny, 'DBIx::Yakinny';
-            ::isa_ok $row, 'DBIx::Yakinny::Row';
+        'after_update' => sub {
+            my ($row, $attr) = @_;
+            ::isa_ok $row, 'MyApp::DB::Row::User';
             $CNT++;
         }
     );
 
     __PACKAGE__->add_trigger(
-        'user' => 'before_delete' => sub {
-            my ($yakinny, $row, $attr) = @_;
-            ::isa_ok $yakinny, 'DBIx::Yakinny';
-            ::isa_ok $row, 'DBIx::Yakinny::Row';
+        'before_delete' => sub {
+            my ($row, $attr) = @_;
+            ::isa_ok $row, 'MyApp::DB::Row::User';
             $CNT++;
         }
     );
     __PACKAGE__->add_trigger(
-        'user' => 'after_delete' => sub {
-            my ($yakinny, $row, $attr) = @_;
-            ::isa_ok $yakinny, 'DBIx::Yakinny';
-            ::isa_ok $row, 'DBIx::Yakinny::Row';
+        'after_delete' => sub {
+            my ($row, $attr) = @_;
+            ::isa_ok $row, 'MyApp::DB::Row::User';
             $CNT++;
         }
     );
-}
-
-{
-    package MyApp::DB::Row::User;
-    use parent qw/DBIx::Yakinny::Row/;
 }
 
 my $dbh = DBI->connect('dbi:SQLite:', '', '') or die;
@@ -98,6 +91,6 @@ is $row->name, 'POO';
 
 $row->delete();
 
-is $MyApp::DB::CNT, 6;
+is $MyApp::DB::Row::User::CNT, 6;
 
 
