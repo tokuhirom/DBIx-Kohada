@@ -126,13 +126,14 @@ sub set_deflation_rule {
 }
 
 sub inflate {
-    my ($class, $column_name, $value) = @_;
-    my $code = $INFLATE_RULE{(ref $class || $class)}->{$column_name};
-    return $code ? $code->($value) : $value;
+    my ($self, $column_name, $value) = @_;
+    my $code = $INFLATE_RULE{(ref $self)}->{$column_name};
+    return $code ? $code->($value, $self->yakinny) : $value;
 }
 
 sub deflate {
     my ($class, $column_name, $value) = @_;
+    return $value unless defined $value;
     return $value if ref $value && ref $value eq 'SCALAR'; # to ignore \"foo + 1"
 
     my $code = $DEFLATE_RULE{(ref $class || $class)}->{$column_name};
