@@ -5,9 +5,6 @@ use utf8;
 package DBIx::Yakinny::Row;
 use Carp ();
 
-our %INFLATE_RULE;
-our %DEFLATE_RULE;
-
 sub new {
     my $class = shift;
     my %attr = @_ == 1 ? %{$_[0]} : @_;
@@ -34,37 +31,6 @@ sub get_column {
 sub get_columns {
     my ($self) = @_;
     return +{ map { $_ => $self->{row_data}->{$_} } $self->columns };
-}
-
-sub where_cond {
-    my ($self) = @_;
-    my @pk = @{$self->table->primary_key};
-    Carp::confess("You cannot call this method whithout primary key") unless @pk;
-    return +{ map { $_ => $self->get_column($_) } @pk };
-}
-
-sub delete {
-    my $self = shift;
-    $self->call_trigger('before_delete');
-    $self->yakinny->delete_row($self);
-    $self->call_trigger('after_delete');
-    return;
-}
-
-sub refetch {
-    my $self = shift;
-    return $self->yakinny->single( $self->table->name => $self->where_cond );
-}
-
-sub yakinny {
-    Carp::confess($_[0] . "->yakinny is a instance method.") unless ref $_[0];
-
-    my $y = $_[0]->{yakinny};
-    if ($y) {
-        return $y;
-    } else {
-        Carp::croak("There is no DBIx::Yakinny object in this instance(This situation is caused by Storable::freeze).");
-    }
 }
 
 sub mk_column_accessors {
@@ -96,6 +62,33 @@ sub set_columns {
     }
 }
 
+# ------------------------------------------------------------------------- 
+# operations
+
+sub where_cond {
+    my ($self) = @_;
+    my @pk = @{$self->table->primary_key};
+    Carp::confess("You cannot call this method whithout primary key") unless @pk;
+    return +{ map { $_ => $self->get_column($_) } @pk };
+}
+
+sub refetch {
+    my $self = shift;
+    return $self->yakinny->single( $self->table->name => $self->where_cond );
+}
+
+sub yakinny {
+    Carp::confess($_[0] . "->yakinny is a instance method.") unless ref $_[0];
+
+    my $y = $_[0]->{yakinny};
+    if ($y) {
+        return $y;
+    } else {
+        Carp::croak("There is no DBIx::Yakinny object in this instance(This situation is caused by Storable::freeze).");
+    }
+}
+
+
 sub update {
     my ($self, $more_attr) = @_;
     my $attr = $self->get_dirty_columns();
@@ -111,6 +104,14 @@ sub update {
         $self->yakinny->update_row($self, $attr);
         $self->call_trigger('after_update', $attr);
     }
+    return;
+}
+
+sub delete {
+    my $self = shift;
+    $self->call_trigger('before_delete');
+    $self->yakinny->delete_row($self);
+    $self->call_trigger('after_delete');
     return;
 }
 
@@ -135,6 +136,9 @@ sub has_trigger {
 
 # ------------------------------------------------------------------------- 
 # inflate/deflate
+
+our %INFLATE_RULE;
+our %DEFLATE_RULE;
 
 sub set_inflation_rule {
     my ($class, $column_name, $code) = @_;
