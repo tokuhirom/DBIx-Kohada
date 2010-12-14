@@ -50,7 +50,7 @@ sub new {
 
 sub new_iterator {
     my ($self, @args) = @_;
-    return DBIx::Kohada::Iterator->new(@args, yakinny => $self);
+    return DBIx::Kohada::Iterator->new(@args, kohada => $self);
 }
 
 sub load_plugin {

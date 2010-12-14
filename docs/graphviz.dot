@@ -1,4 +1,4 @@
-digraph yakinny {
+digraph kohada {
     Schema->Table
     Schema->Row
     Row->Table

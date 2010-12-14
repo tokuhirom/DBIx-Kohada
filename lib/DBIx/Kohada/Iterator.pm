@@ -5,13 +5,13 @@ use utf8;
 package DBIx::Kohada::Iterator;
 use Class::Accessor::Lite (
     new => 1,
-    ro  => [qw/sth row_class yakinny query/],
+    ro  => [qw/sth row_class kohada query/],
 );
 
 sub next {
     my $self = shift;
     if (my $row = $self->sth->fetchrow_hashref) {
-        return $self->row_class->new(query => $self->query, yakinny => $self->yakinny, row_data => $row);
+        return $self->row_class->new(query => $self->query, kohada => $self->kohada, row_data => $row);
     } else {
         $self->sth->finish;
         return;

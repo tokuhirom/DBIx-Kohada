@@ -107,13 +107,13 @@ sub where_cond {
 
 sub refetch {
     my $self = shift;
-    return $self->yakinny->single( $self->table => $self->where_cond );
+    return $self->kohada->single( $self->table => $self->where_cond );
 }
 
-sub yakinny {
-    Carp::confess($_[0] . "->yakinny is a instance method.") unless ref $_[0];
+sub kohada {
+    Carp::confess($_[0] . "->kohada is a instance method.") unless ref $_[0];
 
-    my $y = $_[0]->{yakinny};
+    my $y = $_[0]->{kohada};
     if ($y) {
         return $y;
     } else {
@@ -134,7 +134,7 @@ sub update {
     }
     if (%$attr) {
         $self->call_trigger('before_update', $attr);
-        $self->yakinny->update_row($self, $attr);
+        $self->kohada->update_row($self, $attr);
         $self->call_trigger('after_update', $attr);
     }
     return;
@@ -143,7 +143,7 @@ sub update {
 sub delete {
     my $self = shift;
     $self->call_trigger('before_delete');
-    $self->yakinny->delete_row($self);
+    $self->kohada->delete_row($self);
     $self->call_trigger('after_delete');
     return;
 }
@@ -188,7 +188,7 @@ sub set_deflation_rule {
 sub inflate {
     my ($self, $column_name, $value) = @_;
     my $code = $INFLATE_RULE{(ref $self)}->{$column_name};
-    return $code ? $code->($value, $self->yakinny) : $value;
+    return $code ? $code->($value, $self->kohada) : $value;
 }
 
 sub deflate {
