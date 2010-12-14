@@ -27,8 +27,6 @@ sub all {
     return @row;
 }
 
-sub rows { $_[0]->sth->rows }
-
 1;
 __END__
 
@@ -52,10 +50,6 @@ Fetch one row from iterator. It returns undef when end of iteration.
 
 =item my @items = $iter->all()
 
-Fetch items at once.
-
-=item my $rows = $iter->rows()
-
-This is synonym for $iter->sth->rows
+Fetch all items at once.
 
 =back
