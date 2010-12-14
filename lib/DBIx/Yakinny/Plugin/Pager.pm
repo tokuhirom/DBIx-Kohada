@@ -11,12 +11,11 @@ sub search_with_pager {
     my ($self, $table, $where, $opt) = @_;
 
     my $row_class = $self->schema->table_name2row_class($table) or Carp::croak("'$table' is unknown table");
-    my $table_obj = $self->schema->table_name2table($table) or Carp::croak("'$table' is unknown table");
 
     my $page = $opt->{page};
     my $rows = $opt->{rows};
 
-    my ($sql, @bind) = $self->query_builder->select($table, [$table_obj->columns], $where, +{
+    my ($sql, @bind) = $self->query_builder->select($table, [$row_class->columns], $where, +{
         %$opt,
         limit => $rows + 1,
         offset => $rows*($page-1),

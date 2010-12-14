@@ -13,12 +13,11 @@ sub search_with_pager {
     my ($self, $table, $where, $opt) = @_;
 
     my $row_class = $self->schema->table_name2row_class($table) or Carp::croak("'$table' is unknown table");
-    my $table_obj = $self->schema->table_name2table($table) or Carp::croak("'$table' is unknown table");
 
     my $page = $opt->{page};
     my $rows = $opt->{rows};
 
-    my ($sql, @bind) = $self->query_builder->select($table, [$table_obj->columns], $where, +{
+    my ($sql, @bind) = $self->query_builder->select($table, [$row_class->columns], $where, +{
         %$opt,
         limit => $rows,
         offset => $rows*($page-1),
@@ -28,7 +27,7 @@ sub search_with_pager {
     $sth->execute(@bind) or Carp::croak $self->dbh->errstr;
     my $total_entries = $self->dbh->selectrow_array(q{SELECT FOUND_ROWS()});
 
-    my $iter = $self->new_iterator(sth => $sth, row_class => $row_class, table => $table_obj);
+    my $iter = $self->new_iterator(sth => $sth, row_class => $row_class);
 
     my $pager = Data::Page->new();
     $pager->entries_per_page($rows);

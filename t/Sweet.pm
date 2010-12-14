@@ -18,13 +18,21 @@ package t::Sweet;
     sub created_on_piece {
         Time::Piece->new($_[0]->created_on);
     }
-}
+    __PACKAGE__->set_table('user');
+    __PACKAGE__->set_primary_key(qw/user_id/);
+    __PACKAGE__->add_column($_) for qw/user_id name email created_on/;
 
-{
     package MyApp::DB::Row::Good;
     use parent qw/DBIx::Yakinny::Row/;
+    __PACKAGE__->set_table('good');
+    __PACKAGE__->set_primary_key(qw/user_id entry_id/);
+    __PACKAGE__->add_column($_) for qw/entry_id user_id/;
+
     package MyApp::DB::Row::Entry;
     use parent qw/DBIx::Yakinny::Row/;
+    __PACKAGE__->set_table('entry');
+    __PACKAGE__->set_primary_key(qw/entry_id/);
+    __PACKAGE__->add_column($_) for qw/entry_id user_id body/;
 }
 
 {
@@ -37,28 +45,9 @@ package t::Sweet;
     sub make_schema {
         $schema ||= do {
             my $s = DBIx::Yakinny::Schema->new();
-
-            my $user_table = DBIx::Yakinny::Table->new(
-                name => 'user',
-                primary_key => [qw/user_id/],
-            );
-            $user_table->add_column($_) for qw/user_id name email created_on/;
-            $s->register_table( $user_table => 'MyApp::DB::Row::User' );
-
-            my $entry_table = DBIx::Yakinny::Table->new(
-                name => 'entry',
-                primary_key => [qw/entry_id/],
-            );
-            $entry_table->add_column($_) for qw/entry_id user_id body/;
-            $s->register_table( $entry_table => 'MyApp::DB::Row::Entry' );
-
-            my $good_table = DBIx::Yakinny::Table->new(
-                name => 'good',
-                primary_key => [qw/user_id entry_id/],
-            );
-            $good_table->add_column($_) for qw/user_id entry_id/;
-            $s->register_table( $good_table => 'MyApp::DB::Row::Good' );
-
+            $s->register_row_class( 'MyApp::DB::Row::User' );
+            $s->register_row_class( 'MyApp::DB::Row::Entry' );
+            $s->register_row_class( 'MyApp::DB::Row::Good' );
             $s;
         };
     }
@@ -71,8 +60,8 @@ package t::Sweet;
             schema => $class->make_schema(),
         );
 
-        subtest 'tables' => sub {
-            is join(',', sort map {$_->name } $db->schema->tables), 'entry,good,user';
+        subtest 'table_names' => sub {
+            is join(',', sort $db->schema->table_names), 'entry,good,user';
         };
 
         subtest 'insert' => sub {
@@ -197,7 +186,7 @@ package t::Sweet;
         };
 
         subtest 'update' => sub {
-            $db->dbh->do(q{DELETE FROM user});
+            $db->dbh->do(q{DELETE FROM } . $db->dbh->quote_identifier('user'));
             $db->insert(user => {name => 'u3'});
 
             {
@@ -216,7 +205,7 @@ package t::Sweet;
         };
 
         subtest 'delete' => sub {
-            $db->dbh->do(q{DELETE FROM user});
+            $db->dbh->do(q{DELETE FROM } . $db->dbh->quote_identifier('user'));
             $db->insert(user => {name => 'bee'});
             {
                 my $b = $db->single(user => {name => 'bee'});
@@ -230,7 +219,7 @@ package t::Sweet;
         };
 
         subtest 'select_by_query_object' => sub {
-            $db->dbh->do(q{DELETE FROM user});
+            $db->dbh->do(q{DELETE FROM } . $db->dbh->quote_identifier('user'));
             $db->insert(user => {name => 'foo', email => 'foo@example.com'});
             $db->insert(user => {name => 'bar', email => 'bar@example.com'});
             $db->insert(user => {name => 'baz', email => 'baz@example.com'});

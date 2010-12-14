@@ -15,32 +15,16 @@ sub table_name2row_class {
     return $self->{table_name2row_class}->{$table};
 }
 
-sub table_name2table {
-    my ($self, $table) = @_;
-    return $self->{table_name2table}->{$table};
-}
-
-sub row_class2table{
-    my ($self, $row_class) = @_;
-    return $self->{row_class2table}->{$row_class};
-}
-
-sub tables {
+sub table_names {
     my $self = shift;
-    return values %{$self->{table_name2table}};
+    return keys %{$self->{table_name2row_class}};
 }
 
-sub register_table {
-    my ($self, $table, $row_class) = @_;
-    Carp::croak(__PACKAGE__ . "->register_table(\$table, \$row_class);") unless @_==3;
-    Carp::confess("\$table should be object") unless ref $table;
-    Carp::confess("The table @{[ $table->name ]} does not contain any column") unless @{$table->columns};
+sub register_row_class {
+    my ($self, $row_class) = @_;
+    Carp::croak(__PACKAGE__ . "->register_row_class(\$row_class);") unless @_==2;
 
-    $row_class->mk_column_accessors($table->columns);
-
-    $self->{table_name2row_class}->{$table->name}  = $row_class;
-    $self->{table_name2table}->{$table->name} = $table;
-    $self->{row_class2table}->{$row_class} = $table;
+    $self->{table_name2row_class}->{$row_class->table}  = $row_class;
 }
 
 1;

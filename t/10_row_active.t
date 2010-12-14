@@ -9,17 +9,15 @@ use DBIx::Yakinny::Schema;
 {
     package MyApp::DB::Row::Foo;
     use parent qw/DBIx::Yakinny::Row/;
+    __PACKAGE__->set_table(qw/foo/);
+    __PACKAGE__->set_primary_key(qw/id/);
+    __PACKAGE__->add_column($_) for qw/id bar/;
 }
 
 my $dbh = DBI->connect('dbi:SQLite:', '', '', {PrintError => 0});
 $dbh->do(q{create table foo (id integer not null primary key, bar)});
 my $schema = DBIx::Yakinny::Schema->new();
-my $table = DBIx::Yakinny::Table->new(
-    name => 'foo',
-    primary_key => [qw/id/],
-);
-$table->add_column($_) for qw/id bar/;
-$schema->register_table($table => 'MyApp::DB::Row::Foo');
+$schema->register_row_class('MyApp::DB::Row::Foo');
 my $db = DBIx::Yakinny->new(dbh => $dbh, schema => $schema);
 my $foo = $db->insert(foo => {bar => "ORIGINAL"});
 ok $foo;

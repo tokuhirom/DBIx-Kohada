@@ -29,11 +29,10 @@ my $db = DBIx::Yakinny->new(
     dbh    => $dbh,
 );
 my $user = $db->schema->table_name2row_class('user');
-my $user_table = $db->schema->table_name2table('user');
 is $user, 'MyApp::DB::Row::User';
-is($user_table->name, 'user');
-is(join(',', @{$user_table->primary_key}), 'user_id');
-is(join(',', $user_table->columns), 'user_id,name,email,created_on');
+is($user->table, 'user');
+is(join(',', @{$user->primary_key}), 'user_id');
+is(join(',', $user->columns), 'user_id,name,email,created_on');
 
 done_testing;
 

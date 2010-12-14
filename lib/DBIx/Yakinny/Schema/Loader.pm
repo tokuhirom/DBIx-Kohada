@@ -22,12 +22,10 @@ sub load {
             no strict 'refs';
             unshift @{"${row_class}::ISA"}, 'DBIx::Yakinny::Row'
         }
-        my $table = DBIx::Yakinny::Table->new(
-            name => $table_info->name,
-            primary_key => [map { $_->name } $table_info->primary_key],
-        );
-        $table->add_column( $_->name ) for $table_info->columns;
-        $schema->register_table($table => $row_class);
+        $row_class->set_table($table_info->name);
+        $row_class->set_primary_key(map { $_->name } $table_info->primary_key);
+        $row_class->add_column( $_->name ) for $table_info->columns;
+        $schema->register_row_class($row_class);
     }
     return $schema;
 }

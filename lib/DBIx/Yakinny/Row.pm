@@ -5,21 +5,12 @@ use utf8;
 package DBIx::Yakinny::Row;
 use Carp ();
 
+*_subname = eval { require Sub::Name; \&Sub::Name::subname } || sub { $_[1] };
+
 sub new {
     my $class = shift;
     my %attr = @_ == 1 ? %{$_[0]} : @_;
     return bless {%attr, selected_columns => [keys %{$attr{row_data}}]}, $class;
-}
-
-sub table {
-    my $self = shift;
-    return $self->{table} if exists $self->{table};
-    Carp::confess "Missing mandatory parameter 'table' for DB related operation";
-}
-
-sub columns {
-    my $self = shift;
-    keys %{$self->{row_data}};
 }
 
 sub get_column {
@@ -31,17 +22,6 @@ sub get_column {
 sub get_columns {
     my ($self) = @_;
     return +{ map { $_ => $self->{row_data}->{$_} } $self->columns };
-}
-
-sub mk_column_accessors {
-    my $class = shift;
-    no strict 'refs';
-    for my $name (@_) {
-        *{"${class}::$name"} = sub {
-            return $_[0]->set_column($name, $_[1]) if @_==2;
-            return $_[0]->inflate( $name => $_[0]->get_column($name) );
-        };
-    }
 }
 
 sub get_dirty_columns {
@@ -63,18 +43,71 @@ sub set_columns {
 }
 
 # ------------------------------------------------------------------------- 
+# schema
+
+sub table { Carp::croak("Call 'set_table' method before call this method") }
+
+sub primary_key {
+    Carp::croak("Call 'set_primary_key' method before call this method");
+}
+
+sub set_table {
+    my ($class, $table) = @_;
+    Carp::croak("This is a class method") if ref $class;
+
+    no strict 'refs';
+    *{"${class}::table"} = _subname("${class}::table" => sub { $table });
+}
+
+sub set_primary_key {
+    my $class = shift;
+    my @pk = @_;
+    Carp::croak("This is a class method") if ref $class;
+
+    no strict 'refs';
+    *{"${class}::primary_key"} = _subname("${class}::primary_key" => sub { wantarray ? @pk : \@pk });
+}
+
+our %COLUMNS;
+sub add_column {
+    my $class = shift;
+    Carp::croak("This is a class method") if ref $class;
+    my $name = shift;
+
+    push @{$COLUMNS{$class}}, $name;
+    $class->mk_column_accessors($name);
+}
+
+sub columns {
+    my $c = $COLUMNS{ref($_[0]) || $_[0]};
+    wantarray ? @$c : $c;
+}
+
+sub mk_column_accessors {
+    my $class = shift;
+    no strict 'refs';
+    for my $name (@_) {
+        *{"${class}::$name"} = sub {
+            return $_[0]->set_column($name, $_[1]) if @_==2;
+            return $_[0]->inflate( $name => $_[0]->get_column($name) );
+        };
+    }
+}
+
+
+# ------------------------------------------------------------------------- 
 # operations
 
 sub where_cond {
     my ($self) = @_;
-    my @pk = @{$self->table->primary_key};
+    my @pk = @{$self->primary_key};
     Carp::confess("You cannot call this method whithout primary key") unless @pk;
     return +{ map { $_ => $self->get_column($_) } @pk };
 }
 
 sub refetch {
     my $self = shift;
-    return $self->yakinny->single( $self->table->name => $self->where_cond );
+    return $self->yakinny->single( $self->table => $self->where_cond );
 }
 
 sub yakinny {

@@ -19,16 +19,13 @@ use DBIx::Yakinny;
     __PACKAGE__->set_deflation_rule(
         ctime => sub { $_[0]->epoch }
     );
+    __PACKAGE__->set_table(qw/user/);
+    __PACKAGE__->set_primary_key(qw/id/);
+    __PACKAGE__->add_column($_) for qw/id name ctime/;
 }
 
-my $table = DBIx::Yakinny::Table->new(
-    name => 'user',
-    primary_key => [qw/id/],
-);
-$table->add_column($_) for qw/id name ctime/;
-
 my $schema = DBIx::Yakinny::Schema->new();
-$schema->register_table($table, 'MyApp::DB::Row::User');
+$schema->register_row_class('MyApp::DB::Row::User');
 
 my $dbh = DBI->connect('dbi:SQLite:', '', '', {RaiseError => 1});
 $dbh->do(q{create table user (id integer primary key, name, ctime)});
