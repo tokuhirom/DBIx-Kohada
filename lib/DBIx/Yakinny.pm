@@ -246,12 +246,9 @@ DBIx::Yakinny -
 
     package MyApp::DB::Row::User;
     use parent qw/DBIx::Yakinny::Row/;
-    my $table = DBIx::Yakinny::Table->new(
-        name => 'user',
-        primary_key => [qw/user_id/],
-    );
-    $table->add_column($_) for qw/user_id name email/;
-    __PACKAGE__->set_table($table);
+    __PACKAGE__->set_table('user');
+    __PACKAGE__->set_primary_key('user_id');
+    __PACKAGE__->add_column($_) for qw/user_id name email/;
 
     package main;
     use DBIx::Yakinny::Schema;

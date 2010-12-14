@@ -17,6 +17,10 @@ plan tests => 11;
 
     our $CNT = 0;
 
+    __PACKAGE__->set_table('user');
+    __PACKAGE__->set_primary_key('email');
+    __PACKAGE__->add_column($_) for qw/name email token/;
+
     __PACKAGE__->add_trigger(
         'before_insert' => sub {
             my ($row_class, $val) = @_;
@@ -70,13 +74,8 @@ plan tests => 11;
 my $dbh = DBI->connect('dbi:SQLite:', '', '') or die;
 $dbh->do(q{create table user (name text, email text PRIMARY KEY, token text);});
 
-my $table = DBIx::Yakinny::Table->new(
-    name        => 'user',
-    primary_key => [qw/email/],
-);
-$table->add_column($_) for qw/name email token/;
 my $schema = DBIx::Yakinny::Schema->new();
-$schema->register_table($table => 'MyApp::DB::Row::User');
+$schema->register_row_class('MyApp::DB::Row::User');
 
 my $db = MyApp::DB->new(schema => $schema, dbh => $dbh);
 my $row = $db->insert(user => {name => 'john', email => 'john@example.com'});
