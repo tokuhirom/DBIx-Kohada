@@ -1,20 +1,20 @@
 use strict;
 use warnings;
 use Test::More;
-use DBIx::Yakinny;
-use DBIx::Yakinny::Schema::Loader;
+use DBIx::Kohada;
+use DBIx::Kohada::Schema::Loader;
 use Test::Requires 'DBD::SQLite';
 use DBI;
 
 {
     package MyApp::DB;
-    use parent qw/DBIx::Yakinny/;
+    use parent qw/DBIx::Kohada/;
     __PACKAGE__->load_plugin(qw/TransactionManager/);
 }
 
 my $dbh = DBI->connect('dbi:SQLite:');
 $dbh->do(q{CREATE TABLE foo (bar)});
-my $schema = DBIx::Yakinny::Schema::Loader->load(dbh => $dbh, table2class_cb => sub {
+my $schema = DBIx::Kohada::Schema::Loader->load(dbh => $dbh, table2class_cb => sub {
     local $_ = shift;
     "MyApp::DB::Row::$_";
 });

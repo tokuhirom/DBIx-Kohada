@@ -2,7 +2,7 @@ use strict;
 use warnings FATAL => 'all';
 use utf8;
 
-package DBIx::Yakinny;
+package DBIx::Kohada;
 use 5.008001;
 our $VERSION = '0.01';
 use Class::Accessor::Lite (
@@ -11,9 +11,9 @@ use Class::Accessor::Lite (
 );
 use Carp ();
 
-use DBIx::Yakinny::Iterator;
-use DBIx::Yakinny::AnonRow;
-use DBIx::Yakinny::QueryBuilder;
+use DBIx::Kohada::Iterator;
+use DBIx::Kohada::AnonRow;
+use DBIx::Kohada::QueryBuilder;
 use Module::Load ();
 require Role::Tiny;
 
@@ -40,7 +40,7 @@ sub new {
     my $self = bless {%args}, $class;
     $self->{quote_char} = $self->dbh->get_info(29) || q{"};
     $self->{name_sep}   = $self->dbh->get_info(41) || q{.};
-    $self->{query_builder} ||= DBIx::Yakinny::QueryBuilder->new(
+    $self->{query_builder} ||= DBIx::Kohada::QueryBuilder->new(
         driver     => $self->dbh->{Driver}->{Name},
         quote_char => $self->quote_char,
         name_sep   => $self->name_sep,
@@ -50,12 +50,12 @@ sub new {
 
 sub new_iterator {
     my ($self, @args) = @_;
-    return DBIx::Yakinny::Iterator->new(@args, yakinny => $self);
+    return DBIx::Kohada::Iterator->new(@args, yakinny => $self);
 }
 
 sub load_plugin {
     my ($class, $name) = @_;
-    $name = $name =~ s/^\+// ? $name : "DBIx::Yakinny::Plugin::$name";
+    $name = $name =~ s/^\+// ? $name : "DBIx::Kohada::Plugin::$name";
     Module::Load::load($name);
     Role::Tiny->apply_role_to_package($class, $name);
 }
@@ -85,7 +85,7 @@ sub search_by_query_object {
     my @bind = $query->bind();
     my $sth = $self->dbh->prepare($sql) or Carp::croak(sprintf("search_by_query_object: $sql, %s", _ddf(\@bind)));
     $sth->execute(@bind) or Carp::croak $self->dbh->errstr;
-    my $iter = $self->new_iterator(sth => $sth, row_class => 'DBIx::Yakinny::AnonRow', query => $sql);
+    my $iter = $self->new_iterator(sth => $sth, row_class => 'DBIx::Kohada::AnonRow', query => $sql);
     return wantarray ? $iter->all : $iter;
 }
 
@@ -97,7 +97,7 @@ sub search_by_sql {
     if (defined $table) {
         $row_class = $self->schema->table_name2row_class($table) or Carp::croak("unknown table : $table");
     } else {
-        $row_class = 'DBIx::Yakinny::AnonRow';
+        $row_class = 'DBIx::Kohada::AnonRow';
     }
     my $sth = $self->dbh->prepare($sql) or Carp::croak $self->dbh->errstr;
     $sth->execute(@binds) or Carp::croak $self->dbh->errstr;
@@ -240,26 +240,26 @@ __END__
 
 =head1 NAME
 
-DBIx::Yakinny -
+DBIx::Kohada -
 
 =head1 SYNOPSIS
 
     package MyApp::DB::Row::User;
-    use parent qw/DBIx::Yakinny::Row/;
+    use parent qw/DBIx::Kohada::Row/;
     __PACKAGE__->set_table('user');
     __PACKAGE__->set_primary_key('user_id');
     __PACKAGE__->add_column($_) for qw/user_id name email/;
 
     package main;
-    use DBIx::Yakinny::Schema;
-    use DBIx::Yakinny;
+    use DBIx::Kohada::Schema;
+    use DBIx::Kohada;
     use DBI;
 
-    my $schema = DBIx::Yakinny::Schema->new();
+    my $schema = DBIx::Kohada::Schema->new();
     $schema->register_row_class('MyApp::DB::Row::User');
 
     my $dbh = DBI->connect(...);
-    my $db = DBIx::Yakinny->new(
+    my $db = DBIx::Kohada->new(
         dbh    => $dbh,
         schema => $schema,
     );
@@ -278,7 +278,7 @@ DBIx::Yakinny -
 
 =head1 DESCRIPTION
 
-DBIx::Yakinny is yet another O/R mapper based on Active Record strategy.
+DBIx::Kohada is yet another O/R mapper based on Active Record strategy.
 
 =head1 FAQ
 
@@ -288,7 +288,7 @@ DBIx::Yakinny is yet another O/R mapper based on Active Record strategy.
 
 You should use trigger on RDBMS layer. It is reliable.
 
-But, you can use the trigger with L<DBIx::Yakinny::Plugin::Trigger>.
+But, you can use the trigger with L<DBIx::Kohada::Plugin::Trigger>.
 
 =item How do you use inflate/deflate?
 
@@ -308,7 +308,7 @@ use L<DBIx::Connector>.
 
 =item How do you use nested transaction?
 
-use L<DBIx::Yakinny::Plugin::TransactionManager>.
+use L<DBIx::Kohada::Plugin::TransactionManager>.
 
 =item How do you use on_connect_do like DBIC?
 
@@ -327,7 +327,7 @@ use DBI's callback functions. fore modetails, see eg/dbi-callback.pl.
 use L<Module::Find>.
 
     use Module::Find;
-    my $schema = DBIx::Yakinny::Schema->new();
+    my $schema = DBIx::Kohada::Schema->new();
     $schema->register_row_class($_) for useall "MyApp::DB::Row";
 
 =item How do you handle utf8 columns?

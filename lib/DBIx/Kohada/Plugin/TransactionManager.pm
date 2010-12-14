@@ -2,7 +2,7 @@ use strict;
 use warnings FATAL => 'all';
 use utf8;
 
-package DBIx::Yakinny::Plugin::TransactionManager;
+package DBIx::Kohada::Plugin::TransactionManager;
 use Role::Tiny;
 use DBIx::TransactionManager;
 

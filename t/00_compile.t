@@ -1,7 +1,7 @@
 use strict;
 use Test::More tests => 3;
 
-BEGIN { use_ok 'DBIx::Yakinny' }
-use_ok 'DBIx::Yakinny::Row';
-use_ok 'DBIx::Yakinny::Schema';
+BEGIN { use_ok 'DBIx::Kohada' }
+use_ok 'DBIx::Kohada::Row';
+use_ok 'DBIx::Kohada::Schema';
 

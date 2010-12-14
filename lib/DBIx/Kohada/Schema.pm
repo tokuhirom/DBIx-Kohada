@@ -2,7 +2,7 @@ use strict;
 use warnings FATAL => 'all';
 use utf8;
 
-package DBIx::Yakinny::Schema;
+package DBIx::Kohada::Schema;
 use Carp ();
 
 sub new {

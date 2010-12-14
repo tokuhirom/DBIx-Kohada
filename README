@@ -1,13 +1,13 @@
 NAME
-    DBIx::Yakinny -
+    DBIx::Kohada -
 
 SYNOPSIS
         package MyApp::DB;
-        use base qw/DBIx::Yakinny/;
+        use base qw/DBIx::Kohada/;
         __PACKAGE__->schema_class('MyApp::DB::Schema');
 
         package MyApp::DB::Schema;
-        use base qw/DBIx::Yakinny::Schema/;
+        use base qw/DBIx::Kohada::Schema/;
 
         __PACKAGE__->register_row_class(
             class   => 'MyApp::DB::User',
@@ -17,7 +17,7 @@ SYNOPSIS
         );
 
         package MyApp::DB::User;
-        use base qw/DBIx::Yakinny::Row/;
+        use base qw/DBIx::Kohada::Row/;
 
         __PACKAGE__->add_trigger(
             'BEFORE_INSERT' => sub {
@@ -28,7 +28,7 @@ SYNOPSIS
 
         package main;
         use MyApp::DB::Schema;
-        use DBIx::Yakinny::Schema;
+        use DBIx::Kohada::Schema;
         use DBI;
 
         my $dbh = DBI->connect(...);
@@ -47,7 +47,7 @@ SYNOPSIS
         my @users = $db->search('user' => {user_id => 3});
 
 DESCRIPTION
-    DBIx::Yakinny is
+    DBIx::Kohada is
 
 TODO
     trigger support

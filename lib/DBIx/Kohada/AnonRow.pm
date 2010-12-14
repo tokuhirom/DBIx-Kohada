@@ -2,7 +2,7 @@ use strict;
 use warnings FATAL => 'all';
 use utf8;
 
-package DBIx::Yakinny::AnonRow;
+package DBIx::Kohada::AnonRow;
 use Carp ();
 
 sub new {

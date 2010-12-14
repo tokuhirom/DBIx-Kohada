@@ -4,12 +4,12 @@ use Test::More;
 use DBI;
 use Test::Requires 'Time::Piece';
 use Time::Piece;
-use DBIx::Yakinny::Schema;
-use DBIx::Yakinny;
+use DBIx::Kohada::Schema;
+use DBIx::Kohada;
 
 {
     package MyApp::DB::Row::User;
-    use parent qw/DBIx::Yakinny::Row/;
+    use parent qw/DBIx::Kohada::Row/;
     __PACKAGE__->set_inflation_rule(
         ctime => sub {
             ::note 'inflate';
@@ -24,12 +24,12 @@ use DBIx::Yakinny;
     __PACKAGE__->add_column($_) for qw/id name ctime/;
 }
 
-my $schema = DBIx::Yakinny::Schema->new();
+my $schema = DBIx::Kohada::Schema->new();
 $schema->register_row_class('MyApp::DB::Row::User');
 
 my $dbh = DBI->connect('dbi:SQLite:', '', '', {RaiseError => 1});
 $dbh->do(q{create table user (id integer primary key, name, ctime)});
-my $db = DBIx::Yakinny->new(dbh => $dbh, schema => $schema);
+my $db = DBIx::Kohada->new(dbh => $dbh, schema => $schema);
 my $user = $db->insert(user => {name => 'john', ctime => Time::Piece->new(1292044372)});
 $user = $user->refetch;
 is $user->get_column('ctime'), '1292044372';

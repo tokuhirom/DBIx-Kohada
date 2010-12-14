@@ -2,7 +2,7 @@ use strict;
 use warnings FATAL => 'all';
 use utf8;
 
-package DBIx::Yakinny::Iterator;
+package DBIx::Kohada::Iterator;
 use Class::Accessor::Lite (
     new => 1,
     ro  => [qw/sth row_class yakinny query/],
@@ -34,7 +34,7 @@ __END__
 
 =head1 NAME
 
-DBIx::Yakinny::Iterator - Iterator Object for Yakinny
+DBIx::Kohada::Iterator - Iterator Object for Kohada
 
 =head1 SYNOPSIS
 

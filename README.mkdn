@@ -1,28 +1,25 @@
 # NAME
 
-DBIx::Yakinny -
+DBIx::Kohada -
 
 # SYNOPSIS
 
     package MyApp::DB::Row::User;
-    use parent qw/DBIx::Yakinny::Row/;
-    my $table = DBIx::Yakinny::Table->new(
-        name => 'user',
-        primary_key => [qw/user_id/],
-    );
-    $table->add_column($_) for qw/user_id name email/;
-    __PACKAGE__->set_table($table);
+    use parent qw/DBIx::Kohada::Row/;
+    __PACKAGE__->set_table('user');
+    __PACKAGE__->set_primary_key('user_id');
+    __PACKAGE__->add_column($_) for qw/user_id name email/;
 
     package main;
-    use DBIx::Yakinny::Schema;
-    use DBIx::Yakinny;
+    use DBIx::Kohada::Schema;
+    use DBIx::Kohada;
     use DBI;
 
-    my $schema = DBIx::Yakinny::Schema->new();
+    my $schema = DBIx::Kohada::Schema->new();
     $schema->register_row_class('MyApp::DB::Row::User');
 
     my $dbh = DBI->connect(...);
-    my $db = DBIx::Yakinny->new(
+    my $db = DBIx::Kohada->new(
         dbh    => $dbh,
         schema => $schema,
     );
@@ -41,7 +38,7 @@ DBIx::Yakinny -
 
 # DESCRIPTION
 
-DBIx::Yakinny is yet another O/R mapper based on Active Record strategy.
+DBIx::Kohada is yet another O/R mapper based on Active Record strategy.
 
 # FAQ
 
@@ -49,7 +46,7 @@ DBIx::Yakinny is yet another O/R mapper based on Active Record strategy.
 
 You should use trigger on RDBMS layer. It is reliable.
 
-But, you can use the trigger with [DBIx::Yakinny::Plugin::Trigger](http://search.cpan.org/perldoc?DBIx::Yakinny::Plugin::Trigger).
+But, you can use the trigger with [DBIx::Kohada::Plugin::Trigger](http://search.cpan.org/perldoc?DBIx::Kohada::Plugin::Trigger).
 
 - How do you use inflate/deflate?
 
@@ -69,7 +66,7 @@ use [DBIx::Connector](http://search.cpan.org/perldoc?DBIx::Connector).
 
 - How do you use nested transaction?
 
-use [DBIx::Yakinny::Plugin::TransactionManager](http://search.cpan.org/perldoc?DBIx::Yakinny::Plugin::TransactionManager).
+use [DBIx::Kohada::Plugin::TransactionManager](http://search.cpan.org/perldoc?DBIx::Kohada::Plugin::TransactionManager).
 
 - How do you use on_connect_do like DBIC?
 
@@ -88,7 +85,7 @@ use DBI's callback functions. fore modetails, see eg/dbi-callback.pl.
 use [Module::Find](http://search.cpan.org/perldoc?Module::Find).
 
     use Module::Find;
-    my $schema = DBIx::Yakinny::Schema->new();
+    my $schema = DBIx::Kohada::Schema->new();
     $schema->register_row_class($_) for useall "MyApp::DB::Row";
 
 - How do you handle utf8 columns?

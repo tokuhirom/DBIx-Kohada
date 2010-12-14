@@ -2,9 +2,9 @@ use strict;
 use warnings FATAL => 'all';
 use utf8;
 
-package DBIx::Yakinny::Plugin::Pager::MySQLFoundRows;
+package DBIx::Kohada::Plugin::Pager::MySQLFoundRows;
 use Data::Page;
-use DBIx::Yakinny::Iterator;
+use DBIx::Kohada::Iterator;
 use Carp ();
 
 use Role::Tiny;

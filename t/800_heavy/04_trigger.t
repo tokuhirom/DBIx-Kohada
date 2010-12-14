@@ -2,18 +2,18 @@ use strict;
 use warnings;
 use Test::More;
 use Test::Requires 'DBD::SQLite';
-use DBIx::Yakinny::Schema;
+use DBIx::Kohada::Schema;
 
 plan tests => 11;
 
 {
     package MyApp::DB;
-    use parent qw/DBIx::Yakinny/;
+    use parent qw/DBIx::Kohada/;
 }
 
 {
     package MyApp::DB::Row::User;
-    use parent qw/DBIx::Yakinny::Row/;
+    use parent qw/DBIx::Kohada::Row/;
 
     our $CNT = 0;
 
@@ -74,7 +74,7 @@ plan tests => 11;
 my $dbh = DBI->connect('dbi:SQLite:', '', '') or die;
 $dbh->do(q{create table user (name text, email text PRIMARY KEY, token text);});
 
-my $schema = DBIx::Yakinny::Schema->new();
+my $schema = DBIx::Kohada::Schema->new();
 $schema->register_row_class('MyApp::DB::Row::User');
 
 my $db = MyApp::DB->new(schema => $schema, dbh => $dbh);

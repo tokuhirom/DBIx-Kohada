@@ -3,17 +3,17 @@ use warnings;
 use Test::More;
 use Test::Requires 'DBD::SQLite';
 use DBI;
-use DBIx::Yakinny::Schema::Loader;
+use DBIx::Kohada::Schema::Loader;
 
 {
     package MyApp::DB;
-    use parent qw/DBIx::Yakinny/;
+    use parent qw/DBIx::Kohada/;
     __PACKAGE__->load_plugin('Pager');
 }
 
 my $dbh = DBI->connect('dbi:SQLite:', '', '');
 $dbh->do(q{create table foo (b int)}) or die;
-my $schema = DBIx::Yakinny::Schema::Loader->load(
+my $schema = DBIx::Kohada::Schema::Loader->load(
     dbh            => $dbh,
     table2class_cb => sub {
         "MyApp::DB::Row::$_[0]";

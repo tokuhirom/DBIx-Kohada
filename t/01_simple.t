@@ -4,7 +4,7 @@ use Test::More;
 use Test::Requires 'Time::Piece', 'DBD::SQLite';
 use DBI;
 use t::Sweet;
-use DBIx::Yakinny;
+use DBIx::Kohada;
 
 # initialize
 my $dbh = DBI->connect('dbi:SQLite:', '', '', {RaiseError => 1}) or die 'cannot connect to db';
@@ -36,7 +36,7 @@ subtest 'suite' => sub {
 
 subtest 'replace' => sub {
     my $schema = TestSuite->make_schema();
-    my $db = DBIx::Yakinny->new(schema => $schema, dbh => $dbh);
+    my $db = DBIx::Kohada->new(schema => $schema, dbh => $dbh);
     $db->insert(user => {user_id => 99, name => 'john'});
     $db->replace(user => {user_id => 99, name => 'man'});
     my @user = $db->search(user => {user_id => 99});

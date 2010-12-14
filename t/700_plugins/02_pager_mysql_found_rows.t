@@ -3,7 +3,7 @@ use warnings;
 use Test::More;
 use Test::Requires 'DBD::mysql', 'Test::mysqld';
 use DBI;
-use DBIx::Yakinny::Schema::Loader;
+use DBIx::Kohada::Schema::Loader;
 
 my $mysqld = Test::mysqld->new(
     my_cnf => {
@@ -13,13 +13,13 @@ my $mysqld = Test::mysqld->new(
 
 {
     package MyApp::DB;
-    use parent qw/DBIx::Yakinny/;
+    use parent qw/DBIx::Kohada/;
     __PACKAGE__->load_plugin('Pager::MySQLFoundRows');
 }
 
 my $dbh = DBI->connect($mysqld->dsn);
 $dbh->do(q{create table foo (b integer not null) TYPE=InnoDB}) or die;
-my $schema = DBIx::Yakinny::Schema::Loader->load(dbh => $dbh, table2class_cb => sub {
+my $schema = DBIx::Kohada::Schema::Loader->load(dbh => $dbh, table2class_cb => sub {
     "MyApp::DB::Row::$_[0]"
 });
 my $db = MyApp::DB->new(schema => $schema, dbh => $dbh);

@@ -1,19 +1,19 @@
 use strict;
 use warnings;
 use utf8;
-use DBIx::Yakinny;
+use DBIx::Kohada;
 
 package t::Sweet;
 
 {
     package MyApp::DB;
-    use parent qw/DBIx::Yakinny/;
+    use parent qw/DBIx::Kohada/;
     __PACKAGE__->load_plugin('TransactionManager');
 }
 
 {
     package MyApp::DB::Row::User;
-    use parent qw/DBIx::Yakinny::Row/;
+    use parent qw/DBIx::Kohada::Row/;
     use Time::Piece;
     sub created_on_piece {
         Time::Piece->new($_[0]->created_on);
@@ -23,13 +23,13 @@ package t::Sweet;
     __PACKAGE__->add_column($_) for qw/user_id name email created_on/;
 
     package MyApp::DB::Row::Good;
-    use parent qw/DBIx::Yakinny::Row/;
+    use parent qw/DBIx::Kohada::Row/;
     __PACKAGE__->set_table('good');
     __PACKAGE__->set_primary_key(qw/user_id entry_id/);
     __PACKAGE__->add_column($_) for qw/entry_id user_id/;
 
     package MyApp::DB::Row::Entry;
-    use parent qw/DBIx::Yakinny::Row/;
+    use parent qw/DBIx::Kohada::Row/;
     __PACKAGE__->set_table('entry');
     __PACKAGE__->set_primary_key(qw/entry_id/);
     __PACKAGE__->add_column($_) for qw/entry_id user_id body/;
@@ -38,13 +38,13 @@ package t::Sweet;
 {
     package TestSuite;
     use Test::More;
-    use DBIx::Yakinny::Schema;
+    use DBIx::Kohada::Schema;
 
     my $schema;
 
     sub make_schema {
         $schema ||= do {
-            my $s = DBIx::Yakinny::Schema->new();
+            my $s = DBIx::Kohada::Schema->new();
             $s->register_row_class( 'MyApp::DB::Row::User' );
             $s->register_row_class( 'MyApp::DB::Row::Entry' );
             $s->register_row_class( 'MyApp::DB::Row::Good' );

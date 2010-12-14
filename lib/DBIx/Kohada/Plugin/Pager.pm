@@ -2,7 +2,7 @@ use strict;
 use warnings;
 use utf8;
 
-package DBIx::Yakinny::Plugin::Pager;
+package DBIx::Kohada::Plugin::Pager;
 use Role::Tiny;
 use Carp ();
 use DBI;
@@ -28,7 +28,7 @@ sub search_with_pager {
     my $has_next = ( $rows + 1 == scalar(@$ret) ) ? 1 : 0;
     if ($has_next) { pop @$ret }
 
-    my $pager = DBIx::Yakinny::Plugin::Pager::Page->new(
+    my $pager = DBIx::Kohada::Plugin::Pager::Page->new(
         entries_per_page     => $rows,
         current_page         => $page,
         has_next             => $has_next,
@@ -38,7 +38,7 @@ sub search_with_pager {
     return ($ret, $pager);
 }
 
-package DBIx::Yakinny::Plugin::Pager::Page;
+package DBIx::Kohada::Plugin::Pager::Page;
 use Class::Accessor::Lite (
     ro => [qw/entries_per_page current_page has_next entries_on_this_page/],
 );

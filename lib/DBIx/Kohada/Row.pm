@@ -2,7 +2,7 @@ use strict;
 use warnings FATAL => 'all';
 use utf8;
 
-package DBIx::Yakinny::Row;
+package DBIx::Kohada::Row;
 use Carp ();
 
 *_subname = eval { require Sub::Name; \&Sub::Name::subname } || sub { $_[1] };
@@ -117,7 +117,7 @@ sub yakinny {
     if ($y) {
         return $y;
     } else {
-        Carp::croak("There is no DBIx::Yakinny object in this instance(This situation is caused by Storable::freeze).");
+        Carp::croak("There is no DBIx::Kohada object in this instance(This situation is caused by Storable::freeze).");
     }
 }
 

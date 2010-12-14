@@ -2,7 +2,7 @@ use strict;
 use warnings FATAL => 'all';
 use utf8;
 
-package DBIx::Yakinny::QueryBuilder;
+package DBIx::Kohada::QueryBuilder;
 use parent qw/SQL::Maker/;
 
 __PACKAGE__->load_plugin($_)

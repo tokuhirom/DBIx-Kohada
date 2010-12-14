@@ -3,8 +3,8 @@ use warnings;
 use Test::More;
 use Test::Requires 'DBD::SQLite';
 use DBI;
-use DBIx::Yakinny;
-use DBIx::Yakinny::Schema::Dumper;
+use DBIx::Kohada;
+use DBIx::Kohada::Schema::Dumper;
 
 # initialize
 my $dbh = DBI->connect('dbi:SQLite:', '', '', {RaiseError => 1}) or die 'cannot connect to db';
@@ -19,11 +19,11 @@ $dbh->do(q{
 
 {
     package MyApp::DB::Row::User;
-    use parent qw/DBIx::Yakinny::Row/;
+    use parent qw/DBIx::Kohada::Row/;
 }
 
 # generate schema and eval.
-my $code = DBIx::Yakinny::Schema::Dumper->dump(
+my $code = DBIx::Kohada::Schema::Dumper->dump(
     dbh          => $dbh,
     table2class_cb => sub {
         is $_[0], 'user';
@@ -34,7 +34,7 @@ my $schema = eval $code;
 ::ok !$@, 'no syntax error';
 diag $@ if $@;
 
-my $db = DBIx::Yakinny->new(dbh => $dbh, schema => $schema);
+my $db = DBIx::Kohada->new(dbh => $dbh, schema => $schema);
 my $user = $db->schema->table_name2row_class('user');
 isa_ok $user, 'MyApp::DB::Row::User';
 is($user->table, 'user');
