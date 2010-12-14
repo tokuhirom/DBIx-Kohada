@@ -15,7 +15,6 @@ use DBIx::Kohada::Iterator;
 use DBIx::Kohada::AnonRow;
 use DBIx::Kohada::QueryBuilder;
 use Module::Load ();
-require Role::Tiny;
 
 $Carp::Internal{ (__PACKAGE__) }++;
 
@@ -57,7 +56,11 @@ sub load_plugin {
     my ($class, $name) = @_;
     $name = $name =~ s/^\+// ? $name : "DBIx::Kohada::Plugin::$name";
     Module::Load::load($name);
-    Role::Tiny->apply_role_to_package($class, $name);
+
+    no strict 'refs';
+    for ( @{"${name}::EXPORT"} ) {
+        *{"${class}::$_"} = *{"${name}::$_"};
+    }
 }
 
 sub single {
@@ -289,10 +292,6 @@ DBIx::Kohada is yet another O/R mapper based on Active Record strategy.
 You should use trigger on RDBMS layer. It is reliable.
 
 But, you can use the trigger with L<DBIx::Kohada::Plugin::Trigger>.
-
-=item How do you use inflate/deflate?
-
-This module does not support it. But, you can use it by method modifier with L<Class::Method::Modifiers>.
 
 =item How do you use tracer like DBIx::Skinny::Profiler::Trace?
 

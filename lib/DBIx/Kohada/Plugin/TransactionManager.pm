@@ -3,8 +3,9 @@ use warnings FATAL => 'all';
 use utf8;
 
 package DBIx::Kohada::Plugin::TransactionManager;
-use Role::Tiny;
 use DBIx::TransactionManager;
+
+our @EXPORT = qw/transaction_manager txn_scope/;
 
 sub transaction_manager {
     my $self = shift;

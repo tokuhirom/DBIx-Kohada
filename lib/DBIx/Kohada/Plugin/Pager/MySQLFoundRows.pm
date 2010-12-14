@@ -7,7 +7,7 @@ use Data::Page;
 use DBIx::Kohada::Iterator;
 use Carp ();
 
-use Role::Tiny;
+our @EXPORT = qw/search_with_pager/;
 
 sub search_with_pager {
     my ($self, $table, $where, $opt) = @_;

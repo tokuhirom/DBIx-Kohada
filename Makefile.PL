@@ -10,8 +10,6 @@ requires 'DBI';
 requires 'SQL::Maker' => '0.02';
 requires 'parent';
 requires 'DBIx::TransactionManager' => 1.02;
-requires 'Role::Tiny';
-requires 'Class::Method::Modifiers';
 requires 'Class::Accessor::Lite' => 0.05;
 requires 'DBIx::Inspector';
 

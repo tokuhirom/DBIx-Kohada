@@ -3,9 +3,10 @@ use warnings;
 use utf8;
 
 package DBIx::Kohada::Plugin::Pager;
-use Role::Tiny;
 use Carp ();
 use DBI;
+
+our @EXPORT = qw/search_with_pager/;
 
 sub search_with_pager {
     my ($self, $table, $where, $opt) = @_;
