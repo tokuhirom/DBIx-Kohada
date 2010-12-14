@@ -53,13 +53,14 @@ sub new_iterator {
 }
 
 sub load_plugin {
-    my ($class, $name) = @_;
+    my ($class, $name, $opt) = @_;
     $name = $name =~ s/^\+// ? $name : "DBIx::Kohada::Plugin::$name";
     Module::Load::load($name);
 
     no strict 'refs';
-    for ( @{"${name}::EXPORT"} ) {
-        *{"${class}::$_"} = *{"${name}::$_"};
+    for my $meth ( @{"${name}::EXPORT"} ) {
+        my $dest_meth = $opt->{alias} && $opt->{alias}->{$meth} ? $opt->{alias}->{$meth} : $meth;
+        *{"${class}::${dest_meth}"} = *{"${name}::$meth"};
     }
 }
 
