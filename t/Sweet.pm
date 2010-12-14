@@ -197,6 +197,9 @@ package t::Sweet;
         };
 
         subtest 'update' => sub {
+            $db->dbh->do(q{DELETE FROM user});
+            $db->insert(user => {name => 'u3'});
+
             {
                 my $u = $db->single(user => {name => 'u3'});
                 ok $u;
@@ -213,6 +216,8 @@ package t::Sweet;
         };
 
         subtest 'delete' => sub {
+            $db->dbh->do(q{DELETE FROM user});
+            $db->insert(user => {name => 'bee'});
             {
                 my $b = $db->single(user => {name => 'bee'});
                 ok $b;
@@ -225,6 +230,11 @@ package t::Sweet;
         };
 
         subtest 'select_by_query_object' => sub {
+            $db->dbh->do(q{DELETE FROM user});
+            $db->insert(user => {name => 'foo', email => 'foo@example.com'});
+            $db->insert(user => {name => 'bar', email => 'bar@example.com'});
+            $db->insert(user => {name => 'baz', email => 'baz@example.com'});
+
             my $query = $db->new_query_object()
                            ->add_select('*')
                            ->add_from('user')
