@@ -33,11 +33,47 @@ sub load {
 1;
 __END__
 
+=head1 NAME
+
+DBIx::Kohada::Schema::Loader - Dynamic Schema Loader
+
 =head1 SYNOPSIS
 
     package MyApp::DB;
     use parent qw/DBIx::Kohada::Schema/;
+    use String::CamelCase qw/camelize/;
     my $dbh = DBI->connect(...) or die;
-    my $schema = DBIx::Kohada::Schema::Loader->load( dbh => $dbh );
+    my $schema = DBIx::Kohada::Schema::Loader->load( dbh => $dbh, table2class_cb => sub {
+        'MyApp::DB::Row::' . camelize($_[0]);
+    });
     my $db = DBIx::Kohada->new(dbh => $dbh, schema => $schema);
 
+=head1 DESCRIPTION
+
+L<DBIx::Kohada::Schema::Loader> loads schema directly from DB.
+
+=head1 METHODS
+
+=over 4
+
+=item DBIx::Kohada::Schema::Loader->load(%attr)
+
+This is the method to load schema from DB. It returns instance of L<DBIx::Kohada::Scehema>.
+
+The arguments are:
+
+=over 4
+
+=item dbh
+
+Database handle from DBI.
+
+=item table2class_cb
+
+Coderef to convert table name to row class name.
+
+=back
+
+=back
+
+=cut

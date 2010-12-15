@@ -36,11 +36,48 @@ sub dump {
 1;
 __END__
 
+=head1 NAME
+
+DBIx::Kohada::Schema::Dumper - Schema code generator
+
 =head1 SYNOPSIS
 
     use DBI;
     use DBIx::Kohada::Schema::Dumper;
 
     my $dbh = DBI->connect(...) or die;
-    print DBIx::Kohada::Schema::Dumper->dump(dbh => $dbh);
+    print DBIx::Kohada::Schema::Dumper->dump(dbh => $dbh, table2class_cb => sub {
+        'MyApp::DB::Row::' . camelize($_[0]);
+    });
+
+=head1 DESCRIPTION
+
+This module generates the Perl code to generate L<DBIx::Kohada::Schema> instance.
+
+You can use it by C<do "my/schema.pl"> or embed it to the package.
+
+=head1 METHODS
+
+=over 4
+
+=item DBIx::Kohada::Dumper->dump(dbh => $dbh, table2class_cb => \&code);
+
+This is the method to generate code from DB. It returns the Perl5 code in string.
+
+The arguments are:
+
+=over 4
+
+=item dbh
+
+Database handle from DBI.
+
+=item table2class_cb
+
+Coderef to convert table name to row class name.
+
+=back
+
+
+=back
 

@@ -17,7 +17,8 @@ sub table_name2row_class {
 
 sub table_names {
     my $self = shift;
-    return keys %{$self->{table_name2row_class}};
+    my @ret = keys %{$self->{table_name2row_class}};
+    return wantarray ? @ret : \@ret;
 }
 
 sub register_row_class {
@@ -28,3 +29,44 @@ sub register_row_class {
 }
 
 1;
+__END__
+
+=for synopsis_code
+my ($dbh);
+
+=head1 NAME
+
+DBIx::Kohada::Schema - DB Schema
+
+=head1 SYNOPSIS
+
+    my $schema = DBIx::Kohada::Schema->new();
+    $schema->register_row_class('MyApp::DB::Row::User');
+    my $kohada = DBIx::Kohada->new(schema => $schema, dbh => $dbh);
+
+=head1 DESCRIPTION
+
+This is a schema class for L<DBIx::Kohada>. You register the row class to schema before use it.
+
+=head1 METHODS
+
+=over 4
+
+=item my $schema = DBIx::Kohada::Schema->new();
+
+Create new schema instance.
+
+=item $schema->register_row_class($row_class : Str);
+
+Register the $row_class to schema.
+
+=item $schema->table_names()
+
+Get the registered table names.
+
+=item $schema->table_name2row_class($table_name : Str);
+
+Get the row class name for $table_name. This method returns undef when it is not registered.
+
+=back
+
