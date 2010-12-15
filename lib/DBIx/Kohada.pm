@@ -185,6 +185,7 @@ sub retrieve {
 
 sub bulk_insert {
     my ($self, $table, $rows) = @_;
+    Carp::croak("Usage: \$kohada->bulk_insert(\$table, \@rows)") unless defined $rows;
     return unless @$rows; # because 0 rows makes invalid query
 
     my $driver = $self->dbh->{Driver}->{Name};
