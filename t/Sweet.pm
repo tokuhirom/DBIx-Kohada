@@ -229,7 +229,7 @@ package t::Sweet;
                            ->add_where(name => {like => 'ba%'})
                            ->add_order_by('name');
 
-            my @users = $db->search_by_query_object($query);
+            my @users = $db->search_by_query_object(undef, $query);
             is scalar(@users), 2;
             is $users[0]->name, 'bar';
             is $users[1]->name, 'baz';
