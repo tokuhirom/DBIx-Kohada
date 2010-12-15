@@ -82,14 +82,21 @@ sub search  {
 }
 
 sub search_by_query_object {
-    my ($self, $query) = @_;
+    my ($self, $table, $query) = @_;
     Carp::croak('Usage: ->search_by_query_object($query)') unless ref $query;
+
+    my $row_class;
+    if (defined $table) {
+        $row_class = $self->schema->table_name2row_class($table) or Carp::croak("unknown table : $table");
+    } else {
+        $row_class = 'DBIx::Kohada::AnonRow';
+    }
 
     my $sql  = $query->as_sql();
     my @bind = $query->bind();
     my $sth = $self->dbh->prepare($sql) or Carp::croak(sprintf("search_by_query_object: $sql, %s", _ddf(\@bind)));
     $sth->execute(@bind) or Carp::croak $self->dbh->errstr;
-    my $iter = $self->new_iterator(sth => $sth, row_class => 'DBIx::Kohada::AnonRow', query => $sql);
+    my $iter = $self->new_iterator(sth => $sth, row_class => $row_class, query => $sql);
     return wantarray ? $iter->all : $iter;
 }
 
