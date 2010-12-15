@@ -54,6 +54,7 @@ sub primary_key {
 sub set_table {
     my ($class, $table) = @_;
     Carp::croak("This is a class method") if ref $class;
+    Carp::croak("Usage: __PACKAGE__->set_table(\$table: Str)") unless defined $table;
 
     no strict 'refs';
     *{"${class}::table"} = _subname("${class}::table" => sub { $table });
@@ -154,6 +155,7 @@ sub delete {
 our %TRIGGERS;
 sub add_trigger {
     my ($class, $point, $code) = @_;
+    Carp::croak("Do not call this method directly. You should inherit this class.") if $class eq __PACKAGE__;
     push @{$TRIGGERS{$class}->{$point}}, $code;
 }
 sub call_trigger {
@@ -164,6 +166,7 @@ sub call_trigger {
 }
 sub has_trigger {
     my ($class, $point) = @_;
+    Carp::croak("Do not call this method directly. You should inherit this class.") if $class eq __PACKAGE__;
     $TRIGGERS{$class}->{$point} ? 1 : 0;
 }
 
@@ -176,12 +179,14 @@ our %DEFLATE_RULE;
 sub set_inflation_rule {
     my ($class, $column_name, $code) = @_;
     Carp::croak("This is a class method, not a instance method") if ref $class;
+    Carp::croak("Do not call this method directly. You should inherit this class.") if $class eq __PACKAGE__;
     $INFLATE_RULE{$class}->{$column_name} = $code;
 }
 
 sub set_deflation_rule {
     my ($class, $column_name, $code) = @_;
     Carp::croak("This is a class method, not a instance method") if ref $class;
+    Carp::croak("Do not call this method directly. You should inherit this class.") if $class eq __PACKAGE__;
     $DEFLATE_RULE{$class}->{$column_name} = $code;
 }
 
@@ -201,3 +206,57 @@ sub deflate {
 }
 
 1;
+__END__
+
+=for test_synopsis
+my ($db);
+
+=head1 NAME
+
+DBIx::Kohada::Row - Row class
+
+=head1 SYNOPSIS
+
+    package MyApp::DB::Row::User;
+    use parent qw/DBIx::Kohada::Row/;
+    __PACKAGE__->set_table('user');
+    __PACKAGE__->set_primary_key('user_id');
+    __PACKAGE__->add_column($_) for qw/user_id name email/;
+
+    package main;
+    MyApp::DB::Row::User->new(row_data => {user_id => 1, name => 'john'}, kohada => $db, );
+
+=head1 DESCRIPTIOON
+
+This is a row class for L<DBIx::Kohada>. This is a active record.
+
+=head1 SCHEMA METHODS
+
+=over 4
+
+=item __PACKAGE__->set_table($table: Str);
+
+Set the table name for the class.
+
+=item __PACKAGE__->set_primary_key((@primary_keys: Array[Str])
+
+Set the primary key for the class.
+
+=item __PACKAGE__->add_column($column_name)
+
+Add the column.
+
+=item __PACKAGE__->table()
+
+=item my $table_name = $row->table()
+
+Get the table name for the class.
+
+=item my @columns = __PACKAGE__->columns()
+
+=item my $columns = __PACKAGE__->columns()
+
+Get the columns.
+
+=back
+
