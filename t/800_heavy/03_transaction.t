@@ -9,7 +9,6 @@ use DBI;
 {
     package MyApp::DB;
     use parent qw/DBIx::Kohada/;
-    __PACKAGE__->load_plugin(qw/TransactionManager/);
 }
 
 my $dbh = DBI->connect('dbi:SQLite:');

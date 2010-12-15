@@ -10,11 +10,12 @@ use Class::Accessor::Lite (
     rw => [qw/query_builder schema name_sep quote_char/],
 );
 use Carp ();
+use Module::Load ();
+use DBIx::TransactionManager;
 
 use DBIx::Kohada::Iterator;
 use DBIx::Kohada::AnonRow;
 use DBIx::Kohada::QueryBuilder;
-use Module::Load ();
 
 $Carp::Internal{ (__PACKAGE__) }++;
 
@@ -242,6 +243,19 @@ sub _do_deflate {
 sub new_query_object {
     my ($self) = @_;
     return $self->query_builder->new_select();
+}
+
+# ------------------------------------------------------------------------- 
+# TransactionManger
+
+sub transaction_manager {
+    my $self = shift;
+    $self->{transaction_manager} ||= DBIx::TransactionManager->new($self->dbh);
+}
+
+sub txn_scope {
+    my $self = shift;
+    return $self->transaction_manager->txn_scope();
 }
 
 1;

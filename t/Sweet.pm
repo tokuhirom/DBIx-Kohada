@@ -8,7 +8,6 @@ package t::Sweet;
 {
     package MyApp::DB;
     use parent qw/DBIx::Kohada/;
-    __PACKAGE__->load_plugin('TransactionManager');
 }
 
 {

@@ -40,13 +40,11 @@ DBIx::Kohada -
 
 DBIx::Kohada is yet another O/R mapper based on Active Record strategy.
 
+# WHY ANOTHER ONE?
+
+I had using [Class::DBI](http://search.cpan.org/perldoc?Class::DBI), [DBIx::Class](http://search.cpan.org/perldoc?DBIx::Class), and [DBIx::Skinny](http://search.cpan.org/perldoc?DBIx::Skinny). But the three O/R Mappers are not enough for me.
+
 # FAQ
-
-- How do you use trigger like Class::DBI?
-
-You should use trigger on RDBMS layer. It is reliable.
-
-But, you can use the trigger with [DBIx::Kohada::Plugin::Trigger](http://search.cpan.org/perldoc?DBIx::Kohada::Plugin::Trigger).
 
 - How do you use tracer like DBIx::Skinny::Profiler::Trace?
 
