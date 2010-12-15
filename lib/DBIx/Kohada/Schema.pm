@@ -31,7 +31,7 @@ sub register_row_class {
 1;
 __END__
 
-=for synopsis_code
+=for test_synopsis
 my ($dbh);
 
 =head1 NAME

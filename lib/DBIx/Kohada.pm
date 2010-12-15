@@ -265,7 +265,7 @@ __END__
 
 =head1 NAME
 
-DBIx::Kohada -
+DBIx::Kohada - ActiveRecord
 
 =head1 SYNOPSIS
 
@@ -283,7 +283,7 @@ DBIx::Kohada -
     my $schema = DBIx::Kohada::Schema->new();
     $schema->register_row_class('MyApp::DB::Row::User');
 
-    my $dbh = DBI->connect(...);
+    my $dbh = DBI->connect('dbi:SQLite:');
     my $db = DBIx::Kohada->new(
         dbh    => $dbh,
         schema => $schema,

@@ -30,6 +30,9 @@ sub all {
 1;
 __END__
 
+=for test_synopsis
+my $iter;
+
 =head1 NAME
 
 DBIx::Kohada::Iterator - Iterator Object for Kohada
