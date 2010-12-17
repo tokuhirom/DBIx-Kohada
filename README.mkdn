@@ -1,6 +1,6 @@
 # NAME
 
-DBIx::Kohada -
+DBIx::Kohada - ActiveRecord
 
 # SYNOPSIS
 
@@ -18,7 +18,7 @@ DBIx::Kohada -
     my $schema = DBIx::Kohada::Schema->new();
     $schema->register_row_class('MyApp::DB::Row::User');
 
-    my $dbh = DBI->connect(...);
+    my $dbh = DBI->connect('dbi:SQLite:');
     my $db = DBIx::Kohada->new(
         dbh    => $dbh,
         schema => $schema,
@@ -48,7 +48,7 @@ I had using [Class::DBI](http://search.cpan.org/perldoc?Class::DBI), [DBIx::Clas
 
 - How do you use tracer like DBIx::Skinny::Profiler::Trace?
 
-You can use tracer by DBI. And you can use the advanced tracer like this article: <http://d.hatena.ne.jp/tokuhirom/20101201/1291196584>.
+You can use tracer by DBI. And you can use the advanced tracer like this article: [http://d.hatena.ne.jp/tokuhirom/20101201/1291196584](http://d.hatena.ne.jp/tokuhirom/20101201/1291196584).
 
 - How do you use relationships?
 

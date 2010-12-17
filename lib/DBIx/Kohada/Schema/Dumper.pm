@@ -56,6 +56,8 @@ This module generates the Perl code to generate L<DBIx::Kohada::Schema> instance
 
 You can use it by C<do "my/schema.pl"> or embed it to the package.
 
+B<THIS MODULE IS HIGHLY EXPERIMENTAL. DO NOT USE THIS FOR PRODUCTION ENVIRONMENT.>
+
 =head1 METHODS
 
 =over 4
@@ -75,6 +77,11 @@ Database handle from DBI.
 =item table2class_cb
 
 Coderef to convert table name to row class name.
+
+The method is calling with forllowing form:
+
+    my $class_name = $code->($table_name);
+
 
 =back
 

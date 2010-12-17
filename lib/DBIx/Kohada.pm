@@ -298,9 +298,11 @@ DBIx::Kohada - ActiveRecord
 
     my @users = $db->search_by_sql('user' => q{SELECT * FROM user WHERE name LIKE 'dai%'});
 
-    my $user = $db->single('user' => {user_id => 3});
-    my $iter = $db->search('user' => {user_id => 3});
-    my @users = $db->search('user' => {user_id => 3});
+    {
+        my $user = $db->single('user' => {user_id => 3});
+        my $iter = $db->search('user' => {user_id => 3});
+        my @users = $db->search('user' => {user_id => 3});
+    }
 
 =head1 DESCRIPTION
 
@@ -321,14 +323,6 @@ You can use tracer by DBI. And you can use the advanced tracer like this article
 =item How do you use relationships?
 
 It is not supported in core. You can write a plugin to do it.
-
-=item How do you handle reconnect?
-
-use L<DBIx::Connector>.
-
-=item How do you use nested transaction?
-
-use L<DBIx::Kohada::Plugin::TransactionManager>.
 
 =item How do you use on_connect_do like DBIC?
 

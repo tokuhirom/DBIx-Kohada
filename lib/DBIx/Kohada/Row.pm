@@ -230,7 +230,9 @@ DBIx::Kohada::Row - Row class
 
 This is a row class for L<DBIx::Kohada>. This is a active record.
 
-=head1 SCHEMA METHODS
+=head1 METHODS
+
+=head2 SCHEMA RELATED METHODS
 
 =over 4
 
@@ -257,6 +259,117 @@ Get the table name for the class.
 =item my $columns = __PACKAGE__->columns()
 
 Get the columns.
+
+=item __PACKAGE__->mk_column_accessors(@names);
+
+Make the column accessors.
+
+This method is only for internal use only.
+
+=back
+
+=head2 TRIGGER RELATED METHODS
+
+=over 4
+
+=item __PACKAGE__->add_trigger($point, \&code);
+
+Register the trigger hook callback function for the $point.
+
+=item __PACKAGE__->call_trigger($point, @args);
+
+Call the trigger callback for each callback functions.
+
+This method is only for internal use only.
+
+=item __PACKAGE__->has_trigger($point);
+
+Checks the $point has a callback functions or not.
+
+This method returns boolean value.
+
+=back
+
+=head2 INFLATE/DEFLATE METHODS
+
+=item __PACKAGE__->set_inflation_rule($column_name, \&code);
+
+Register the inflation rule for $column_name with \&code.
+
+The callback function is called by following form. $value is the column value to inflation. $db is a instance of L<DBIx::Kohada>.
+
+    $code->($value, $db);
+
+=item __PACKAGE__->set_deflation_rule($column_name, \&code);
+
+Register the deflation rule for $column_name with \&code.
+
+The callback function is called by following form. $value is the column value to deflation. $db is a instance of L<DBIx::Kohada>.
+
+    $code->($value);
+
+=item __PACKAGE__->inflate($column_name, $value);
+
+Inflate the $value with the registered inflation rule.
+
+This method is internal use only.
+
+=item __PACKAGE__->deflate($column_name, $value);
+
+Deflate the $value with the registered deflation rule.
+
+This method is internal use only.
+
+=back
+
+=head1 INSTANCE MTEHODS
+
+=over 4
+
+=item my $value = $row->get_column($column_name);
+
+Get the raw value of the $column_name. This value is not inflated.
+
+=item my \%values = $row->get_columns();
+
+Returns all loaded column data as a hash, containing raw values. To get
+just one value for a particular column, use "get_column".
+
+=item my \%values = $row->get_dirty_columns();
+
+Returns all dirty column data as a hash, containing raw values.
+
+B<Dirty> means it is not loaded by database.
+
+=item $row->set_column($column_name, $value);
+
+Set the column value.
+
+=item $row->set_columns(\%data);
+
+Sets the column value by hashref. This method calls C<$row->set_column()> internally.
+
+=item $row->where_cond();
+
+This method provides the where condition using primary key.
+
+If the row don't have any primary keys, Kohada throws exception.
+
+=item $row = $row->refetch();
+
+Fetch the fresh row data from database.
+
+=item my $db = $row->kohada();
+
+Get the instance of L<DBIx::Kohada>.
+
+=item $row->update(\%attr);
+
+Send the B<UPDATE> query for the database with dirty columns and C<\%attr>.
+
+=item $row->delete();
+
+B<DELETE> this row from the database.
 
 =back
 

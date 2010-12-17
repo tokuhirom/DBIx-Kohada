@@ -15,6 +15,9 @@ sub search_with_pager {
 
     my $page = $opt->{page};
     my $rows = $opt->{rows};
+    for (qw/page rows/) {
+        Carp::croak("missing mandatory parameter: $_") unless exists $opt->{$_};
+    }
 
     my ($sql, @bind) = $self->query_builder->select($table, [$row_class->columns], $where, +{
         %$opt,
@@ -62,4 +65,89 @@ sub prev_page {
 }
 
 1;
+__END__
 
+=head1 NAME
+
+DBIx::Kohada::Plugin::Pager - Pager
+
+=head1 SYNOPSIS
+
+    package MyApp::DB;
+    use parent qw/DBIx::Kohada/;
+    __PACKAGE__->load_plugin('Pager');
+
+    package main;
+    my $db = MyApp::DB->new(dbh => $dbh);
+    my $page = $c->req->param('page') || 1;
+    my ($rows, $pager) = $db->search_with_pager('user' => {type => 3}, {page => $page, rows => 5});
+
+=head1 DESCRIPTION
+
+This is a helper for pagination.
+
+This pager fetches "entries_per_page + 1" rows. And detect "this page has a next page or not".
+
+=head1 METHODS
+
+=over 4
+
+=item my (\@rows, $pager) = $db->search_with_pager($table, \%where, \%opts)
+
+Select from database with pagination.
+
+The arguments are mostly same as C<$db->search()>. But two additional options are available.
+
+=over 4
+
+=item $opts->{page}
+
+Current page number.
+
+=item $opts->{rows}
+
+The number of entries per page.
+
+=back
+
+This method returns ArrayRef[DBIx::Kohada::Row] and instance of L<DBIx::Kohada::Plugin::Pager::Page>.
+
+=back
+
+=head1 DBIx::Kohada::Plugin::Pager::Page
+
+B<search_with_pager> method returns the instance of DBIx::Kohada::Plugin::Pager::Page. It gives paging information.
+
+=head2 METHODS
+
+=over 4
+
+=item $pager->entries_per_page()
+
+The number of entries per page('rows'. you provided).
+
+=item $pager->current_page()
+
+Returns: fethced page number.
+
+=item $pager->has_next()
+
+The page has next page or not in boolean value.
+
+=item $pager->entries_on_this_page()
+
+How many entries on this page?
+
+=item $pager->next_page()
+
+The page number of next page.
+
+=item $pager->previous_page()
+
+The page number of previous page.
+
+=item $pager->prev_page()
+
+Alias for C<$pager->previous_page()>.
+
+=back
