@@ -38,7 +38,7 @@ subtest 'replace' => sub {
     my $schema = TestSuite->make_schema();
     my $db = DBIx::Kohada->new(schema => $schema, dbh => $dbh);
     $db->insert(user => {user_id => 99, name => 'john'});
-    $db->replace(user => {user_id => 99, name => 'man'});
+    $db->insert(user => {user_id => 99, name => 'man'}, {prefix => 'REPLACE '});
     my @user = $db->search(user => {user_id => 99});
     is scalar(@user), 1;
     is $user[0]->name, 'man';

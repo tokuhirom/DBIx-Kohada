@@ -7,7 +7,7 @@ use 5.008001;
 our $VERSION = '0.01';
 use Class::Accessor::Lite (
     ro => [qw/dbh/], # because if it change this attribute, then it breaks TransactionManger's state.
-    rw => [qw/query_builder schema name_sep quote_char/],
+    rw => [qw/query_builder schema/],
 );
 use Carp ();
 use Module::Load ();
@@ -37,13 +37,17 @@ sub new {
     for (qw/schema dbh/) {
         Carp::croak("missing mandatory parameter: $_") unless $args{$_};
     }
+    my $quote_char =
+         delete $args{quote_char}
+      || $args{dbh}->get_info(29)
+      || q{"};
+    my $name_sep = delete $args{name_sep} || $args{dbh}->get_info(41) || q{.};
+
     my $self = bless {%args}, $class;
-    $self->{quote_char} = $self->dbh->get_info(29) || q{"};
-    $self->{name_sep}   = $self->dbh->get_info(41) || q{.};
     $self->{query_builder} ||= DBIx::Kohada::QueryBuilder->new(
         driver     => $self->dbh->{Driver}->{Name},
-        quote_char => $self->quote_char,
-        name_sep   => $self->name_sep,
+        quote_char => $quote_char,
+        name_sep   => $name_sep,
     );
     return $self;
 }
@@ -66,9 +70,9 @@ sub load_plugin {
 }
 
 sub single {
-    my ($self, $table, $where,) = @_;
+    my ($self, $table, $where, $opt) = @_;
 
-    $self->search($table, $where, {limit => 1})->next;
+    $self->search($table, $where, {%{$opt||{}}, limit => 1})->next;
 }
 
 sub search  {
@@ -83,12 +87,12 @@ sub search  {
 }
 
 sub search_by_query_object {
-    my ($self, $table, $query) = @_;
+    my ($self, $table_name, $query) = @_;
     Carp::croak('Usage: ->search_by_query_object($query)') unless ref $query;
 
     my $row_class;
-    if (defined $table) {
-        $row_class = $self->schema->table_name2row_class($table) or Carp::croak("unknown table : $table");
+    if (defined $table_name) {
+        $row_class = $self->schema->table_name2row_class($table_name) or Carp::croak("unknown table : $table_name");
     } else {
         $row_class = 'DBIx::Kohada::AnonRow';
     }
@@ -129,12 +133,6 @@ sub insert  {
     } else {
         return $self->_insert_or_replace($table, $values, $opt);
     }
-}
-
-sub replace  {
-    my ($self, $table, $values, $opt) = @_;
-    Carp::croak("Usage: " . __PACKAGE__ . '->replace(\$table, \%values[, \%opt])') if ref $table;
-    return $self->_insert_or_replace($table, $values, +{%{$opt || +{}}, prefix => 'REPLACE'});
 }
 
 sub _insert_or_replace {
@@ -311,6 +309,154 @@ DBIx::Kohada is yet another O/R mapper based on Active Record strategy.
 =head1 WHY ANOTHER ONE?
 
 I had using L<Class::DBI>, L<DBIx::Class>, and L<DBIx::Skinny>. But the three O/R Mappers are not enough for me.
+
+=head1 METHODS
+
+=over 4
+
+=item my $db = DBIx::Kohada->new(%args);
+
+Create new instance of DBIx::Kohada. The arguments are following:
+
+=over 4
+
+=item dbh
+
+Database handle. Required.
+
+=item schema
+
+Instance of L<DBIx::Kohada::Schema>. Required.
+
+=item quote_char
+
+B<quote_char> for quoting indentifiers. Optional.
+
+=item name_sep
+
+B<name_sep> for join the identifiers. Optional.
+
+=item query_builder
+
+Instance of L<SQL::Maker>. Optional.
+
+=back
+
+=item my $iter = $db->new_iterator();
+
+Create a new instance of L<DBIx::Kohada::Iterator>. It's normally used internally.
+
+=item __PACKAGE__->load_plugin($name, \%opt);
+
+You can load a plugin.
+
+The arguments are:
+
+=over 4
+
+=item $name
+
+The package name of the plugin. You can specify the "Pager" to load "DBIx::Kohada::Plugin::Pager", and "+MyApp::Plugin::Pager" for loading "MyApp::Plugin::Pager"(It's like Catalyst).
+
+=item \%opt
+
+You can specify the fllowing options:
+
+=over 4
+
+=item $opt->{alias} : HashRef
+
+You can specify the method alias map to resolve method name conflict.
+
+=back
+
+=back
+
+Return: nothing.
+
+=item $db->single($table_name, \%where, \%opt);
+
+Get the single row from database. The arguments are passing to C<< $db->search() >>.
+
+=item my $iter = $db->search($table_name, \%where, \%opt);
+
+=item my @rows = $db->search($table_name, \%where, \%opt);
+
+SELECT rows from database.
+
+The arguments are passing to C<< $db->query_builder >>.
+
+B<Return>: Instance of iterator in scalar context, array of rows in list context.
+
+=item my $query = $db->new_query_object();
+
+Create a new instance of L<SQL::Maker::Select> object from the settings.
+
+=item my $iter = $db->search_by_query_object($table_name, $query);
+
+=item my @rows = $db->search_by_query_object($table_name, $query);
+
+SELECT rows by C<< $query >>. C<< $query >> is a instance of SQL::Maker::Select.
+
+C<< $table_name >> is using to determin row class. If it's undef, each rows are bless to L<DBIx::Kohada::AnonRow>.
+
+B<Return>: Instance of iterator in scalar context, array of rows in list context.
+
+=item my $iter = $db->search_by_sql($table_name, $sql, @binds);
+
+=item my @rows = $db->search_by_sql($table_name, $sql, @binds);
+
+SELECT rows by C<< $sql >>. C<< $sql >> is a string contains SQL.
+
+C<< $table_name >> is using to determin row class. If it's undef, each rows are bless to L<DBIx::Kohada::AnonRow>.
+
+B<Return>: Instance of iterator in scalar context, array of rows in list context.
+
+=item my $row = $db->insert($table, \%values, \%opts);
+
+Send the INSERT statement for the database. The SQL is construct by C<< $db->query_builder >>.
+
+If you want to use "INSERT IGNORE" query, you can use C<<< $opt->{prefix} = "INSERT IGNORE " >>> .
+If you want to use "REPLACE INTO ..." query, you can use C<< $opt->{prefix} = "REPLACE " >> .
+
+B<Return>: In scalar context, this method sends SELECT query and get fresh data. In void context, this method don't works anymore. But if you set a B<AFTER_INSERT> trigger, Kohada sends SELECT query.
+
+=item my $row = $db->retrieve($table, \@pk);
+
+=item my $row = $db->retrieve($table, $pk);
+
+Fetch a row by primary keys.
+
+=item $db->bulk_insert($table, \@rows);
+
+This method inserts much rows at once for performance.
+This method B<*DON'T* CALL TRIGGERS> for performance. Be careful.
+
+On MySQL, Kohada make multiline insert statement by L<SQL::Maker::Plugin::InsertMulti>. On other RDBMS, Kohada makes normal insert statement.
+
+=item $db->delete($table, \%where);
+
+DELETE rows from database. The query is constructed by C<< $db->query_builder >>.
+
+B<Return>: none
+
+=item $db->update($table, \%set, \%where);
+
+UPDATE rows from database. The query is constructed by C<< $db->query_builder >>.
+
+B<Return>: none
+
+=item my $transaction_manager = $db->transaction_manager();
+
+Returns instance of L<DBIx::TransactionManager> for C<< $db->dbh >>.
+
+=item my $txn = $db->txn_scope();
+
+Make a scopeed session. You can nest the transaction.
+
+For more details, see L<DBIx::TransactionManager>.
+
+=back
 
 =head1 FAQ
 

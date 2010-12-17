@@ -41,7 +41,7 @@ isa_ok $user->ctime, 'Time::Piece';
 $user->update({ctime => \"ctime + 1"});
 $user = $user->refetch;
 is $user->get_column('ctime'), '1100000001';
-$user = $db->replace(user => {id => $user->id, ctime => Time::Piece->new(528279795)});
+$user = $db->insert(user => {id => $user->id, ctime => Time::Piece->new(528279795)}, {prefix => 'REPLACE '});
 is $user->get_column('ctime'), '528279795';
 
 done_testing;
