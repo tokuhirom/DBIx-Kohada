@@ -1,10 +1,8 @@
 use inc::Module::Install;
 use Module::Install::AuthorTests;
-use Module::Install::ReadmeMarkdownFromPod;
 
 name 'DBIx-Kohada';
 all_from 'lib/DBIx/Kohada.pm';
-readme_markdown_from 'lib/DBIx/Kohada.pm';
 
 requires 'DBI';
 requires 'SQL::Maker' => '0.02';

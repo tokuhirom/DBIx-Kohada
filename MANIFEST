@@ -1,5 +1,7 @@
 .gitignore
 Changes
+docs/graphviz.dot
+eg/dbi-callback.pl
 inc/Module/Install.pm
 inc/Module/Install/AuthorTests.pm
 inc/Module/Install/Base.pm
@@ -13,9 +15,15 @@ inc/Module/Install/Win32.pm
 inc/Module/Install/WriteAll.pm
 inc/Pod/Markdown.pm
 lib/DBIx/Kohada.pm
+lib/DBIx/Kohada/AnonRow.pm
 lib/DBIx/Kohada/Iterator.pm
+lib/DBIx/Kohada/Plugin/Pager.pm
+lib/DBIx/Kohada/Plugin/Pager/MySQLFoundRows.pm
+lib/DBIx/Kohada/QueryBuilder.pm
 lib/DBIx/Kohada/Row.pm
 lib/DBIx/Kohada/Schema.pm
+lib/DBIx/Kohada/Schema/Dumper.pm
+lib/DBIx/Kohada/Schema/Loader.pm
 Makefile.PL
 MANIFEST			This list of files
 META.yml
@@ -23,7 +31,23 @@ README
 README.mkdn
 t/00_compile.t
 t/01_simple.t
+t/04_schema_loader.t
+t/05_schema_dumper.t
+t/09_exception.t
+t/10_row_active.t
+t/12_quote.t
+t/13_anon_row.t
+t/14_deflate.t
+t/15_load_plugin.t
+t/700_plugins/01_pager.t
+t/700_plugins/02_pager_mysql_found_rows.t
+t/800_heavy/01_mysql.t
+t/800_heavy/02_pg.t
+t/800_heavy/03_transaction.t
+t/800_heavy/04_trigger.t
+t/Sweet.pm
 xt/01_podspell.t
 xt/02_perlcritic.t
 xt/03_pod.t
+xt/04_synopsis.t
 xt/perlcriticrc
