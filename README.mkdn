@@ -32,9 +32,11 @@ DBIx::Kohada - ActiveRecord
 
     my @users = $db->search_by_sql('user' => q{SELECT * FROM user WHERE name LIKE 'dai%'});
 
-    my $user = $db->single('user' => {user_id => 3});
-    my $iter = $db->search('user' => {user_id => 3});
-    my @users = $db->search('user' => {user_id => 3});
+    {
+        my $user = $db->single('user' => {user_id => 3});
+        my $iter = $db->search('user' => {user_id => 3});
+        my @users = $db->search('user' => {user_id => 3});
+    }
 
 # DESCRIPTION
 
@@ -43,6 +45,138 @@ DBIx::Kohada is yet another O/R mapper based on Active Record strategy.
 # WHY ANOTHER ONE?
 
 I had using [Class::DBI](http://search.cpan.org/perldoc?Class::DBI), [DBIx::Class](http://search.cpan.org/perldoc?DBIx::Class), and [DBIx::Skinny](http://search.cpan.org/perldoc?DBIx::Skinny). But the three O/R Mappers are not enough for me.
+
+# METHODS
+
+- my $db = DBIx::Kohada->new(%args);
+
+Create new instance of DBIx::Kohada. The arguments are following:
+
+    - dbh
+
+    Database handle. Required.
+
+    - schema
+
+    Instance of [DBIx::Kohada::Schema](http://search.cpan.org/perldoc?DBIx::Kohada::Schema). Required.
+
+    - quote_char
+
+    __quote_char__ for quoting indentifiers. Optional.
+
+    - name_sep
+
+    __name_sep__ for join the identifiers. Optional.
+
+    - query_builder
+
+    Instance of [SQL::Maker](http://search.cpan.org/perldoc?SQL::Maker). Optional.
+
+- my $iter = $db->new_iterator();
+
+Create a new instance of [DBIx::Kohada::Iterator](http://search.cpan.org/perldoc?DBIx::Kohada::Iterator). It's normally used internally.
+
+- __PACKAGE__->load_plugin($name, \%opt);
+
+You can load a plugin.
+
+The arguments are:
+
+    - $name
+
+    The package name of the plugin. You can specify the "Pager" to load "DBIx::Kohada::Plugin::Pager", and "+MyApp::Plugin::Pager" for loading "MyApp::Plugin::Pager"(It's like Catalyst).
+
+    - \%opt
+
+    You can specify the fllowing options:
+
+        - $opt->{alias} : HashRef
+
+        You can specify the method alias map to resolve method name conflict.
+
+Return: nothing.
+
+- $db->single($table_name, \%where, \%opt);
+
+Get the single row from database. The arguments are passing to `$db->search()`.
+
+- my $iter = $db->search($table_name, \%where, \%opt);
+
+- my @rows = $db->search($table_name, \%where, \%opt);
+
+SELECT rows from database.
+
+The arguments are passing to `$db->query_builder`.
+
+__Return__: Instance of iterator in scalar context, array of rows in list context.
+
+- my $query = $db->new_query_object();
+
+Create a new instance of [SQL::Maker::Select](http://search.cpan.org/perldoc?SQL::Maker::Select) object from the settings.
+
+- my $iter = $db->search_by_query_object($table_name, $query);
+
+- my @rows = $db->search_by_query_object($table_name, $query);
+
+SELECT rows by `$query`. `$query` is a instance of SQL::Maker::Select.
+
+`$table_name` is using to determin row class. If it's undef, each rows are bless to [DBIx::Kohada::AnonRow](http://search.cpan.org/perldoc?DBIx::Kohada::AnonRow).
+
+__Return__: Instance of iterator in scalar context, array of rows in list context.
+
+- my $iter = $db->search_by_sql($table_name, $sql, @binds);
+
+- my @rows = $db->search_by_sql($table_name, $sql, @binds);
+
+SELECT rows by `$sql`. `$sql` is a string contains SQL.
+
+`$table_name` is using to determin row class. If it's undef, each rows are bless to [DBIx::Kohada::AnonRow](http://search.cpan.org/perldoc?DBIx::Kohada::AnonRow).
+
+__Return__: Instance of iterator in scalar context, array of rows in list context.
+
+- my $row = $db->insert($table, \%values, \%opts);
+
+Send the INSERT statement for the database. The SQL is construct by `$db->query_builder`.
+
+If you want to use "INSERT IGNORE" query, you can use `$opt->{prefix} = "INSERT IGNORE "` .
+If you want to use "REPLACE INTO ..." query, you can use `$opt->{prefix} = "REPLACE "` .
+
+__Return__: In scalar context, this method sends SELECT query and get fresh data. In void context, this method don't works anymore. But if you set a __AFTER_INSERT__ trigger, Kohada sends SELECT query.
+
+- my $row = $db->retrieve($table, \@pk);
+
+- my $row = $db->retrieve($table, $pk);
+
+Fetch a row by primary keys.
+
+- $db->bulk_insert($table, \@rows);
+
+This method inserts much rows at once for performance.
+This method __*DON'T* CALL TRIGGERS__ for performance. Be careful.
+
+On MySQL, Kohada make multiline insert statement by [SQL::Maker::Plugin::InsertMulti](http://search.cpan.org/perldoc?SQL::Maker::Plugin::InsertMulti). On other RDBMS, Kohada makes normal insert statement.
+
+- $db->delete($table, \%where);
+
+DELETE rows from database. The query is constructed by `$db->query_builder`.
+
+__Return__: none
+
+- $db->update($table, \%set, \%where);
+
+UPDATE rows from database. The query is constructed by `$db->query_builder`.
+
+__Return__: none
+
+- my $transaction_manager = $db->transaction_manager();
+
+Returns instance of [DBIx::TransactionManager](http://search.cpan.org/perldoc?DBIx::TransactionManager) for `$db->dbh`.
+
+- my $txn = $db->txn_scope();
+
+Make a scopeed session. You can nest the transaction.
+
+For more details, see [DBIx::TransactionManager](http://search.cpan.org/perldoc?DBIx::TransactionManager).
 
 # FAQ
 
@@ -53,14 +187,6 @@ You can use tracer by DBI. And you can use the advanced tracer like this article
 - How do you use relationships?
 
 It is not supported in core. You can write a plugin to do it.
-
-- How do you handle reconnect?
-
-use [DBIx::Connector](http://search.cpan.org/perldoc?DBIx::Connector).
-
-- How do you use nested transaction?
-
-use [DBIx::Kohada::Plugin::TransactionManager](http://search.cpan.org/perldoc?DBIx::Kohada::Plugin::TransactionManager).
 
 - How do you use on_connect_do like DBIC?
 
