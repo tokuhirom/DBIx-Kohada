@@ -292,6 +292,8 @@ This method returns boolean value.
 
 =head2 INFLATE/DEFLATE METHODS
 
+=over 4
+
 =item __PACKAGE__->set_inflation_rule($column_name, \&code);
 
 Register the inflation rule for $column_name with \&code.
