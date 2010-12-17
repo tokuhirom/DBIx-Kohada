@@ -9,11 +9,8 @@ inc/Module/Install/Can.pm
 inc/Module/Install/Fetch.pm
 inc/Module/Install/Makefile.pm
 inc/Module/Install/Metadata.pm
-inc/Module/Install/ReadmeFromPod.pm
-inc/Module/Install/ReadmeMarkdownFromPod.pm
 inc/Module/Install/Win32.pm
 inc/Module/Install/WriteAll.pm
-inc/Pod/Markdown.pm
 lib/DBIx/Kohada.pm
 lib/DBIx/Kohada/AnonRow.pm
 lib/DBIx/Kohada/Iterator.pm
