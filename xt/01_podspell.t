@@ -34,3 +34,17 @@ API
 URL
 URI
 db
+DBI
+dbh
+callback
+dsn
+Str
+ActiveRecord
+FAQ
+DBIC
+DBI
+RDBMS
+SQL
+mappers
+UTF
+DBI's

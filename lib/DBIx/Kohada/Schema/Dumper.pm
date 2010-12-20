@@ -81,7 +81,7 @@ Database handle from DBI.
 
 Coderef to convert table name to row class name.
 
-The method is calling with forllowing form:
+The method is calling with following form:
 
     my $class_name = $code->($table_name);
 

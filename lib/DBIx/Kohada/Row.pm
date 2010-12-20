@@ -226,7 +226,7 @@ DBIx::Kohada::Row - Row class
     package main;
     MyApp::DB::Row::User->new(row_data => {user_id => 1, name => 'john'}, kohada => $db, );
 
-=head1 DESCRIPTIOON
+=head1 DESCRIPTION
 
 This is a row class for L<DBIx::Kohada>. This is a active record.
 
@@ -324,7 +324,7 @@ This method is internal use only.
 
 =back
 
-=head1 INSTANCE MTEHODS
+=head1 INSTANCE METHODS
 
 =over 4
 

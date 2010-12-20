@@ -131,7 +131,7 @@ The number of entries per page('rows'. you provided).
 
 =item $pager->current_page()
 
-Returns: fethced page number.
+Returns: fetched page number.
 
 =item $pager->has_next()
 

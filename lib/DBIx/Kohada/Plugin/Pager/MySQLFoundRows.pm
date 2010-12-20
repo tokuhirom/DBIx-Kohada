@@ -61,7 +61,7 @@ DBIx::Kohada::Plugin::Pager::MySQLFoundRows - Paginate with SQL_CALC_FOUND_ROWS
 =head1 DESCRIPTION
 
 This is a helper class for pagination. This helper only supports B<MySQL>.
-Since this plugin uses SQL_CALC_FOUND_ROWS for calcurate total entries.
+Since this plugin uses SQL_CALC_FOUND_ROWS for calculate total entries.
 
 =head1 METHODS
 

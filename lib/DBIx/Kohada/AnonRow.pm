@@ -91,6 +91,6 @@ This method throws exception if the $column_name is not exists in the fetched da
 Returns all loaded column data as a hash, containing raw values. To get
 just one value for a particular column, use "get_column".
 
-Returns: A hashref of columnname, value pairs.
+Returns: A hashref of column name, value pairs.
 
 =back
