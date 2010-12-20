@@ -4,7 +4,7 @@ use utf8;
 
 package DBIx::Kohada;
 use 5.008001;
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 use Class::Accessor::Lite (
     ro => [qw/dbh/], # because if it change this attribute, then it breaks TransactionManger's state.
     rw => [qw/query_builder schema/],

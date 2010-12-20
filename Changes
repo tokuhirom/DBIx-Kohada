@@ -1,4 +1,10 @@
 Revision history for Perl extension DBIx::Kohada
 
+0.02
+
+    - fixed typo
+    - fixed issue in pod synopsis section
+    - fixed deps(reported by andk++)
+
 0.01    Fri Nov 26 16:26:53 2010
         - original version
