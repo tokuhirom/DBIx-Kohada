@@ -2,7 +2,7 @@ use strict;
 use warnings;
 use Test::More;
 use DBI;
-use Test::Requires 'Time::Piece';
+use Test::Requires 'Time::Piece', 'DBD::SQLite';
 use Time::Piece;
 use DBIx::Kohada::Schema;
 use DBIx::Kohada;
