@@ -40,6 +40,9 @@ sub search_with_pager {
 1;
 __END__
 
+=for test_synopsis
+my ($c, $dbh);
+
 =head1 NAME
 
 DBIx::Kohada::Plugin::Pager::MySQLFoundRows - Paginate with SQL_CALC_FOUND_ROWS

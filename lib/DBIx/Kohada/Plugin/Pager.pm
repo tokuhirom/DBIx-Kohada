@@ -67,6 +67,9 @@ sub prev_page {
 1;
 __END__
 
+=for test_synopsis
+my ($dbh, $c);
+
 =head1 NAME
 
 DBIx::Kohada::Plugin::Pager - Pager
