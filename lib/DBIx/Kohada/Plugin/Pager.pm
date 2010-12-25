@@ -148,6 +148,6 @@ The page number of previous page.
 
 =item $pager->prev_page()
 
-Alias for C<$pager->previous_page()>.
+Alias for C<<< $pager->previous_page() >>>.
 
 =back
