@@ -67,6 +67,9 @@ sub prev_page {
 1;
 __END__
 
+=for test_synopsis
+my ($dbh, $c);
+
 =head1 NAME
 
 DBIx::Kohada::Plugin::Pager - Pager
@@ -128,7 +131,7 @@ The number of entries per page('rows'. you provided).
 
 =item $pager->current_page()
 
-Returns: fethced page number.
+Returns: fetched page number.
 
 =item $pager->has_next()
 

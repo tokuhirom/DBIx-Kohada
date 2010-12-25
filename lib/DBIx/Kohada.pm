@@ -4,7 +4,7 @@ use utf8;
 
 package DBIx::Kohada;
 use 5.008001;
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 use Class::Accessor::Lite (
     ro => [qw/dbh/], # because if it change this attribute, then it breaks TransactionManger's state.
     rw => [qw/query_builder schema/],
@@ -308,7 +308,7 @@ DBIx::Kohada is yet another O/R mapper based on Active Record strategy.
 
 =head1 WHY ANOTHER ONE?
 
-I had using L<Class::DBI>, L<DBIx::Class>, and L<DBIx::Skinny>. But the three O/R Mappers are not enough for me.
+I had using L<Class::DBI>, L<DBIx::Class>, and L<DBIx::Skinny>. But the three O/R mappers are not enough for me.
 
 =head1 METHODS
 
@@ -330,7 +330,7 @@ Instance of L<DBIx::Kohada::Schema>. Required.
 
 =item quote_char
 
-B<quote_char> for quoting indentifiers. Optional.
+B<quote_char> for quoting identifiers. Optional.
 
 =item name_sep
 
@@ -360,7 +360,7 @@ The package name of the plugin. You can specify the "Pager" to load "DBIx::Kohad
 
 =item \%opt
 
-You can specify the fllowing options:
+You can specify the following options:
 
 =over 4
 
@@ -398,7 +398,7 @@ Create a new instance of L<SQL::Maker::Select> object from the settings.
 
 SELECT rows by C<< $query >>. C<< $query >> is a instance of SQL::Maker::Select.
 
-C<< $table_name >> is using to determin row class. If it's undef, each rows are bless to L<DBIx::Kohada::AnonRow>.
+C<< $table_name >> is using to determine row class. If it's undef, each rows are bless to L<DBIx::Kohada::AnonRow>.
 
 B<Return>: Instance of iterator in scalar context, array of rows in list context.
 
@@ -408,7 +408,7 @@ B<Return>: Instance of iterator in scalar context, array of rows in list context
 
 SELECT rows by C<< $sql >>. C<< $sql >> is a string contains SQL.
 
-C<< $table_name >> is using to determin row class. If it's undef, each rows are bless to L<DBIx::Kohada::AnonRow>.
+C<< $table_name >> is using to determine row class. If it's undef, each rows are bless to L<DBIx::Kohada::AnonRow>.
 
 B<Return>: Instance of iterator in scalar context, array of rows in list context.
 
@@ -452,7 +452,7 @@ Returns instance of L<DBIx::TransactionManager> for C<< $db->dbh >>.
 
 =item my $txn = $db->txn_scope();
 
-Make a scopeed session. You can nest the transaction.
+Make a scoped session. You can nest the transaction.
 
 For more details, see L<DBIx::TransactionManager>.
 
@@ -480,7 +480,7 @@ use L<Devel::KYTProf>.
 
 =item How do you display pretty error message?
 
-use DBI's callback functions. fore modetails, see eg/dbi-callback.pl.
+use DBI's callback functions. for more details, see eg/dbi-callback.pl.
 
 =item How do you load child classes automatically?
 
@@ -490,17 +490,17 @@ use L<Module::Find>.
     my $schema = DBIx::Kohada::Schema->new();
     $schema->register_row_class($_) for useall "MyApp::DB::Row";
 
-=item How do you handle utf8 columns?
+=item How do you handle UTF-8 columns?
 
 You should use B<mysql_enable_utf8>, B<sqlite_unicode>, etc.
 
 =item Why don't you implement 'find_or_create' method?
 
-It is not atomic operation. It makes issue at somtime.
+It is not atomic operation. It makes issue at sometime.
 
 =item How do you inflate by rule like DBIx::Skinny?
 
-You can use following snipet code.
+You can use following snippet code.
 
     for my $table ($schema->tables()) {
         my $row_classs = $schema->table_name2row_class($table->name);

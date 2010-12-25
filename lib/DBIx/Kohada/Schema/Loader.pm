@@ -33,6 +33,9 @@ sub load {
 1;
 __END__
 
+=for test_synopsis
+my (@dsn);
+
 =head1 NAME
 
 DBIx::Kohada::Schema::Loader - Dynamic Schema Loader
@@ -42,7 +45,7 @@ DBIx::Kohada::Schema::Loader - Dynamic Schema Loader
     package MyApp::DB;
     use parent qw/DBIx::Kohada::Schema/;
     use String::CamelCase qw/camelize/;
-    my $dbh = DBI->connect(...) or die;
+    my $dbh = DBI->connect(@dsn) or die;
     my $schema = DBIx::Kohada::Schema::Loader->load( dbh => $dbh, table2class_cb => sub {
         'MyApp::DB::Row::' . camelize($_[0]);
     });
@@ -72,7 +75,7 @@ Database handle from DBI.
 
 Coderef to convert table name to row class name.
 
-The method is calling with forllowing form:
+The method is calling with following form:
 
     my $class_name = $code->($table_name);
 
